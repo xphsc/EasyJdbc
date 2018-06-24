@@ -16,4 +16,4 @@
 
 7：支持多种数据库（mysql,mariadb,oracle,sqlserver,postgresql,db2,sqlite,hsqldb）。
 
-#### [集成通用easyjdbc](https://github.com/xphsc/spring-boot-starter-easyjdbc/wiki/%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
+#### [集成通用easyjdbc](https://github.com/xphsc/easyjdbc/wiki/%E9%9B%86%E6%88%90%E9%80%9A%E7%94%A8-easyjdbc)
