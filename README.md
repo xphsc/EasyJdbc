@@ -20,4 +20,4 @@
 
 
 #### [集成文档 - GitHub](https://github.com/xphsc/easyjdbc/wiki)
-#### 更新日志 - GitHub(https://github.com/xphsc/easyjdbc/wiki)
+#### [更新日志 - GitHub](https://github.com/xphsc/easyjdbc/wiki/changelog)
