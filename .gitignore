@@ -1,0 +1,8 @@
+.idea/misc.xml
+.idea/modules.xml
+.idea/workspace.xml
+easy-jdbc.iml
+easyjdbc-spring-boot-starter/easyjdbc-spring-boot-starter.iml
+easyjdbc/easyjdbc.iml
+spring-easyjdbc-example/spring-easyjdbc-example.iml
+springboot-easyjdbc-example/springboot-easyjdbc-example.iml
