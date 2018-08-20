@@ -1,0 +1,23 @@
+server:
+  port: 8102
+spring:
+    datasource:
+       datasource-name: default
+       driver-class-name: com.mysql.jdbc.Driver
+       username: root
+       password: root
+       url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/easy_jdbc?useUnicode=true&useSSL=false&characterEncoding=UTF-8
+    datasources:
+         -  datasource-name: slave
+            url: jdbc:mysql://localhost:3306/target_datasource1?useUnicode=true&characterEncoding=utf-8&useSSL=false
+            username: root
+            password: root
+         -  datasource-name: master
+            url: jdbc:mysql://localhost:3306/target_datasource2?useUnicode=true&characterEncoding=utf-8&useSSL=false
+            username: root
+            password: root
+easyjdbc:
+  dialect: mysql
+logging:
+  level:
+    com.xphsc: debug
