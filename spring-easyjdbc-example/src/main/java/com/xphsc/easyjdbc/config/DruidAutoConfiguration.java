@@ -3,7 +3,7 @@ package com.xphsc.easyjdbc.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.xphsc.easyjdbc.EasyJdbcTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,7 +11,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 
-
+/**
+ * @author huipei.x
+ * @data 创建时间 2018/6/24
+ * @description 类说明 :
+ */
 @Configuration
 public class DruidAutoConfiguration {
 

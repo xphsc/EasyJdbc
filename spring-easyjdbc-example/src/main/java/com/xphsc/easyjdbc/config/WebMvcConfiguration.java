@@ -8,11 +8,11 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-
 /**
- * Created by ${huipei.x} on 2016/8/9.
+ * @author huipei.x
+ * @data 创建时间 2018/6/24
+ * @description 类说明 :
  */
-
 @Configuration
 @EnableWebMvc
 @Import({DruidAutoConfiguration.class})
