@@ -4,9 +4,11 @@ package com.xphsc.easyjdbc.config;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.xphsc.easyjdbc.EasyJdbcTemplate;
 
+import com.xphsc.easyjdbc.core.factory.EasyDaoBeanScannerConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -61,5 +63,19 @@ public class DruidAutoConfiguration {
       return jdbcTemplate;
    }
 
+   @Bean
+   public EasyDaoBeanScannerConfigurer easyDaoBeanScannerConfigurer(){
+       EasyDaoBeanScannerConfigurer daoBeanScannerConfigurer=new EasyDaoBeanScannerConfigurer();
+       /**
+        * dao扫描路径,配置符合spring方式 只需设置能扫描到包名或是dao的包名全路径
+        * daoBeanScannerConfigurer.setBasePackage("com.xphsc);
+        */
+       daoBeanScannerConfigurer.setBasePackage("com.xphsc.easyjdbc.dao");
+       /**
+        * 使用的注解,默认是@EasyDao 设置能使用@Repository注解,推荐@Repository
+        */
+       daoBeanScannerConfigurer.setAnnotation(Repository.class);
+       return daoBeanScannerConfigurer;
+   }
 }
 

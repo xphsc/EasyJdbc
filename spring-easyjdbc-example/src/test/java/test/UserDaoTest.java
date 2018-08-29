@@ -1,8 +1,13 @@
 package test;
 
 
+import com.alibaba.fastjson.JSON;
+import com.github.xtool.collect.Maps;
 import com.xphsc.easyjdbc.config.WebMvcConfiguration;
+import com.xphsc.easyjdbc.core.entity.Example;
 import com.xphsc.easyjdbc.dao.UserDao;
+import com.xphsc.easyjdbc.model.User;
+import com.xphsc.easyjdbc.page.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +17,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.AnnotationConfigWebContextLoader;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import java.util.Map;
 
 /**
  * @author huipei.x
@@ -31,6 +38,8 @@ public class UserDaoTest {
 
     @Test
     public void list() {
-        System.out.println("-----" + (userDao.findAll()));
+        Map map= Maps.newHashMap();
+        map.put("id",1);
+        System.out.println("-----" + ( JSON.toJSON(userDao.listUserBySqlMap(map))));
     }
 }
