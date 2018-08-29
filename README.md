@@ -21,3 +21,4 @@ easyjdbc在spring jdbctemplate之上进行了一些包装，支持部分常用�
 
 #### [集成文档 - GitHub](https://github.com/xphsc/easyjdbc/wiki)
 #### [更新日志 - GitHub](https://github.com/xphsc/easyjdbc/wiki/changelog)
+欢迎尝试！喜欢记得star哟~
