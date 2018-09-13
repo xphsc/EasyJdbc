@@ -10,8 +10,6 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>easyjdbc</module>
-        <module>spring-easyjdbc-example</module>
-        <module>springboot-easyjdbc-example</module>
         <module>easyjdbc-spring-boot-starter</module>
     </modules>
 
