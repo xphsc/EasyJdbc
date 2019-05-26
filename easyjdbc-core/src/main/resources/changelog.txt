@@ -1,0 +1,24 @@
+easyjdbc Changelog
+===================================
+
+Changes in version 1.1.0 (2019-05-25)
+---------------------------------------------
+* Add Optimistic Locks and @Version for update
+* Increase the local query cache and set useLocalCache to true or false
+* Increase the showsql and set showsql to true or false
+* Add updateWithNull,insertForKey,exists,cacheClear to EasyJdbcDao
+* Fixed multi-value problem with annotation @SqlUpdate modification
+* Overall optimization of code structure
+
+Changes in version 1.0.9
+---------------------------------------------
+* Fix the problem of returning map pages from annotation queries
+
+
+Changes in version 1.0.8
+---------------------------------------------
+* Fixed annotation query return map problem
+
+
+
+

@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.xphsc</groupId>
-    <artifactId>easy-jdbc</artifactId>
+    <artifactId>easyjdbc</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1.0</version>
     <modules>
         <module>easyjdbc</module>
         <module>easyjdbc-spring-boot-starter</module>
