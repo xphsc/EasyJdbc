@@ -1,5 +1,5 @@
-~~<img src="EasyJdbc.jpg" width="50%" height="50%" />
-~~
+<img src="EasyJdbc.jpg" width="40%" height="40%" />
+
 # easyjdbc并不生产Jdbc，easyjdbc只是本地jdbc的搬运工
 [![Build Status](https://api.travis-ci.org/com.gtihub.xphsc/easyjdbc.svg?branch=master)]
  [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.xphsc/easyjdbc/badge.svg)]
