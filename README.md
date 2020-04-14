@@ -1,5 +1,6 @@
 # easyjdbc并不生产Jdbc，easyjdbc只是本地jdbc的搬运工
-   ../EasyJdbc.jpg
+  
+   <img src="EasyJdbc.jpg" width="50%" height="50%" />
 [![Build Status](https://api.travis-ci.org/com.gtihub.xphsc/easyjdbc.svg?branch=master)]
  [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.xphsc/easyjdbc/badge.svg)]
 [![APACHE 2 License](https://img.shields.io/badge/license-Apache2-blue.svg?style=flat)](LICENSE)
