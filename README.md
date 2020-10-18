@@ -1,8 +1,8 @@
 <img src="EasyJdbc.jpg" width="40%" height="40%" />
 
 # easyjdbc并不生产Jdbc，easyjdbc只是本地jdbc的搬运工
-[![Build Status](https://api.travis-ci.org/com.gtihub.xphsc/easyjdbc.svg?branch=master)]
- [![Maven central](https://maven-badges.herokuapp.com/maven-central/com.github.xphsc/easyjdbc/badge.svg)]
+[![Build Status](https://api.travis-ci.org/cn.xphsc/easyjdbc.svg?branch=master)]
+ [![Maven central](https://maven-badges.herokuapp.com/maven-central/cn.xphsc/easyjdbc/badge.svg)]
 [![APACHE 2 License](https://img.shields.io/badge/license-Apache2-blue.svg?style=flat)](LICENSE)
  
 ##
