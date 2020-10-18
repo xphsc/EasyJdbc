@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.xphsc</groupId>
-    <artifactId>easyjdbc-core</artifactId>
-    <version>1.1.0</version>
+    <groupId>cn.xphsc</groupId>
+    <artifactId>easyjdbc</artifactId>
+    <version>2.0.5</version>
     <packaging>jar</packaging>
-    <description>EasyJdbc具有SQL构造工具、SQL注解、链式API等让查询操作更为灵活</description>
-    <parent>
+       <description>EasyJdbc具有SQL构造工具、SQL注解、链式API等Framework for Java</description>
+    <url>https://github.com/xphsc/easyjdbc</url>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>7</version>

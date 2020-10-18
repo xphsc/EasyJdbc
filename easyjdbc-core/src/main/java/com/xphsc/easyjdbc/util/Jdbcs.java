@@ -28,6 +28,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -220,7 +224,51 @@ public class Jdbcs {
                 }
                 return null;
             }
-        }
+         }
+            if("java.time.LocalDate".equals(typeName)) {
+                if (Types.DATE == jdbcType) {
+                    java.sql.Date sqlDate = rs.getDate(columnIndex);
+                    return sqlDate.toLocalDate();
+                } else if (Types.TIMESTAMP == jdbcType) {
+                        java.sql.Timestamp timestamp = rs.getTimestamp(columnIndex);
+                        return timestamp.toLocalDateTime().toLocalDate();
+                    }else {
+                    java.sql.Date sqlDate = rs.getDate(columnIndex);
+                    return sqlDate.toLocalDate();
+                }
+
+            }
+            if("java.time.LocalDateTime".equals(typeName)) {
+                if(Types.TIMESTAMP==jdbcType){
+                    java.sql.Timestamp timestamp = rs.getTimestamp(columnIndex);
+                    return  timestamp.toLocalDateTime();
+                }else{
+                    java.sql.Date sqlDate = rs.getDate(columnIndex);
+                    java.sql.Time time = rs.getTime(columnIndex);
+                    if (sqlDate != null&&time!=null) {
+                        return time.toLocalTime().atDate(sqlDate.toLocalDate());
+                    }
+                }
+
+
+            }
+
+            if("java.time.LocalTime".equals(typeName)) {
+                if (Types.TIME == jdbcType) {
+                    java.sql.Time sqlTime = rs.getTime(columnIndex);
+                    if (sqlTime != null) {
+                        return  sqlTime.toLocalTime();
+                    } else if (Types.TIMESTAMP==jdbcType) {
+                        java.sql.Timestamp timestamp = rs.getTimestamp(columnIndex);
+                        return timestamp.toLocalDateTime().toLocalTime();
+                    } else {
+                        java.sql.Time sqlTimes = rs.getTime(columnIndex);
+                        return sqlTimes.toLocalTime();
+                    }
+                }
+            }
+
+
         if("double".equals(typeName)){
             return rs.getDouble(columnIndex);
         }
@@ -271,6 +319,7 @@ public class Jdbcs {
         if("java.sql.Time".equals(typeName)){
             return rs.getTime(columnIndex);
         }
+
         return rs.getObject(columnIndex);
     }
 

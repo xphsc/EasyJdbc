@@ -1,7 +1,7 @@
 package com.xphsc.easyjdbc.executor;
 
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.*;
 import java.sql.CallableStatement;
@@ -23,8 +23,8 @@ public class ExecProcExecutor<E> extends AbstractExecutor<E> {
     private final Object[] parameters;
     private  Map<Integer, Integer> outParameters;
 
-    public ExecProcExecutor(JdbcBuilder jdbcTemplate,String sql, Class<?> persistentClass, Map<Integer, Integer> outParameters,  Object[] parameters) {
-        super(jdbcTemplate);
+    public <S> ExecProcExecutor(LambdaSupplier<S> jdbcBuilder,String sql, Class<?> persistentClass, Map<Integer, Integer> outParameters,  Object[] parameters) {
+        super(jdbcBuilder);
         this.persistentClass = persistentClass;
         this.sql = sql;
         this.parameters = parameters;
@@ -41,7 +41,7 @@ public class ExecProcExecutor<E> extends AbstractExecutor<E> {
     @Override
     protected E doExecute() throws JdbcDataException {
         final Map procResult = new HashMap();
-        jdbcTemplate.execute(new CallableStatementCreator() {
+        jdbcBuilder.execute(new CallableStatementCreator() {
             @Override
             public CallableStatement createCallableStatement(Connection con) throws SQLException {
                 CallableStatement cs = con.prepareCall(sql);

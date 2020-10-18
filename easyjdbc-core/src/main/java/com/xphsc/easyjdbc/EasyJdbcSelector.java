@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 huipei.x
+ * Copyright (c) 2018 huipei.x
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ package com.xphsc.easyjdbc;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
+import com.xphsc.easyjdbc.core.lambda.Reflections;
+import com.xphsc.easyjdbc.core.lambda.StringSupplier;
 import com.xphsc.easyjdbc.executor.CountExecutor;
 import com.xphsc.easyjdbc.executor.FindExecutor;
 import com.xphsc.easyjdbc.core.support.JdbcBuilder;
@@ -28,10 +31,7 @@ import com.xphsc.easyjdbc.util.Assert;
 import com.xphsc.easyjdbc.util.StringUtil;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -49,9 +49,9 @@ public class EasyJdbcSelector {
 	private  Map<String,String> mappings ;
 	private final LinkedList<Object> parameters;
 
-	protected EasyJdbcSelector(JdbcBuilder jdbcTemplate, String dialectName){
-		this.jdbcTemplate = jdbcTemplate;
-		this.dialectName = dialectName;
+	protected <T> EasyJdbcSelector(LambdaSupplier<T> jdbcTemplate, StringSupplier dialectName){
+		this.jdbcTemplate= Reflections.classForLambdaSupplier(jdbcTemplate);
+		this.dialectName=dialectName.get();
 		parameters= new LinkedList<Object>();
 	}
 
@@ -61,8 +61,8 @@ public class EasyJdbcSelector {
 	
 
 	/**
-	 * 实体类型
-	 * @param entityClass 实体类型
+	 * Entity type
+	 * @param entityClass Entity type
 	 */
 	public EasyJdbcSelector entityClass(Class<?> entityClass){
 		this.entityClass = entityClass;
@@ -83,20 +83,20 @@ public class EasyJdbcSelector {
 
    public EasyJdbcSelector offsetPage(int  offset,int limit){
 		Assert.isTrue(offset >= 0, "Offset must be greater than or equal to 0");
-		Assert.isTrue(limit > 0, "PageSize must be greater than 0");
+		Assert.isTrue(limit > 0, "Limit must be greater than 0");
 		this.offset = offset;
 		this.limit=limit;
 		return getSelf();
 	}
 
 	/**
-	 * 列<---->类字段 映射
-	 * @param column 列名
-	 * @param field 类字段名
+	 * Column <--> Class Field Mapping
+	 * @param column Column names
+	 * @param field Class field name
 	 */
 	public EasyJdbcSelector mapping(String column,String field){
-		Assert.hasText(column, "映射的列不能为空");
-		Assert.hasText(field, "映射的属性不能为空");
+		Assert.hasText(column, "The column of the mapping cannot be empty");
+		Assert.hasText(field, "Mapping attributes cannot be empty");
 		if(mappings==null){
 			mappings= new HashMap();
 		}
@@ -105,8 +105,8 @@ public class EasyJdbcSelector {
 	}
 	
 	/**
-	 * 查询SQL
-	 * @param sql SQL语句
+	 * Query SQL
+	 * @param sql SQL statement
 	 */
 	public EasyJdbcSelector sql(String sql){
 		this.sql = sql;
@@ -114,21 +114,21 @@ public class EasyJdbcSelector {
 	}
 	
 	/**
-	 * 参数
-	 * @param parameter 参数
+	 * parameter
+	 * @param parameter parameter
 	 */
 	public EasyJdbcSelector parameter(Object parameter) {
-		Assert.notNull(parameters, "参数不能为空");
+		Assert.notNull(parameter, "Parameters cannot be null");
 		this.parameters.add(parameter);
 		return getSelf();
 	}
 	
 	/**
-	 * 参数
-	 * @param parameters 参数
+	 * parameter
+	 * @param parameters parameter
 	 */
 	public EasyJdbcSelector parameters(Object... parameters) {
-		Assert.notNull(parameters, "参数不能为空");
+		Assert.notNull(parameters, "Parameters cannot be null");
 		for(Object parameter:parameters) {
 			this.parameters.add(parameter);
 		}
@@ -136,37 +136,37 @@ public class EasyJdbcSelector {
 	}
 
 	/**
-	 * 起始行
+	 * Start line
 	 * @param startRow
 	 */
 	@Deprecated
 	public EasyJdbcSelector startRow(int startRow){
-		Assert.isTrue(startRow>=0, "startRow必须大于等于0");
+		Assert.isTrue(startRow>=0, "StartRow must be greater than or equal to 0");
 		this.offset = startRow;
 		return getSelf();
 	}
 
 	/**
-	 * 查询条数
+	 *  limit
 	 * @param limit
 	 */
 	@Deprecated
 	public EasyJdbcSelector limit(int limit){
-		Assert.isTrue(limit>0, "limit必须要大于0");
+		Assert.isTrue(limit>0, "Limit must be greater than 0");
 		this.limit = limit;
 		return getSelf();
 	}
 
 	/**
-	 * 获取单个实体
+	 * Getting a single entity
 	 */
 	public <T> T get() throws JdbcDataException{
-		Assert.notNull(entityClass, "实体类型不能为空");
+		Assert.notNull(entityClass, "Entity type cannot be empty");
 		if(StringUtil.isBlank(this.sql)) {
 			this.sql = this.sqlBuilder.toString();
 		}
-		Assert.hasText(sql, "SQL语句不能为空");
-		FindExecutor<List<T>> executor =  new FindExecutor<List<T>>(jdbcTemplate,dialectName,entityClass,sql,parameters.toArray());
+		Assert.hasText(sql, "SQL statement cannot be empty");
+		FindExecutor<List<T>> executor =  new FindExecutor<List<T>>(this::getJdbcTemplate,dialectName,entityClass,sql,parameters.toArray());
 		List<T> results = executor.execute();
 		executor = null;//hlep gc.
 		int size = (results != null ? results.size() : 0);
@@ -178,18 +178,26 @@ public class EasyJdbcSelector {
 		}
 		return null;
 	}
+
 	/**
-	 * 查询实体列表
+	 * get a single entity
+	 */
+	public <T> Optional<T> getOne() throws JdbcDataException{
+		return Optional.ofNullable(get());
+	}
+
+	/**
+	 * Query Entity List
 	 */
 
 	public <T> List<T>  list() throws JdbcDataException{
-		Assert.notNull(entityClass, "实体类型不能为空");
+		Assert.notNull(entityClass, "Entity type cannot be empty");
 		if(StringUtil.isBlank(this.sql)) {
 			this.sql = this.sqlBuilder.toString();
 		}
-		Assert.hasText(sql, "SQL语句不能为空");
+		Assert.hasText(sql, "SQL statement cannot be empty");
 		FindExecutor<List<T>> executor =  new FindExecutor<List<T>>(
-				jdbcTemplate, dialectName,entityClass,sql
+				this::getJdbcTemplate, dialectName,entityClass,sql
 				,parameters.toArray(),this.mappings,offset,limit);
 		List<T> results = executor.execute();
 		executor = null;//hlep gc.
@@ -197,7 +205,7 @@ public class EasyJdbcSelector {
 	}
 
 	public <T> PageInfo<T> page() throws JdbcDataException{
-		Assert.notNull(entityClass, "实体类型不能为空");
+		Assert.notNull(entityClass, "Entity type cannot be empty");
 		List<T> results=null;
 		long total=1L;
 		if(offset==null&&limit==null){
@@ -207,9 +215,9 @@ public class EasyJdbcSelector {
 			if(StringUtil.isBlank(this.sql)) {
 				this.sql = this.sqlBuilder.toString();
 			}
-			Assert.hasText(sql, "SQL语句不能为空");
+			Assert.hasText(sql, "SQL statement cannot be empty");
 			FindExecutor<List<T>> executor =  new FindExecutor<List<T>>(
-					jdbcTemplate, dialectName,entityClass,sql
+					this::getJdbcTemplate, dialectName,entityClass,sql
 					,parameters.toArray(),this.mappings,pageInfo);
 			 results = executor.execute();
 			 total=count();
@@ -223,21 +231,21 @@ public class EasyJdbcSelector {
 	}
 
 	/**
-	 * 查询实体数量
-	 * @return 条目数
+	 * Number of query entities
+	 * @return Number of entries
 	 */
 	public int  count() throws JdbcDataException {
 		if(StringUtil.isBlank(this.sql)) {
 			this.sql = this.sqlBuilder.toString();
 		}
-		Assert.hasText(sql, "SQL语句不能为空");
-		CountExecutor executor =  new CountExecutor(jdbcTemplate,sql,parameters.toArray());
+		Assert.hasText(sql, "SQL statement cannot be empty");
+		CountExecutor executor =  new CountExecutor(this::getJdbcTemplate,sql,parameters.toArray());
 		int count = executor.execute();
 		executor = null;//hlep gc.
 		return count;
 	}
 
-	// ================= 构建SQL
+	// ================= Building SQL
 	private final SQL sqlBuilder = SQL.BUILD();
 	
 	public EasyJdbcSelector SELECT(String columns) {
@@ -310,4 +318,7 @@ public class EasyJdbcSelector {
 		return getSelf();
 	}
 
+	private JdbcBuilder getJdbcTemplate() {
+		return jdbcTemplate;
+	}
 }

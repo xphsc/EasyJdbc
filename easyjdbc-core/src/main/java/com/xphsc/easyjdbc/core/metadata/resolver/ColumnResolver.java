@@ -25,7 +25,7 @@ import java.lang.annotation.Annotation;
 
 
 /**
- * Column注解解析器
+ * Column Annotation parser
  * Created by ${huipei.x}
  */
 public class ColumnResolver implements Resolver {

@@ -19,12 +19,15 @@ import com.xphsc.easyjdbc.core.cache.CacheKey;
 import com.xphsc.easyjdbc.core.cache.PerpetualCache;
 import com.xphsc.easyjdbc.core.cache.SimpleCachekeyBuiler;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.BooleanSupplier;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
+import com.xphsc.easyjdbc.core.lambda.Reflections;
+import com.xphsc.easyjdbc.core.lambda.StringSupplier;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.*;
 import org.springframework.jdbc.support.KeyHolder;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,28 +43,28 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
 
     private JdbcTemplate jdbcTemplate;
 
-    private static Cache  cache ;
+    private static Cache  CACHE ;
 
     private boolean useLocalCache;
 
     private boolean showSQL;
 
     protected  Log logger;
-    public JdbcBuilder(JdbcTemplate jdbcTemplate, boolean useLocalCache, boolean showSQL,String interfaceClass) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.useLocalCache=useLocalCache;
-        this.showSQL=showSQL;
 
-         logger = LogFactory.getLog(interfaceClass);
+    public <T> JdbcBuilder(LambdaSupplier<T> jdbcTemplate, BooleanSupplier useLocalCache, BooleanSupplier showSQL,StringSupplier interfaceClass) {
+        this.jdbcTemplate=Reflections.classForLambdaSupplier(jdbcTemplate);
+        this.useLocalCache=useLocalCache.getAsBoolean();
+        this.showSQL=showSQL.getAsBoolean();
+         logger = LogFactory.getLog(interfaceClass.get());
 
     }
 
     private static Cache getCacheInstance(){
-        if(cache==null){
-            cache = new PerpetualCache("Localcache");
+        if(CACHE==null){
+            CACHE = new PerpetualCache("Localcache");
 
         }
-        return cache;
+        return CACHE;
     }
 
     public <T> List<T> query(String sql, Object[] args, RowMapper<T> rowMapper) throws DataAccessException {
@@ -111,34 +114,46 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
     }
 
     public int update(String sql, PreparedStatementSetter pss) throws DataAccessException {
-        getCacheInstance().clear();
         getShowSQL(sql, null);
-        return jdbcTemplate.update(sql, pss);
+        int rows=jdbcTemplate.update(sql, pss);
+        getCacheInstance().clear();
+        return rows;
     }
 
     public int update(PreparedStatementCreator psc) throws DataAccessException {
+        int rows= jdbcTemplate.update(psc);
         getCacheInstance().clear();
-        return jdbcTemplate.update(psc);
+        return rows;
     }
     public int update(String sql, Object... args) throws DataAccessException {
-        getCacheInstance().clear();
         getShowSQL(sql, args);
-        return jdbcTemplate.update(sql,args);
+        int rows=jdbcTemplate.update(sql, args);
+        getCacheInstance().clear();
+        return rows;
     }
 
     public int update(final PreparedStatementCreator psc, final KeyHolder generatedKeyHolder)
             throws DataAccessException {
+        int rows= jdbcTemplate.update(psc, generatedKeyHolder);
         getCacheInstance().clear();
-       return  jdbcTemplate.update(psc, generatedKeyHolder);
+       return  rows;
     }
 
 
     public int[] batchUpdate(String sql, final BatchPreparedStatementSetter pss) throws DataAccessException {
-        getCacheInstance().clear();
         getShowSQL(sql, null);
-        return jdbcTemplate.batchUpdate(sql, pss);
+        int[] rows=jdbcTemplate.batchUpdate(sql, pss);
+        getCacheInstance().clear();
+        return rows;
     }
 
+
+    public int[] batchUpdate(String sql) throws DataAccessException {
+        getShowSQL(sql, null);
+        int[] rows=jdbcTemplate.batchUpdate(sql);
+        getCacheInstance().clear();
+        return rows;
+    }
 
     public Map<String, Object> call(CallableStatementCreator csc, List<SqlParameter> declaredParameters){
         return jdbcTemplate.call(csc, declaredParameters);

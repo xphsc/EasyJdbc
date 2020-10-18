@@ -24,8 +24,8 @@ import java.lang.annotation.Annotation;
 
 /**
  * @author huipei.x
- * @date 创建时间 2019-1-20
- * @description 类说明 :
+ * @date  2019-2-20
+ * @description
  */
 public class VersionResolver implements Resolver{
     @Override

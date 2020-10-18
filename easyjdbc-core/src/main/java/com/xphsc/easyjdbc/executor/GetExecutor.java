@@ -20,11 +20,12 @@ package com.xphsc.easyjdbc.executor;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.transform.EntityRowMapper;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.core.metadata.FieldElement;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
+
 
 
 /**
@@ -38,11 +39,12 @@ public class GetExecutor<T> extends AbstractExecutor<T> {
 	private final SQL sqlBuilder = SQL.BUILD();
 	private EntityElement entityElement;
 
-	public GetExecutor(JdbcBuilder jdbcTemplate, Class<?> persistentClass, Object primaryKeyValue) {
-		super(jdbcTemplate);
+	public <S> GetExecutor(LambdaSupplier<S> jdbcBuilder , Class<?> persistentClass, Object primaryKeyValue) {
+		super(jdbcBuilder);
 		this.persistentClass = persistentClass;
 		this.primaryKeyValue = primaryKeyValue;
 	}
+
 
 	@Override
 	public void prepare() {
@@ -61,7 +63,7 @@ public class GetExecutor<T> extends AbstractExecutor<T> {
 	@Override
 	protected T doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcTemplate.queryForObject(sql,new EntityRowMapper<T>(LOBHANDLER,this.entityElement,this.persistentClass),this.primaryKeyValue);
+		return this.jdbcBuilder.queryForObject(sql,new EntityRowMapper<T>(LOBHANDLER,this.entityElement,this.persistentClass),this.primaryKeyValue);
 	}
 
 

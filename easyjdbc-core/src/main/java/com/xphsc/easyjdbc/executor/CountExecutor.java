@@ -18,12 +18,13 @@ package com.xphsc.easyjdbc.executor;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.core.metadata.FieldElement;
 import com.xphsc.easyjdbc.core.parser.DefaultSQLParser;
 import com.xphsc.easyjdbc.core.parser.SQLParser;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
+
 
 
 /**
@@ -36,13 +37,13 @@ public class CountExecutor extends AbstractExecutor<Integer> {
 	private final Object[] parameters;
 	private String querySql;
 	
-	public CountExecutor(JdbcBuilder jdbcTemplate, String sql, Object[] parameters) {
-		super(jdbcTemplate);
+	public <S> CountExecutor(LambdaSupplier<S> jdbcBuilder, String sql, Object[] parameters) {
+		super(jdbcBuilder);
 		this.sql = sql;
 		this.parameters = parameters;
 	}
 
-	public CountExecutor(JdbcBuilder jdbcTemplate, Class<?> persistentClass) {
+	public <S> CountExecutor(LambdaSupplier<S> jdbcTemplate, Class<?> persistentClass) {
 		super(jdbcTemplate);
 		this.checkEntity(persistentClass);
 		EntityElement entityElement= ElementResolver.resolve(persistentClass);
@@ -79,9 +80,9 @@ public class CountExecutor extends AbstractExecutor<Integer> {
 	@Override
 	protected Integer doExecute() throws JdbcDataException {
 		if(null==this.parameters||this.parameters.length==0){
-			return this.jdbcTemplate.queryForObject(this.querySql,Integer.class);
+			return this.jdbcBuilder.queryForObject(this.querySql,Integer.class);
 		} else {
-			return this.jdbcTemplate.queryForObject(this.querySql, this.parameters,Integer.class);
+			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters,Integer.class);
 		}
 	}
 

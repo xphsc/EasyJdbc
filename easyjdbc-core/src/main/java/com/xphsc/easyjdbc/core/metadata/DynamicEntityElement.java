@@ -20,16 +20,14 @@ import java.util.Map;
 
 
 /**
- *  动态实体元素
+ *  Dynamic entity elements
  * Created by ${huipei.x}
  */
 public class DynamicEntityElement implements Element {
 
 	private static final long serialVersionUID = 2439829119799811675L;
-	/**
-	 *  实体名称
-	 */
-	private String name;
+
+	private String name;// 实体名称
 	private Map<String,DynamicFieldElement> dynamicFieldElements = new LinkedHashMap<String,DynamicFieldElement>();//属性
 	
 	public String getName() {

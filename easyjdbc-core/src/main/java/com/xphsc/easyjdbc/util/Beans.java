@@ -23,6 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author huipei.x
@@ -36,6 +37,29 @@ public class Beans {
             return (new java.util.HashMap<>());
         }
         Map<String, Object> beanMap = new HashMap<>();
+
+        PropertyDescriptor[] descriptors = getPropertyDescriptors(bean);
+        for (PropertyDescriptor descriptor : descriptors) {
+            String name = descriptor.getName();
+            Method readMethod = descriptor.getReadMethod();
+            if (readMethod != null) {
+                try {
+                    beanMap.put(name, readMethod.invoke(bean));
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return beanMap;
+    }
+
+    public static TreeMap<String, Object> beanToTreeMap(Object bean){
+        if (bean == null) {
+            return (new java.util.TreeMap<>());
+        }
+        TreeMap<String, Object> beanMap = new TreeMap<>();
 
         PropertyDescriptor[] descriptors = getPropertyDescriptors(bean);
         for (PropertyDescriptor descriptor : descriptors) {

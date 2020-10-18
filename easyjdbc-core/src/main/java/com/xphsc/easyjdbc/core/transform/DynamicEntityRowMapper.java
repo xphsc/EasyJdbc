@@ -19,6 +19,7 @@ package com.xphsc.easyjdbc.core.transform;
 import com.xphsc.easyjdbc.core.metadata.DynamicEntityElement;
 import com.xphsc.easyjdbc.core.metadata.DynamicFieldElement;
 import com.xphsc.easyjdbc.util.Jdbcs;
+import com.xphsc.easyjdbc.util.StringUtil;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.lob.LobHandler;
 import java.sql.ResultSet;
@@ -49,8 +50,8 @@ public class DynamicEntityRowMapper<T> implements RowMapper<T>{
 		T instance = Jdbcs.newInstance(this.dynamicEntityClass);
 		ResultSetMetaData rsm =rs.getMetaData();
 		int col = rsm.getColumnCount();   //获得列的个数
-		for (int i = 1; i <= col; i++) { 
-			String columnLabel = rsm.getColumnLabel(i).toUpperCase();
+		for (int i = 1; i <= col; i++) {
+			String columnLabel = rsm.getColumnLabel(i);
 			int columnType = rsm.getColumnType(i);
 			DynamicFieldElement dynamicFieldElement = this.dynamicEntityElement
 								.getDynamicFieldElements().get(columnLabel.toUpperCase());

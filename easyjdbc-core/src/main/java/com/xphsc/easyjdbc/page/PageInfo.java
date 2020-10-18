@@ -24,7 +24,7 @@ import java.util.List;
 public class PageInfo<T> implements Serializable {
     public int pageNum;
     public int pageSize;
-    public long total = 1L;
+    public long total = 0L;
     public List<T> list;
     public int totalPages;
     public int offset=-1;
@@ -65,7 +65,7 @@ public class PageInfo<T> implements Serializable {
     public static class Builder {
         private int pageNum;
         private int pageSize;
-        private long total = 1L;
+        private long total = 0L;
         private List<Object> list;
         private int totalPages;
         private int offset=-1;

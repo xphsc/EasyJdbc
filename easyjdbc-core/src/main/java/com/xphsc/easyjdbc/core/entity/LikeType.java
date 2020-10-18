@@ -19,7 +19,9 @@ package com.xphsc.easyjdbc.core.entity;
  * Created by ${huipei.x}
  */
 public enum LikeType {
-
+    /**
+     *
+     */
     LEFT("left", "左边%"),
     RIGHT("right", "右边%"),
     CUSTOM("custom", "定制"),

@@ -43,7 +43,7 @@ public abstract class AbstractDaoMethodProcessor<T>  {
 
     protected SimpleJdbcDao simpleJdbcDao;
 
-    protected Map<String, Object> paramsMap = new HashMap<String, Object>();
+    protected Map<String, Object> paramsMap = new HashMap<String, Object>(16);
 
     protected  Class<?> persistentClass;
 

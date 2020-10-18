@@ -21,12 +21,16 @@ import com.xphsc.easyjdbc.EasyJdbcTemplate;
 import com.xphsc.easyjdbc.core.entity.Example;
 import com.xphsc.easyjdbc.core.entity.Sorts;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
+import com.xphsc.easyjdbc.core.support.JdbcBuilder;
+import com.xphsc.easyjdbc.executor.DeleteExecutor;
 import com.xphsc.easyjdbc.executor.UpdateExecutor;
 import com.xphsc.easyjdbc.page.PageInfo;
 import com.xphsc.easyjdbc.util.Assert;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by ${huipei.x}
@@ -34,7 +38,8 @@ import java.util.List;
 public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
 
     public Class<T> modelClass;
-
+    private JdbcBuilder jdbcBuilder;
+    private  String dialectName;
   public SimpleJdbcDao(EasyJdbcTemplate easyJdbcTemplate)  {
       this.easyJdbcTemplate=easyJdbcTemplate;
     }
@@ -48,12 +53,18 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
 
     private EasyJdbcTemplate easyJdbcTemplate;
 
-    public void setEasyJdbcTemplate(EasyJdbcTemplate easyJdbcTemplate) {
+
+
+
+    public void easyJdbcTemplate(LambdaSupplier<EasyJdbcTemplate> easyJdbcTemplate) {
         if(getEasyJdbcTemplate()!=null){
             this.easyJdbcTemplate = getEasyJdbcTemplate();
         }else{
-            this.easyJdbcTemplate =easyJdbcTemplate;
+            this.easyJdbcTemplate =easyJdbcTemplate.get();
         }
+        jdbcBuilder= this.easyJdbcTemplate.getJdbcBuilder();
+        dialectName=this.easyJdbcTemplate.getDialectName();
+
     }
 
     @Override
@@ -69,7 +80,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     }
 
     @Override
-    public Object insertForKey(Object persistent) {
+    public Object insertForKey(T persistent) {
         return easyJdbcTemplate.insertKey(persistent);
     }
 
@@ -97,6 +108,14 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     }
 
     @Override
+    public int delete(T persistent) {
+        DeleteExecutor executor= new DeleteExecutor(this::getJdbcBuilder, persistent);
+        int rows = executor.execute();
+        executor = null;
+        return rows;
+    }
+
+    @Override
     public int update(T persistent) throws JdbcDataException{
         Assert.notNull(persistent, "Entities cannot be empty");
         int rows= easyJdbcTemplate.update(persistent);
@@ -105,7 +124,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
 
     @Override
     public int updateWithNull(T persistent) {
-        UpdateExecutor executor = new UpdateExecutor(easyJdbcTemplate.getJdbcBuilder(),persistent,false);
+        UpdateExecutor executor = new UpdateExecutor(this::getJdbcBuilder,persistent,false);
         int rows = executor.execute();
         executor = null;
         return rows;
@@ -132,6 +151,11 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
         return entity;
     }
 
+    @Override
+    public Optional<T> getById(Serializable id) {
+        return Optional.ofNullable(getByPrimaryKey(id));
+    }
+
 
     @Override
     public int count() {
@@ -149,7 +173,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     }
 
     @Override
-    public <T1> List<T1> findAll(Sorts sort) {
+    public <T> List<T> findAll(Sorts sort) {
         Example example=example();
         example.orderByClause(sort);
         return example.list();
@@ -159,7 +183,11 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     public <T> PageInfo<T> findAll(PageInfo pageInfo){
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
         Example example=example();
-        example.pageInfo(pageInfo.pageNum,pageInfo.pageSize);
+        if(pageInfo.getOffset()!=-1&&pageInfo.getPageNum()>=1){
+            example.pageInfo(pageInfo.getPageNum(),pageInfo.getPageSize());
+        }else{
+            example.offsetPage(pageInfo.getOffset()>=0?pageInfo.getOffset():0,pageInfo.getLimit());
+        }
         return example.page();
     }
 
@@ -167,7 +195,11 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     public <T> PageInfo<T> findAll(PageInfo pageInfo, Sorts sort) {
         Example example=example();
         example.orderByClause(sort);
-        example.pageInfo(pageInfo.pageNum,pageInfo.pageSize);
+        if(pageInfo.getOffset()!=-1&&pageInfo.getPageNum()>=1){
+            example.pageInfo(pageInfo.getPageNum(),pageInfo.getPageSize());
+        }else{
+            example.offsetPage(pageInfo.getOffset()>=0?pageInfo.getOffset():0,pageInfo.getLimit());
+        }
         return example.page();
     }
 
@@ -185,13 +217,19 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     @Override
     public Example example() {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
-        return new Example(modelClass,easyJdbcTemplate.getJdbcBuilder(),getEasyJdbcTemplate().getDialectName());
+        return new Example(modelClass,this::getJdbcBuilder,this::getDialectName);
     }
 
     @Override
     public void cacheClear() {
-        easyJdbcTemplate.getJdbcBuilder().clear();
+         easyJdbcTemplate.clear();
     }
 
+    private JdbcBuilder getJdbcBuilder() {
+        return jdbcBuilder;
+    }
 
+    private String getDialectName() {
+        return dialectName;
+    }
 }

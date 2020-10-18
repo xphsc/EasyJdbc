@@ -19,12 +19,12 @@ package com.xphsc.easyjdbc.executor;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.transform.setter.ValueBatchSetter;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.core.metadata.FieldElement;
 import com.xphsc.easyjdbc.core.metadata.ValueElement;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
 import com.xphsc.easyjdbc.util.Assert;
 import com.xphsc.easyjdbc.util.Jdbcs;
 
@@ -40,10 +40,10 @@ public class BatchUpdateExecutor extends AbstractExecutor<int[]> {
 
 	private final LinkedList persistents =new LinkedList();
 	private final SQL sqlBuilder = SQL.BUILD();
-	private LinkedList<LinkedList<ValueElement>> batchValueElements;
+	private List<LinkedList<ValueElement>> batchValueElements;
 	
-	public BatchUpdateExecutor(JdbcBuilder jdbcTemplate, List<?> persistents) {
-		super(jdbcTemplate);
+	public <S> BatchUpdateExecutor(LambdaSupplier<S> jdbcBuilder, List<?> persistents) {
+		super(jdbcBuilder);
 		this.persistents.addAll(persistents);
 	}
 
@@ -79,6 +79,9 @@ public class BatchUpdateExecutor extends AbstractExecutor<int[]> {
 				}
 				Object value = Jdbcs.invokeMethod(persistent, fieldElement.getReadMethod()
 						, "entity：" + entityElement.getName() + " field：" + fieldElement.getName() + " Failure to obtain value");
+				if(null==value) {
+					continue;
+				}
 				valueElements.add(new ValueElement(value,fieldElement.isClob(),fieldElement.isBlob()));
 			}
 			valueElements.add(new ValueElement(primaryKeyValue,Boolean.FALSE,Boolean.FALSE));
@@ -89,7 +92,7 @@ public class BatchUpdateExecutor extends AbstractExecutor<int[]> {
 	@Override
 	protected int[] doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcTemplate.batchUpdate(sql,new ValueBatchSetter(LOBHANDLER,this.batchValueElements));
+		return this.jdbcBuilder.batchUpdate(sql,new ValueBatchSetter(LOBHANDLER,this.batchValueElements));
 	}
 
 

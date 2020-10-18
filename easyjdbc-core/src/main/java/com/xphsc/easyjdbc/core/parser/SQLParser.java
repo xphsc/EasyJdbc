@@ -30,5 +30,5 @@ public interface SQLParser {
       Object[] sqlPlaceHolder(String sql, Map<String, Object> params, boolean isOgnl);
       String removeOrders(String sql);
       Boolean hasOrders(String sql);
-     Map<String,Object> entityMap();
+      Map<String,Object> entityMap();
 }

@@ -205,6 +205,8 @@ public class StringUtil {
 
         return sb.toString();
     }
+
+
     public static String toUnderScoreCase(String s) {
         if (s == null) {
             return null;

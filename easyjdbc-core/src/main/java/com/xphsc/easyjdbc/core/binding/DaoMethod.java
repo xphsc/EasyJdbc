@@ -19,6 +19,7 @@ import com.xphsc.easyjdbc.EasyJdbcTemplate;
 import com.xphsc.easyjdbc.annotation.*;
 import com.xphsc.easyjdbc.core.EasyJdbcDao;
 import com.xphsc.easyjdbc.core.SimpleJdbcDao;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.metadata.SQLOptionType;
 import com.xphsc.easyjdbc.core.parser.DefaultSQLOptionTypeParser;
 import com.xphsc.easyjdbc.core.parser.SQLOptionTypeParser;
@@ -41,11 +42,12 @@ public class DaoMethod {
     private AbstractDaoMethodProcessor daoMethodProcessor=null;
     private Method method;
     private Object[] parameters;
-    private SimpleJdbcDao simpleJdbcDao=new SimpleJdbcDao();
-    public DaoMethod(Class<?> daoInterface, EasyJdbcTemplate easyJdbcTemplate, Method method, Object[] parameters) throws Exception {
-        easyJdbcTemplate.interfaceClass(daoInterface.getName()+"."+method.getName());
+    private SimpleJdbcDao simpleJdbcDao;
+    public DaoMethod(Class<?> daoInterface, LambdaSupplier<EasyJdbcTemplate> easyJdbcTemplate, Method method, Object[] parameters) throws Exception {
+        simpleJdbcDao=new SimpleJdbcDao();
+        easyJdbcTemplate.get().interfaceClass(daoInterface.getName()+"."+method.getName());
         modelClass= getEntityClass(EasyJdbcDao.class, daoInterface);
-        simpleJdbcDao.setEasyJdbcTemplate(easyJdbcTemplate);
+        simpleJdbcDao.easyJdbcTemplate(easyJdbcTemplate);
         simpleJdbcDao.modelClass=modelClass;
         this.method=method;
         this.parameters=parameters;
@@ -54,20 +56,10 @@ public class DaoMethod {
 
     protected Object doExecute() throws Exception {
         Annotation[] annotations = method.getAnnotations();
-        SQLOptionTypeParser sqlOptionTypeParser=new DefaultSQLOptionTypeParser();
-        SQLOptionType sqlOptionType= sqlOptionTypeParser.getSqlCommandType(method);
-        if(annotations.length!=0){
+        MethodReturnType methodReturnType=new MethodReturnType(method);
+        if(methodReturnType.returnsAnnotationType){
             for(Annotation each :annotations){
-                if(
-                    sqlOptionType.equals(SQLOptionType.SQLINSERT)||
-                    sqlOptionType.equals(SQLOptionType.SQLDELETE)||
-                    sqlOptionType.equals(SQLOptionType.SQLUPDATE)||
-                    sqlOptionType.equals(SQLOptionType.SQLSELECT)
-
-                ){
                     daoMethodProcessor=new AnnotationMethodProcessor();
-                }
-
                 if(daoMethodProcessor!=null){
                     daoMethodProcessor.setAnnotation(each);
                     daoMethodProcessor.setParameters(parameters);
@@ -182,4 +174,21 @@ public class DaoMethod {
 
 
 
+    private static class MethodReturnType {
+        private boolean returnsAnnotationType;
+        public MethodReturnType(Method method) {
+            SQLOptionTypeParser sqlOptionTypeParser = new DefaultSQLOptionTypeParser();
+            SQLOptionType sqlOptionType = sqlOptionTypeParser.getSqlCommandType(method);
+            if (sqlOptionType.equals(SQLOptionType.SQLINSERT) ||
+                    sqlOptionType.equals(SQLOptionType.SQLDELETE) ||
+                    sqlOptionType.equals(SQLOptionType.SQLUPDATE) ||
+                    sqlOptionType.equals(SQLOptionType.SQLSELECT))
+                    {
+                this.returnsAnnotationType = true;
+            }
+
+
+
+        }
+    }
 }

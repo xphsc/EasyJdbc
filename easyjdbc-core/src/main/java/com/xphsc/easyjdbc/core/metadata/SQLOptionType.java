@@ -22,6 +22,9 @@ import java.util.Map;
  * @author huipei.x
  */
 public enum SQLOptionType {
+    /**
+     *
+     */
     UNKNOWN,SQLSELECT, SQLUPDATE, SQLINSERT, SQLDELETE;
 
     private static final Map<String, SQLOptionType> MAPPINGS = new HashMap<>(2);

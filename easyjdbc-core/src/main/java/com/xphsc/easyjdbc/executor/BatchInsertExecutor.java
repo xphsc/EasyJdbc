@@ -19,12 +19,12 @@ package com.xphsc.easyjdbc.executor;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.transform.setter.ValueBatchSetter;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.core.metadata.FieldElement;
 import com.xphsc.easyjdbc.core.metadata.ValueElement;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
 import com.xphsc.easyjdbc.util.Jdbcs;
 
 import java.util.LinkedList;
@@ -39,10 +39,10 @@ public class BatchInsertExecutor extends AbstractExecutor<int[]> {
 
 	private final LinkedList persistents = new LinkedList();
 	private final SQL sqlBuilder = SQL.BUILD();
-	private LinkedList<LinkedList<ValueElement>> batchValueElements;
+	private List<LinkedList<ValueElement>> batchValueElements;
 	
-	public BatchInsertExecutor(JdbcBuilder jdbcTemplate, List<?> persistents) {
-		super(jdbcTemplate);
+	public <S> BatchInsertExecutor(LambdaSupplier<S> jdbcBuilder, List<?> persistents) {
+		super(jdbcBuilder);
 		this.persistents.addAll(persistents);
 	}
 
@@ -79,7 +79,7 @@ public class BatchInsertExecutor extends AbstractExecutor<int[]> {
 	@Override
 	protected int[] doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcTemplate.batchUpdate(sql,new ValueBatchSetter(LOBHANDLER,this.batchValueElements));
+		return this.jdbcBuilder.batchUpdate(sql,new ValueBatchSetter(LOBHANDLER,this.batchValueElements));
 	}
 
 }

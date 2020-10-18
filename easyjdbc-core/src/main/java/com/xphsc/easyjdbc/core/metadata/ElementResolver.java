@@ -16,6 +16,8 @@
 package com.xphsc.easyjdbc.core.metadata;
 
 
+import com.xphsc.easyjdbc.annotation.CreatedDate;
+import com.xphsc.easyjdbc.annotation.ModifiedDate;
 import com.xphsc.easyjdbc.core.metadata.resolver.*;
 import com.xphsc.easyjdbc.util.Assert;
 import com.xphsc.easyjdbc.util.Jdbcs;
@@ -49,7 +51,8 @@ public class ElementResolver {
 		RESOLVERS.put(javax.persistence.Lob.class, new LobResolver());
 		RESOLVERS.put(javax.persistence.Transient.class, new TransientResolver());
 		RESOLVERS.put(javax.persistence.Version.class, new VersionResolver());
-
+		RESOLVERS.put(CreatedDate.class, new CreatedDateResolver());
+		RESOLVERS.put(ModifiedDate.class, new ModifieDateResolver());
 	}
 
 	/**

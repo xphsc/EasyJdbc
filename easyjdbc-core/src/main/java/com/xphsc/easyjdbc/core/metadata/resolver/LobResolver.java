@@ -23,7 +23,7 @@ import java.lang.annotation.Annotation;
 
 
 /**
- *  Lob注解解析器
+ *  Lob Annotation parser
  * Created by ${huipei.x}
  */
 public class LobResolver implements Resolver {

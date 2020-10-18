@@ -44,9 +44,11 @@ public class DaoProxy<T> implements InvocationHandler, Serializable {
         if (Object.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         }
-        DaoMethod daoMethod = new DaoMethod(daoInterface,easyJdbcTemplate, method, args);
+        DaoMethod daoMethod = new DaoMethod(daoInterface,this::getEasyJdbcTemplate, method, args);
         return daoMethod.doExecute();
     }
 
-
+    private EasyJdbcTemplate getEasyJdbcTemplate() {
+        return easyJdbcTemplate;
+    }
 }

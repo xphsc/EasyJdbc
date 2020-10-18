@@ -17,6 +17,8 @@ package com.xphsc.easyjdbc.core.entity;
 
 
 import com.xphsc.easyjdbc.core.exception.EasyJdbcException;
+import com.xphsc.easyjdbc.core.lambda.LambdaFunction;
+import com.xphsc.easyjdbc.core.lambda.Reflections;
 import com.xphsc.easyjdbc.util.Collects;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -27,7 +29,7 @@ import java.util.List;
  * Created by ${huipei.x}
  */
 public class Sorts {
-    private final List<Order> orders;
+    private  List<Order> orders;
     public static final Direction DEFAULT_DIRECTION = Direction.ASC;
     public Sorts(List<Order> orders) {
         if (Collects.isEmpty(orders)) {
@@ -42,24 +44,36 @@ public class Sorts {
 
     public Sorts(Direction direction, String property) {
       Order order= new Order(direction,property);
-        orders=new ArrayList<Order>();
+        orders=new ArrayList<>();
         orders.add(order);
     }
 
 
-
+    public <T> Sorts sort(Sorts.Direction direction, LambdaFunction<T, Object>  property) {
+        Sorts.Order order = new Sorts.Order(direction, Reflections.fieldNameForLambdaFunction(property));
+        this.orders = new ArrayList();
+        this.orders.add(order);
+        return  this;
+    }
+    public Sorts() {
+    }
 
     public enum Direction {
         ASC, DESC;
     }
     public static class Order  implements Serializable {
-        private final Direction direction;
-        private final String property;
+        private  Direction direction;
+        private  String property;
         public Order(Direction direction, String property) {
             this.direction = direction;
             this.property = property;
         }
 
+        public <T> Order order(Sorts.Direction direction, LambdaFunction<T, Object> property) {
+            this.direction = direction;
+            this.property =  Reflections.fieldNameForLambdaFunction(property);
+            return this;
+        }
 
         public Direction getDirection() {
             return direction;

@@ -20,6 +20,8 @@ package com.xphsc.easyjdbc.executor.ids;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
+import com.xphsc.easyjdbc.core.lambda.Reflections;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.executor.AbstractExecutor;
@@ -35,8 +37,8 @@ public class DeleteByIdsExecutor extends AbstractExecutor<Integer> {
 	private final Iterable primaryKeyValues;
 	private final SQL sqlBuilder = SQL.BUILD();
 
-	public DeleteByIdsExecutor(JdbcBuilder jdbcTemplate, Class<?> persistentClass, Iterable primaryKeyValues) {
-		super(jdbcTemplate);
+	public <S> DeleteByIdsExecutor(LambdaSupplier<S> jdbcBuilder , Class<?> persistentClass, Iterable primaryKeyValues) {
+		super(jdbcBuilder);
 		this.persistentClass = persistentClass;
 		this.primaryKeyValues = primaryKeyValues;
 	}
@@ -60,7 +62,7 @@ public class DeleteByIdsExecutor extends AbstractExecutor<Integer> {
 	@Override
 	protected Integer doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcTemplate.update(sql);
+		return this.jdbcBuilder.update(sql);
 	}
 
 

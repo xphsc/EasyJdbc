@@ -19,6 +19,9 @@ package com.xphsc.easyjdbc.core.entity;
  * Created by ${huipei.x}
  */
 public enum AggregateType {
+    /**
+     *
+     */
     AVG,
     SUM,
     MIN,

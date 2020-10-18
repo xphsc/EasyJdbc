@@ -22,7 +22,7 @@ import java.lang.annotation.Annotation;
 
 
 /**
- * 注解解析器接口
+ * nnotation parser interface
  * Created by ${huipei.x}
  */
 public interface Resolver {

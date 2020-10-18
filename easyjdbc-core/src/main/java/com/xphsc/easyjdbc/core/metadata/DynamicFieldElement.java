@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 
 
 /**
- *  动态实体字段
+ *  Dynamic Entity Field
  * Created by ${huipei.x}
  */
 public class DynamicFieldElement implements Element {

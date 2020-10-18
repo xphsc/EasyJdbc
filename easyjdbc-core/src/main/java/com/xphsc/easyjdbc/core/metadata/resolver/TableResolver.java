@@ -26,7 +26,7 @@ import java.lang.annotation.Annotation;
 
 
 /**
- * Table注解解析器
+ * Table Annotation parser
  * Created by ${huipei.x}
  */
 public class TableResolver implements Resolver {

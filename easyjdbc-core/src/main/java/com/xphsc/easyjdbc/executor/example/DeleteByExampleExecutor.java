@@ -18,19 +18,11 @@ package com.xphsc.easyjdbc.executor.example;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
-import com.xphsc.easyjdbc.core.metadata.FieldElement;
-import com.xphsc.easyjdbc.core.parser.DefaultSQLParser;
-import com.xphsc.easyjdbc.core.parser.SQLParser;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
 import com.xphsc.easyjdbc.executor.AbstractExecutor;
 import com.xphsc.easyjdbc.util.Assert;
-import com.xphsc.easyjdbc.util.Collects;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 
 /**
@@ -43,8 +35,8 @@ public class DeleteByExampleExecutor extends AbstractExecutor<Integer> {
 	private SQL sqlBuilder;
 	private final Class<?> persistentClass;
 	private  Object[] parameters;
-	public DeleteByExampleExecutor(JdbcBuilder jdbcTemplate,SQL applyWhere,Object[] parameters,Class<?> persistentClass) {
-		super(jdbcTemplate);
+	public <S> DeleteByExampleExecutor(LambdaSupplier<S> jdbcBuilder,SQL applyWhere,Object[] parameters,Class<?> persistentClass) {
+		super(jdbcBuilder);
 		this.sqlBuilder = applyWhere;
 		this.persistentClass=persistentClass;
 		this.parameters=parameters;
@@ -63,7 +55,7 @@ public class DeleteByExampleExecutor extends AbstractExecutor<Integer> {
 	protected Integer doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
 		Assert.isTrue(sql.contains("WHERE"),"Delete must have where condition!");
-		return this.jdbcTemplate.update(sql, this.parameters);
+		return this.jdbcBuilder.update(sql, this.parameters);
 	}
 
 }

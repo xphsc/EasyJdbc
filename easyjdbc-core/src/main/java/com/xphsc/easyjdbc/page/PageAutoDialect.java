@@ -32,7 +32,9 @@ public class PageAutoDialect {
     private AbstractDialect delegate;
     private ThreadLocal<AbstractDialect> dialectThreadLocal = new ThreadLocal<AbstractDialect>();
     static {
-        //注册别名
+        /**
+         *   Registration alias
+         */
         dialectAliasMap.put(DialectAlias.HSQLDB, HsqldbDialect.class);
         dialectAliasMap.put(DialectAlias.H2, HsqldbDialect.class);
         dialectAliasMap.put(DialectAlias.POSTGRESQL, HsqldbDialect.class);
@@ -65,7 +67,10 @@ public class PageAutoDialect {
         return null;
     }
 
-    //获取当前的代理对象
+
+    /**
+     *Get the current proxy object
+     */
     public AbstractDialect getDelegate() {
         if (delegate != null) {
             return delegate;
@@ -73,7 +78,11 @@ public class PageAutoDialect {
         return dialectThreadLocal.get();
     }
 
-    //移除代理对象
+
+
+    /**
+     *Remove proxy objects
+     */
     public void clearDelegate() {
         dialectThreadLocal.remove();
     }
@@ -86,7 +95,7 @@ public class PageAutoDialect {
                 dialect = (AbstractDialect) sqlDialectClass.newInstance();
             }
         } catch (Exception e) {
-            throw new  EasyJdbcException("初始化  [" + dialectClass + "]时出错:" + e.getMessage(), e);
+            throw new  EasyJdbcException("Initialization  [" + dialectClass + "]Error occurred:" + e.getMessage(), e);
         }
         return dialect;
     }

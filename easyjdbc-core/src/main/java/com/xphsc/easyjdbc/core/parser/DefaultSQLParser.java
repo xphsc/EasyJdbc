@@ -21,6 +21,7 @@ import com.xphsc.easyjdbc.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +32,7 @@ import java.util.regex.Pattern;
  */
 public class DefaultSQLParser implements SQLParser {
     private static final String EMPTY = "";
-    private Map<String,Object> entityMap;
+    private TreeMap<String,Object> entityMap;
     @Override
     public Boolean hasFieldPlaceHolder(String sqlString) {
         Boolean flag = false;
@@ -67,7 +68,7 @@ public class DefaultSQLParser implements SQLParser {
     @Override
     public  Object[] sqlPlaceHolder(String sql, Map<String, Object> params,boolean isOgnl) {
         Matcher m=null;
-        List<String> matchRegexList = new ArrayList<String>();
+        List<String> matchRegexList = new ArrayList<String>(10);
         List<Object> list = new ArrayList<Object>();
         String newkey = null;
         if(isOgnl){
@@ -97,14 +98,17 @@ public class DefaultSQLParser implements SQLParser {
             }
         }
         if(val==null){
-            Object value = params.get(StringUtil.substringBeforeLast(newkey, "."));
-            entityMap= Beans.beanToMap(value);
-            for(Map.Entry<String,Object> entity:entityMap.entrySet()){
-                if(!"class".equals(entity.getKey()) &&entity.getValue()!=null){
-                    list.add(entity.getValue());
-                }
+            if(params!=null){
+                Object value = params.get(StringUtil.substringBeforeLast(newkey, "."));
+                entityMap= Beans.beanToTreeMap(value);
+                for(Map.Entry<String,Object> entity:entityMap.entrySet()){
+                    if(!"class".equals(entity.getKey()) &&entity.getValue()!=null){
+                        list.add(entity.getValue());
+                    }
 
+                }
             }
+
         }
         return new Object[]{sql,list.toArray()};
     }

@@ -17,7 +17,7 @@ package com.xphsc.easyjdbc.executor;
 
 
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.page.PageInfo;
 import com.xphsc.easyjdbc.core.transform.DynamicEntityRowMapper;
 import com.xphsc.easyjdbc.core.transform.EntityRowMapper;
@@ -45,18 +45,18 @@ public class FindExecutor<E> extends AbstractExecutor<E> {
 	private String querySql;
 	private EntityElement entityElement;
 	private DynamicEntityElement dynamicEntityElement;
-	private boolean isDynamic;
+	private boolean dynamic;
 	
-	public FindExecutor(JdbcBuilder jdbcTemplate, String dialectName, Class<?> persistentClass, String sql) {
-		this(jdbcTemplate, dialectName,persistentClass,sql,null,null,null,null);
+	public <S> FindExecutor(LambdaSupplier<S> jdbcBuilder , String dialectName, Class<?> persistentClass, String sql) {
+		this(jdbcBuilder, dialectName,persistentClass,sql,null,null,null,null);
 	}
 	
-	public FindExecutor(JdbcBuilder jdbcTemplate, String dialectName
+	public <S> FindExecutor(LambdaSupplier<S> jdbcBuilder, String dialectName
 			, Class<?> persistentClass, String sql, Object[] parameters) {
-		this(jdbcTemplate, dialectName,persistentClass,sql,parameters,null,null,null);
+		this(jdbcBuilder, dialectName,persistentClass,sql,parameters,null,null,null);
 	}
 	
-	public FindExecutor(JdbcBuilder jdbcTemplate, String dialectName
+	public <S> FindExecutor(LambdaSupplier<S> jdbcTemplate, String dialectName
 			, Class<?> persistentClass, String sql, Object[] parameters
 			, Map<String, String> dynamicMappings, Integer startRow, Integer limit) {
 		super(jdbcTemplate);
@@ -69,7 +69,7 @@ public class FindExecutor<E> extends AbstractExecutor<E> {
 		this.limit = limit;
 	}
 
-	public FindExecutor(JdbcBuilder jdbcTemplate, String dialectName
+	public <S> FindExecutor(LambdaSupplier<S>  jdbcTemplate, String dialectName
 			, Class<?> persistentClass, String sql, Object[] parameters
 			, Map<String, String> dynamicMappings, PageInfo page) {
 		super(jdbcTemplate);
@@ -78,17 +78,17 @@ public class FindExecutor<E> extends AbstractExecutor<E> {
 		this.sql = sql;
 		this.parameters = parameters;
 		this.dynamicMappings = dynamicMappings;
-		this.startRow = page.getPageNum()>1?(page.getPageNum()-1)*page.getPageSize():page.getOffset();
-		this.limit =  page.getPageSize()>0?page.getPageSize():page.getLimit();
+		this.startRow = page.getPageNum()>=1&&page.getOffset()==-1?(page.getPageNum()-1)*page.getPageSize():page.getOffset();
+		this.limit = page.getPageNum()>=1&&page.getOffset()==-1?page.getPageSize():page.getLimit() ;
 	}
 
 	@Override
 	public void prepare() {
 		if(this.isEntity(this.persistentClass)){
-			this.isDynamic = false;
+			this.dynamic = false;
 			this.entityElement = ElementResolver.resolve(this.persistentClass);
 		} else {
-			this.isDynamic = true;
+			this.dynamic = true;
 			this.dynamicEntityElement = ElementResolver.resolveDynamic(this.persistentClass, this.dynamicMappings);
 		}
 		if(null!=startRow&&-1!=startRow&&null!=this.limit&&this.limit>0){
@@ -102,15 +102,15 @@ public class FindExecutor<E> extends AbstractExecutor<E> {
 	@SuppressWarnings("all")
 	protected E doExecute() throws JdbcDataException {
 		RowMapper rowMapper = null;
-		if(this.isDynamic){
+		if(this.dynamic){
 			rowMapper = new DynamicEntityRowMapper(LOBHANDLER,this.dynamicEntityElement,this.persistentClass);
 		} else {
 			rowMapper = new EntityRowMapper(LOBHANDLER,this.entityElement,this.persistentClass);
 		}
 		if(null==this.parameters||this.parameters.length==0){
-			return (E) this.jdbcTemplate.query(this.querySql,rowMapper);
+			return (E) this.jdbcBuilder.query(this.querySql,rowMapper);
 		} else {
-			return (E) this.jdbcTemplate.query(this.querySql,this.parameters,rowMapper);
+			return (E) this.jdbcBuilder.query(this.querySql,this.parameters,rowMapper);
 		}
 
 	}

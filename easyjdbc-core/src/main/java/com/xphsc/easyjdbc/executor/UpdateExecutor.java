@@ -19,6 +19,7 @@ package com.xphsc.easyjdbc.executor;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.metadata.version.DefaultVersion;
 import com.xphsc.easyjdbc.core.metadata.version.NextVersion;
 import com.xphsc.easyjdbc.core.transform.setter.ValueSetter;
@@ -26,10 +27,9 @@ import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.core.metadata.FieldElement;
 import com.xphsc.easyjdbc.core.metadata.ValueElement;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
+import com.xphsc.easyjdbc.core.metadata.type.FillDateTypeHandler;
 import com.xphsc.easyjdbc.util.Assert;
 import com.xphsc.easyjdbc.util.Jdbcs;
-
 import java.util.LinkedList;
 
 
@@ -45,8 +45,8 @@ public class UpdateExecutor extends AbstractExecutor<Integer> {
 	
 	private LinkedList<ValueElement> valueElements;
 	
-	public UpdateExecutor(JdbcBuilder jdbcTemplate, Object persistent, boolean ignoreNull) {
-		super(jdbcTemplate);
+	public <S> UpdateExecutor(LambdaSupplier<S> jdbcBuilder , Object persistent, boolean ignoreNull) {
+		super(jdbcBuilder);
 		this.persistent = persistent;
 		this.ignoreNull = ignoreNull;
 	}
@@ -62,9 +62,11 @@ public class UpdateExecutor extends AbstractExecutor<Integer> {
 				, "entity：" + entityElement.getName() + " Primary key：" + primaryKey.getName() + " Failure to obtain value");
 		Assert.notNull(primaryKeyValue, "entity:" + entityElement.getName() + ", Primary key cannot be empty");
 		FieldElement version = entityElement.getVersion();
-
-		Object versionValue = Jdbcs.invokeMethod(this.persistent, version.getReadMethod()
-				, "entity：" + entityElement.getName() + " version：" + version.getName() + " Failure to obtain value");
+		Object versionValue=null;
+       if(version!=null){
+		    versionValue = Jdbcs.invokeMethod(this.persistent, version.getReadMethod()
+				   , "entity：" + entityElement.getName() + " version：" + version.getName() + " Failure to obtain value");
+	  }
 		for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
 			if(fieldElement.isTransientField()) {
 				continue;
@@ -78,6 +80,9 @@ public class UpdateExecutor extends AbstractExecutor<Integer> {
 			if(ignoreNull && null == value) {
 				continue;
 			}
+			if (fieldElement.isModifieDateField()) {
+				value= FillDateTypeHandler.fillDate(fieldElement);
+			}
 			if(fieldElement.isVersion()) {
 				NextVersion  nextVersion=new DefaultVersion();
 				Object newVersion=nextVersion.nextVersion(versionValue);
@@ -90,20 +95,21 @@ public class UpdateExecutor extends AbstractExecutor<Integer> {
 			}
 
 		}
-		if(versionValue==null){
-			this.sqlBuilder.WHERE(primaryKey.getColumn() + " = ?");
-			this.valueElements.add(new ValueElement(primaryKeyValue, primaryKey.isClob(), primaryKey.isBlob()));
-		}else {
+
+		this.sqlBuilder.WHERE(primaryKey.getColumn() + " = ?");
+		this.valueElements.add(new ValueElement(primaryKeyValue, primaryKey.isClob(), primaryKey.isBlob()));
+		if(versionValue!=null){
 			this.sqlBuilder.WHERE(version.getColumn() + " = ?");
 			this.valueElements.add(new ValueElement(versionValue, primaryKey.isClob(), primaryKey.isBlob()));
 		}
+
 
 	}
 
 	@Override
 	protected Integer doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcTemplate.update(sql,new ValueSetter(LOBHANDLER,this.valueElements));
+		return this.jdbcBuilder.update(sql,new ValueSetter(LOBHANDLER,this.valueElements));
 	}
 
 

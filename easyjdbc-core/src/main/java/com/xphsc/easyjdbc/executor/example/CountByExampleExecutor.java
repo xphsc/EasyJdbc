@@ -18,10 +18,10 @@ package com.xphsc.easyjdbc.executor.example;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.parser.DefaultSQLParser;
 import com.xphsc.easyjdbc.core.parser.SQLParser;
 import com.xphsc.easyjdbc.executor.AbstractExecutor;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
 import com.xphsc.easyjdbc.util.Assert;
 
 
@@ -36,9 +36,9 @@ public class CountByExampleExecutor extends AbstractExecutor<Integer> {
 	private  Object[] parameters;
 
 
-	public CountByExampleExecutor(SQL sqlBuilder,JdbcBuilder jdbcTemplate,Object[] parameters) {
-		super(jdbcTemplate);
-		this.sqlBuilder=sqlBuilder  ;
+	public <S> CountByExampleExecutor(SQL sqlBuilder,LambdaSupplier<S> jdbcBuilder,Object[] parameters) {
+		super(jdbcBuilder);
+		this.sqlBuilder=sqlBuilder;
 		this.parameters=parameters;
 	}
 
@@ -63,9 +63,9 @@ public class CountByExampleExecutor extends AbstractExecutor<Integer> {
 	@Override
 	protected Integer doExecute() throws JdbcDataException {
 		if(null==this.parameters||this.parameters.length==0){
-			return this.jdbcTemplate.queryForObject(this.querySql,Integer.class);
+			return this.jdbcBuilder.queryForObject(this.querySql,Integer.class);
 		} else {
-			return this.jdbcTemplate.queryForObject(this.querySql, this.parameters,Integer.class);
+			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters,Integer.class);
 		}
 	}
 

@@ -25,6 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @date  2019-3-18
  * @description
  */
+
 public class PerpetualCache implements Cache {
 
     private  Map<Object, Object> cache = new ConcurrentHashMap<Object, Object>();

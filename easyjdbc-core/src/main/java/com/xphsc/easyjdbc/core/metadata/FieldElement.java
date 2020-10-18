@@ -55,6 +55,8 @@ public class FieldElement implements Element {
 	private boolean blob;//是否二进制blob类型
 	private boolean transientField;
 	private boolean version;
+	private boolean CreatedDateField;
+	private boolean ModifieDateField;
 	private EntityElement entityElement;
 	private Field field;
 
@@ -206,6 +208,22 @@ public class FieldElement implements Element {
 		this.version = version;
 	}
 
+	public boolean isCreatedDateField() {
+		return CreatedDateField;
+	}
+
+	public void setCreatedDateField(boolean createdDateField) {
+		CreatedDateField = createdDateField;
+	}
+
+	public boolean isModifieDateField() {
+		return ModifieDateField;
+	}
+
+	public void setModifieDateField(boolean modifieDateField) {
+		ModifieDateField = modifieDateField;
+	}
+
 	@Override
 	public String toString() {
 		return "FieldElement{" +
@@ -231,6 +249,8 @@ public class FieldElement implements Element {
 				", blob=" + blob +
 				", transientField=" + transientField +
 				", version=" + version +
+				", CreatedDateField=" + CreatedDateField +
+				", ModifieDateField=" + ModifieDateField +
 				", entityElement=" + entityElement +
 				", field=" + field +
 				'}';

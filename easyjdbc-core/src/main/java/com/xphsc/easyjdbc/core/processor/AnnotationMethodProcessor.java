@@ -52,7 +52,6 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
     private String providerMethodName = null;
     private boolean useGeneratedKeys=false;
     private String keyProperty=null;
-    private boolean isUpdateProvider=false;
     @Override
     public Object process() {
         boolean hasInsertOrUpdatePlaceHolder=false;
@@ -114,22 +113,30 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
         if(sqlParser.hasInsertOrUpdatePlaceHolder(sql)){
             result =sqlParser.sqlPlaceHolder(sql, paramsMap, false);
             hasInsertOrUpdatePlaceHolder=true;
-        }
-        if(sqlParser.hasOgnlPlaceHolder(sql)){
+        }else if(sqlParser.hasOgnlPlaceHolder(sql)){
             hasInsertOrUpdatePlaceHolder=true;
             result =sqlParser.sqlPlaceHolder(sql, paramsMap, true);
 
+        }else{
+            hasInsertOrUpdatePlaceHolder=true;
+            result =sqlParser.sqlPlaceHolder(sql, null, true);
         }
+
+        Object returnResult = null;
+        Class<?> returnType = method.getReturnType();
+        boolean returnsOptional = Optional.class.equals(returnType);
         if (sqlOptionType.equals(SQLOptionType.SQLUPDATE)
                 ){
             if(hasInsertOrUpdatePlaceHolder){
                  String sql=  (String) result[0];
-                SQLUpdateParser sqlUpdateParser=new DefaultSQLUpdateParser();
-                if(!isUpdateProvider){
-                    sql=sqlUpdateParser.sqlProvider(sql, sqlParser);
-                }
-                return isUpdateProvider?simpleJdbcDao.getEasyJdbcTemplate().getJdbcBuilder().update( (String) result[0], (Object[]) result[1]):
-                        simpleJdbcDao.getEasyJdbcTemplate().getJdbcBuilder().update(sql);
+                returnResult=Collects.isNotEmpty(paramsMap)?simpleJdbcDao.getEasyJdbcTemplate().getJdbcBuilder().update((String) result[0], (Object[]) result[1]):
+                      simpleJdbcDao.getEasyJdbcTemplate().getJdbcBuilder().update(sql);
+
+            }
+            if(returnsOptional){
+                return  Optional.ofNullable(returnResult);
+            }else {
+                return returnResult instanceof int[]?((int[]) returnResult).length:returnResult;
             }
         }
 
@@ -157,49 +164,43 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
                         },
                         keyHolder);
                 Object key=null;
-                getKey(key, method, keyHolder);
-                return key;
+                returnResult=getKey(key, method, keyHolder);
             }else{
                 if(hasInsertOrUpdatePlaceHolder){
-                    return simpleJdbcDao.getEasyJdbcTemplate().getJdbcBuilder().update((String) result[0], (Object[]) result[1]);
+                    returnResult=simpleJdbcDao.getEasyJdbcTemplate().getJdbcBuilder().update((String) result[0], (Object[]) result[1]);
                 }
             }
         }
-        return  null;
+        if(returnsOptional){
+            return  Optional.ofNullable(returnResult);
+        }else {
+            return returnResult;
+        }
     }
 
 
 
 
     private Object getKey(Object key ,Method method, KeyHolder keyHolder){
-        Class<?> returnType = method.getReturnType();
-        if(returnType.isAssignableFrom(Integer.class)||
-                returnType.isAssignableFrom(int.class)
-                ) {
+        ReturnKeyType returnKeyType=new  ReturnKeyType(method);
+        if(returnKeyType.returnsInteger) {
             key=keyHolder.getKey().intValue();
         }
-        if(returnType.isAssignableFrom(Long.class)||
-                returnType.isAssignableFrom(long.class)
-                ) {
+        if(returnKeyType.returnsLong) {
             key=keyHolder.getKey().longValue();
         }
-        if(returnType.isAssignableFrom(short.class)||
-                returnType.isAssignableFrom(Short.class)
+        if(returnKeyType.returnsShort
                 ) {
             key=keyHolder.getKey().shortValue();
         }
-        if(returnType.isAssignableFrom(double.class)||
-                returnType.isAssignableFrom(Double.class)
-                ) {
+        if(returnKeyType.returnsDouble) {
             key=keyHolder.getKey().doubleValue();
         }
-        if(returnType.isAssignableFrom(byte.class)||
-                returnType.isAssignableFrom(Byte.class)
+        if(returnKeyType.returnsByte
                 ) {
             key=keyHolder.getKey().byteValue();
         }
-        if(returnType.isAssignableFrom(Object.class)
-                ) {
+        if(returnKeyType.returnsObject) {
             key=keyHolder.getKey();
         }
         return key;
@@ -211,15 +212,20 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
                 SqlInsert sqlInsert = (SqlInsert) annotation;
                 sql = sqlInsert.value();
             }
-            if (annotation instanceof SqlOptions) {
+        Annotation[] annotations=method.getAnnotations();
+        for(Annotation annotation: annotations){
+            if(annotation.annotationType().equals(SqlOptions.class)){
                 SqlOptions sqlOptions = (SqlOptions) annotation;
                 useGeneratedKeys=sqlOptions.useGeneratedKeys();
+
                 if(StringUtil.isNotBlank(sqlOptions.keyProperty())){
                     keyProperty=sqlOptions.keyProperty();
                 }else{
                     keyProperty="id";
                 }
-            }
+            };
+        }
+
             if (annotation instanceof SqlUpdate) {
                 SqlUpdate  sqlUpdate = (SqlUpdate) annotation;
                 sql = sqlUpdate.value();
@@ -230,7 +236,6 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
             }
             if (annotation instanceof SqlUpdateProvider) {
                 SqlUpdateProvider sqlUpdateProvider = (SqlUpdateProvider) annotation;
-                isUpdateProvider=true;
                 this.providerType = (Class<?>)sqlUpdateProvider.type();
                 providerMethodName = (String) sqlUpdateProvider.method();
                 if(sqlUpdateProvider.returnType()!=null){
@@ -272,8 +277,47 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
 
     }
 
+    public static class ReturnKeyType {
+        private boolean returnsInteger;
+        private boolean returnsLong;
+        private boolean returnsShort;
+        private boolean returnsDouble;
+        private boolean returnsByte;
+        private boolean returnsObject;
 
 
+        public ReturnKeyType(Method method) {
+            Class<?> returnType = method.getReturnType();
+            if (returnType.isAssignableFrom(Integer.class)||
+                    returnType.isAssignableFrom(int.class)) {
+                this.returnsInteger = true;
+            }
+            if (returnType.isAssignableFrom(Long.class)||
+                    returnType.isAssignableFrom(long.class)) {
+                this.returnsLong = true;
+            }
+            if (returnType.isAssignableFrom(short.class)||
+                    returnType.isAssignableFrom(Short.class)) {
+                this.returnsShort = true;
+            }
+
+            if (returnType.isAssignableFrom(double.class)||
+                    returnType.isAssignableFrom(Double.class)) {
+                this.returnsDouble = true;
+            }
+
+            if (returnType.isAssignableFrom(byte.class)||
+                    returnType.isAssignableFrom(Byte.class)) {
+                this.returnsByte = true;
+            }
+            if (returnType.isAssignableFrom(Object.class)) {
+                this.returnsObject = true;
+            }
+
+
+        }
+
+}
 
 }
 

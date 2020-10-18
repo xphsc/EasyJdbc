@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019  huipei.x
+ * Copyright (c) 2018  huipei.x
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.xphsc.easyjdbc.core.metadata.resolver;
 
-package com.xphsc.easyjdbc.core.cache;
+
+import com.xphsc.easyjdbc.core.metadata.Element;
+import com.xphsc.easyjdbc.core.metadata.FieldElement;
+
+import java.lang.annotation.Annotation;
+
 
 /**
- * @author huipei.x
- * @date  2019-3-18
- * @description
+ *  Transient Annotation parser
+ * Created by ${huipei.x}
  */
-
-public class SimpleCachekeyBuiler {
-
-    public CachekeyBuiler getCachekeyBuilder(Object object) {
-        if (object instanceof CachekeyBuiler) {
-            return (CachekeyBuiler) object;
-        } else {
-            return null;
-        }
-    }
-
-
+public class ModifieDateResolver implements Resolver {
+	@Override
+	public void resolve(Element element, Annotation annotation) {
+		FieldElement fieldElement = (FieldElement)element;
+		fieldElement.setModifieDateField(Boolean.TRUE);
+	}
+	
 }

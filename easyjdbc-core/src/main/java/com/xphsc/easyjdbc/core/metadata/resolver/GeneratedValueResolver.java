@@ -25,7 +25,7 @@ import java.lang.annotation.Annotation;
 
 
 /**
- *  GeneratedValue注解解析器
+ *  GeneratedValue Annotation parser
  * Created by ${huipei.x}
  */
 public class GeneratedValueResolver implements Resolver {

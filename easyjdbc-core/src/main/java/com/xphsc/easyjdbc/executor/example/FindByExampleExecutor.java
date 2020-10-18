@@ -19,12 +19,13 @@ package com.xphsc.easyjdbc.executor.example;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
+import com.xphsc.easyjdbc.core.lambda.Reflections;
 import com.xphsc.easyjdbc.core.metadata.DynamicEntityElement;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.core.metadata.FieldElement;
 import com.xphsc.easyjdbc.executor.AbstractExecutor;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
 import com.xphsc.easyjdbc.page.PageRowBounds;
 import com.xphsc.easyjdbc.page.PageInfo;
 import com.xphsc.easyjdbc.core.transform.DynamicEntityRowMapper;
@@ -53,8 +54,8 @@ public class FindByExampleExecutor<T>  extends AbstractExecutor<T> {
     protected LinkedList<String> excludePropertys;
     protected LinkedList<String> selectPropertys;
     private  Object[] parameters;
-    public FindByExampleExecutor(SQL applyWhere,Class<?> persistentClass,Class<?> entityClass, PageInfo pageInfo, EntityElement entityElement,LinkedList<String> excludePropertys,Map<String,String> mappings,boolean distinct,LinkedList<String> selectPropertys,Object[] parameters,JdbcBuilder jdbcTemplate,String dialectName) {
-        super(jdbcTemplate);
+    public <S> FindByExampleExecutor(SQL applyWhere,Class<?> persistentClass,Class<?> entityClass, PageInfo pageInfo, EntityElement entityElement,LinkedList<String> excludePropertys,Map<String,String> mappings,boolean distinct,LinkedList<String> selectPropertys,Object[] parameters,LambdaSupplier<S> jdbcBuilder,String dialectName) {
+        super(jdbcBuilder);
         this.sqlBuilder = applyWhere;
         this.persistentClass=(entityClass==null?persistentClass:entityClass);
         if(pageInfo!=null){
@@ -70,8 +71,8 @@ public class FindByExampleExecutor<T>  extends AbstractExecutor<T> {
         this.selectPropertys=selectPropertys;
     }
 
-    public FindByExampleExecutor(SQL applyWhere,Class<?> persistentClass,Class<?> entityClass, Integer offset, Integer limit, EntityElement entityElement,LinkedList<String> excludePropertys,Map<String,String> mappings,boolean distinct,LinkedList<String> selectPropertys,Object[] parameters,JdbcBuilder jdbcTemplate,String dialectName) {
-        super(jdbcTemplate);
+    public <S> FindByExampleExecutor(SQL applyWhere,Class<?> persistentClass,Class<?> entityClass, Integer offset, Integer limit, EntityElement entityElement,LinkedList<String> excludePropertys,Map<String,String> mappings,boolean distinct,LinkedList<String> selectPropertys,Object[] parameters,LambdaSupplier<S> jdbcBuilder,String dialectName) {
+        super(jdbcBuilder);
         this.sqlBuilder = applyWhere;
         this.persistentClass=(entityClass==null?persistentClass:entityClass);
         if(offset!=null&&limit!=null){
@@ -97,7 +98,7 @@ public class FindByExampleExecutor<T>  extends AbstractExecutor<T> {
             this.isDynamic = true;
             this.dynamicEntityElement = ElementResolver.resolveDynamic(this.persistentClass,this.dynamicMappings);
         }
-       List<String> columns=new ArrayList();
+       List<String> columns=new ArrayList(10);
         sqlBuilder.FROM(this.newEntityElement.getTable());
         Iterator i = this.newEntityElement.getFieldElements().values().iterator();
             while(i.hasNext()) {
@@ -152,9 +153,9 @@ public class FindByExampleExecutor<T>  extends AbstractExecutor<T> {
             rowMapper = new EntityRowMapper(LOBHANDLER,this.entityElement,this.persistentClass);
         }
                 if(null==this.parameters||this.parameters.length==0){
-                    return (T) this.jdbcTemplate.query(sql,rowMapper);
+                    return (T) this.jdbcBuilder.query(sql,rowMapper);
                 } else {
-                    return (T) this.jdbcTemplate.query(sql,this.parameters,rowMapper);
+                    return (T) this.jdbcBuilder.query(sql,this.parameters,rowMapper);
                 }
         }
 

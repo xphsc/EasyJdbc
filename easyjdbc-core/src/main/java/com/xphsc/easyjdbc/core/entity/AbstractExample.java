@@ -60,8 +60,8 @@ public abstract class AbstractExample<T> {
     protected Boolean isAggregate=false;
 
     protected T mapping(String property,String field){
-        Assert.hasText(checkProperty(property).getColumn(), "映射的列不能为空");
-        Assert.hasText(field, "映射的属性不能为空");
+        Assert.hasText(checkProperty(property).getColumn(), "The column of the mapping cannot be empty");
+        Assert.hasText(field, "Mapping attributes cannot be empty");
         if(Collects.isEmpty(mappings)){
             mappings= new HashMap();
         }
@@ -96,7 +96,7 @@ public abstract class AbstractExample<T> {
         return (T) this;
     }
 
-	 public T  offsetPage(int offset, int limit){
+    public T  offsetPage(int offset, int limit){
         Assert.isTrue(offset >= 0, "Offset must be greater than or equal to 0");
         Assert.isTrue(limit > 0, "Limit must be greater than 0");
         this.offset=offset;
@@ -129,10 +129,10 @@ public abstract class AbstractExample<T> {
         }
         for(Aggregation.Aggregate aggregate :aggregation.getAggregates()){
             if(aggregate.getAsProperty()!=null){
-                columns.add(aggregate.getType()+"("+checkProperty(aggregate.getProperty()).getColumn()+") AS "+aggregate.getAsProperty());
+                columns.add(aggregate.getAggregateType().name()+"("+checkProperty(aggregate.getProperty()).getColumn()+") AS "+aggregate.getAsProperty());
                 this.mappings.put(aggregate.getAsProperty(), aggregate.getAsProperty());
             }else{
-                columns.add(aggregate.getType()+"("+checkProperty(aggregate.getProperty()).getColumn()+")  ");
+                columns.add(aggregate.getAggregateType().name()+"("+checkProperty(aggregate.getProperty()).getColumn()+")  ");
             }
 
         }
@@ -147,7 +147,7 @@ public abstract class AbstractExample<T> {
 
 
     protected T groupByClause(String... groupBys){
-        LinkedList<String> groupByClause=new LinkedList<String>();
+        LinkedList<String> groupByClause=new LinkedList<>();
         for(String groupBy:groupBys){
             groupByClause.add(groupBy);
         }
@@ -273,9 +273,7 @@ public abstract class AbstractExample<T> {
         }
     }
 
-    /**
-     *
-     */
+
     protected List<Criterion> criteria;
     protected void addCriterion(String condition) {
         if (condition == null) {
@@ -503,7 +501,7 @@ public abstract class AbstractExample<T> {
         if(jdbcTemplate!=null){
             FindByExampleExecutor<List<T>> executor =  new FindByExampleExecutor<List<T>>(
                     applyWhere(), persistentClass,entityClass,pageInfo
-                    ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),jdbcTemplate,dialectName);
+                    ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),this::getJdbcTemplate,dialectName);
             List<T> results = executor.execute();
             executor = null;
             return results;
@@ -534,9 +532,9 @@ public abstract class AbstractExample<T> {
                 "".equals(sqlBuilder.toString())
                ) {
                 bulidSelect();
-                executor = new CountByExampleExecutor(applyWhere(), jdbcTemplate, parameters.toArray());
+                executor = new CountByExampleExecutor(applyWhere(), this::getJdbcTemplate, parameters.toArray());
             } else {
-                executor = new CountByExampleExecutor(sqlBuilder, jdbcTemplate, parameters.toArray());
+                executor = new CountByExampleExecutor(sqlBuilder, this::getJdbcTemplate, parameters.toArray());
             }
             int count = executor.execute();
             executor = null;
@@ -547,7 +545,7 @@ public abstract class AbstractExample<T> {
 
      protected <T> PageInfo<T> page() {
          List<T> results=null;
-         long total=1L;
+         long total=0L;
        if(offset==null&&limit==null){
             if(pageInfo==null){
                 pageInfo=new PageInfo();
@@ -562,7 +560,7 @@ public abstract class AbstractExample<T> {
             if(jdbcTemplate!=null){
                 FindByExampleExecutor<List<T>> executor =  new FindByExampleExecutor<List<T>>(
                         applyWhere(), persistentClass,entityClass,offset,limit
-                        ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),jdbcTemplate,dialectName);
+                        ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),this::getJdbcTemplate,dialectName);
                 results= executor.execute();
             }
            total=count();
@@ -581,9 +579,9 @@ public abstract class AbstractExample<T> {
         if(Collects.isEmpty(parameters)){
             parameters=new LinkedList<>();
         }
-		 Assert.notEmpty(oredCriteria,"Criteria conditional objects cannot be empty!");
-        DeleteByExampleExecutor  executor=new DeleteByExampleExecutor(this.jdbcTemplate,applyWhere(),parameters.toArray(),persistentClass);
-       int result=executor.execute();
+        Assert.notEmpty(oredCriteria,"Criteria conditional objects cannot be empty!");
+        DeleteByExampleExecutor  executor=new DeleteByExampleExecutor(this::getJdbcTemplate,applyWhere(),parameters.toArray(),persistentClass);
+        int result=executor.execute();
         return result;
     }
 
@@ -635,7 +633,7 @@ public abstract class AbstractExample<T> {
         if (nameList.contains(fieldName)) {
             return newfieldElement;
         } else{
-            throw new EasyJdbcException("The current entity class does not contain the name" + fieldName + "Properties!");
+            throw new EasyJdbcException("The current entity class does not contain the name  <" + fieldName + ">  Properties!");
         }
     }
 
@@ -653,5 +651,9 @@ public abstract class AbstractExample<T> {
         }
         this.distinct = false;
 
+    }
+
+    private JdbcBuilder getJdbcTemplate() {
+        return jdbcTemplate;
     }
 }

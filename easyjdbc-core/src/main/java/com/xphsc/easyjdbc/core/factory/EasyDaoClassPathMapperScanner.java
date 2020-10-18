@@ -65,7 +65,7 @@ public class EasyDaoClassPathMapperScanner extends ClassPathBeanDefinitionScanne
     }
 
     /**
-     * 默认会Scan @Component 这样所以的被@Component 注解的都会Scan
+     * The default is Scan@Component, so all of the @Component annotations will be Scan.
      */
    @Override
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {

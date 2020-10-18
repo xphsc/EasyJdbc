@@ -21,9 +21,12 @@ package com.xphsc.easyjdbc.core.entity;
 
 
 
+import com.xphsc.easyjdbc.core.lambda.LambdaFunction;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
+import com.xphsc.easyjdbc.core.lambda.Reflections;
+import com.xphsc.easyjdbc.core.lambda.StringSupplier;
 import com.xphsc.easyjdbc.core.support.JdbcBuilder;
 import com.xphsc.easyjdbc.page.PageInfo;
-
 import java.util.*;
 
 
@@ -38,64 +41,145 @@ public class Example extends AbstractExample<Example>{
         oredCriteria = new ArrayList<Criteria>();
     }
 
-    public Example(Class<?> persistentClass, JdbcBuilder jdbcTemplate, String dialectName) {
-        this.jdbcTemplate=jdbcTemplate;
-        this.dialectName=dialectName;
+    public <T> Example(Class<?> persistentClass, LambdaSupplier<T> jdbcTemplate, StringSupplier dialectName) {
+        this.jdbcTemplate=Reflections.classForLambdaSupplier(jdbcTemplate);
+        this.dialectName=dialectName.get();
         this.persistentClass = persistentClass;
         initEntityElement(persistentClass);
         oredCriteria = new ArrayList<Criteria>();
-
     }
 
     public List<Criteria> getOredCriteria() {
         return oredCriteria;
     }
 
+    /**
+     *Properties <--> Class Field Mapping
+     * @param property Query Object Properties
+     * @param field Class Field Mapping
+     */
     @Override
     public Example mapping(String property, String field) {
         return super.mapping(property, field);
     }
 
+    /**
+     *Properties <--> Class Field Mapping
+     * @param property Query Object Properties
+     * @param field Class Field Mapping
+     */
+    public <T> Example mapping(LambdaFunction<T, Object> property, String field) {
+        return super.mapping(Reflections.fieldNameForLambdaFunction(property), field);
+    }
+    /**
+     *Properties <--> Class Field Mapping
+     * @param property Query Object Properties
+     * @param field Class Field Mapping
+     */
+    public <T,S> Example mapping(LambdaFunction<T, Object> property, LambdaFunction<S, Object> field) {
+        return super.mapping(Reflections.fieldNameForLambdaFunction(property), Reflections.fieldNameForLambdaFunction(field));
+    }
+
+    /**
+     *Exclude query attributes Propertys
+     * @param excludePropertys
+     */
     @Override
-    public Example excludePropertys(String... excludePropertys) {
+    public  Example excludePropertys(String... excludePropertys) {
         return super.excludePropertys(excludePropertys);
     }
 
+    /**
+     *Exclude query attributes Propertys
+     * @param excludePropertys
+     */
+    public <T> Example excludePropertys(LambdaFunction<T, Object>... excludePropertys) {
+        return super.excludePropertys(Reflections.fieldNameForLambdaFunction(excludePropertys).toArray(new String[excludePropertys.length]));
+    }
+
+    /**
+     * select query attributes Propertys
+     * @param propertys
+     */
     @Override
     public Example selectPropertys(String... propertys) {
         return super.selectPropertys(propertys);
     }
+    /**
+     * select query attributes Propertys
+     * @param propertys
+     */
 
+    public <T> Example selectPropertys(LambdaFunction<T, Object>... propertys) {
+        return super.selectPropertys(Reflections.fieldNameForLambdaFunction(propertys).toArray(new String[propertys.length]));
+    }
+
+    /**
+     * select aggregation query attributes Propertys
+     * @param propertys
+     */
     @Override
     public Example selectPropertys(Aggregation aggregation, String... propertys) {
         return super.selectPropertys(aggregation, propertys);
     }
 
+
+    /**
+     * select aggregation query attributes Propertys
+     * @param propertys
+     */
+    public <T> Example selectPropertys(Aggregation aggregation, LambdaFunction<T, Object>... propertys) {
+        return super.selectPropertys(aggregation, Reflections.fieldNameForLambdaFunction(propertys).toArray(new String[propertys.length]));
+    }
+
+    /**
+     * Grouping for query
+     * @param groupBys
+     */
     @Override
     public Example groupByClause(String... groupBys) {
         return super.groupByClause(groupBys);
     }
-
+    /**
+     * Grouping for query
+     * @param groupBys
+     */
+    public <T> Example groupByClause(LambdaFunction<T, Object>... groupBys) {
+        return super.groupByClause(Reflections.fieldNameForLambdaFunction(groupBys).toArray(new String[groupBys.length]));
+    }
+    /**
+     * Distinct for query
+     */
     @Override
     public Example isDistinct(boolean distinct) {
         return super.isDistinct(distinct);
     }
 
+    /**
+     *  order for query
+     */
     @Override
     public Example orderByClause(Sorts sorts) {
         return super.orderByClause(sorts);
     }
 
+    /**
+     *  entityClass for query
+     */
     @Override
     public Example entityClass(Class<?> entityClass) {
         return super.entityClass(entityClass);
     }
-
+    /**
+     *  paging for query
+     */
     @Override
     public Example pageInfo(int pageNum, int pageSize) {
         return super.pageInfo(pageNum, pageSize);
     }
-
+    /**
+     *  paging for query
+     */
 	 @Override
     public Example offsetPage(int offset, int limit) {
         return super.offsetPage(offset, limit);
@@ -141,6 +225,8 @@ public class Example extends AbstractExample<Example>{
         protected Criteria() {
             super();
         }
+
+
     }
     protected abstract class GeneratedCriteria {
         protected String andOr;
@@ -327,6 +413,175 @@ public class Example extends AbstractExample<Example>{
             addOrCriterionLike(property, value, likeType, false);
             return (Criteria) this;
         }
+
+
+
+
+
+        public <T> Criteria andIsNull(LambdaFunction<T, Object> property) {
+            addCriterion(checkProperty(Reflections.fieldNameForLambdaFunction(property)).getColumn() + " is null");
+            return (Criteria) this;
+        }
+
+        public <T> Criteria andIsNotNull(LambdaFunction<T, Object> property) {
+            addCriterion(checkProperty(Reflections.fieldNameForLambdaFunction(property)).getColumn() + " is not null");
+            return (Criteria) this;
+        }
+
+        public <T> Example.Criteria orIsNull(LambdaFunction<T, Object> property) {
+            addOrCriterion(checkProperty(Reflections.fieldNameForLambdaFunction(property)).getColumn() + " is null");
+            return (Example.Criteria)this;
+        }
+
+        public <T> Example.Criteria orIsNotNull(LambdaFunction<T, Object> property) {
+            addOrCriterion(checkProperty(Reflections.fieldNameForLambdaFunction(property)).getColumn() + " is not null");
+            return (Example.Criteria)this;
+        }
+
+        public <T> Criteria andEqualTo(LambdaFunction<T, Object> property, Object value) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "=", value);
+            return (Criteria) this;
+        }
+
+
+        public <T> Criteria andNotEqualTo(LambdaFunction<T, Object> property, Object value) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property),"<>",value);
+            return (Criteria) this;
+        }
+        public <T> Example.Criteria orEqualTo(LambdaFunction<T, Object> property, Object value) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "=", value);
+            return (Example.Criteria)this;
+        }
+
+        public <T> Example.Criteria orNotEqualTo(LambdaFunction<T, Object> property, Object value) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "<>", value);
+            return (Example.Criteria)this;
+        }
+        public <T> Criteria andGreaterThan(LambdaFunction<T, Object> property, Object value) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), ">", value);
+            return (Criteria) this;
+        }
+
+        public <T> Example.Criteria orGreaterThan(LambdaFunction<T, Object> property, Object value) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), ">", value);
+            return (Example.Criteria)this;
+        }
+
+        public <T> Criteria andGreaterThanOrEqualTo(LambdaFunction<T, Object> property, Object value) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), ">=", value);
+            return (Criteria) this;
+        }
+
+        public <T> Example.Criteria orGreaterThanOrEqualTo(LambdaFunction<T, Object> property, Object value) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), ">=", value);
+            return (Example.Criteria)this;
+        }
+
+        public <T> Criteria andLessThan(LambdaFunction<T, Object> property, Object value) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "<", value);
+            return (Criteria) this;
+        }
+
+        public <T> Example.Criteria orLessThan(LambdaFunction<T, Object> property, Object value) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "<", value);
+            return (Example.Criteria)this;
+        }
+
+        public <T> Criteria andLessThanOrEqualTo(LambdaFunction<T, Object> property, Object value) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "<=", value);
+            return (Criteria) this;
+        }
+
+
+        public <T> Example.Criteria orLessThanOrEqualTo(LambdaFunction<T, Object> property, Object value) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "<=", value);
+            return (Example.Criteria)this;
+        }
+
+        public  <T> Criteria andIn(LambdaFunction<T, Object> property, Iterable values) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "in", values);
+            return (Criteria) this;
+        }
+
+        public <T> Criteria orIn(LambdaFunction<T, Object> property, Iterable values) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "in", values);
+            return (Criteria) this;
+        }
+
+        public <T> Criteria andNotIn(LambdaFunction<T, Object> property, Iterable values) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "not in", values);
+            return (Criteria) this;
+        }
+
+        public  <T> Criteria orNotIn(LambdaFunction<T, Object> property, Iterable values) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "not in", values);
+            return (Criteria) this;
+        }
+
+        public <T> Criteria andBetween(LambdaFunction<T, Object> property, Object value1, Object value2) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "between", value1, value2);
+            return (Criteria) this;
+        }
+
+        public <T> Criteria orBetween(LambdaFunction<T, Object> property, Object value1, Object value2) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "between", value1, value2);
+            return (Criteria) this;
+        }
+
+
+
+        public  <T> Criteria andNotBetween(LambdaFunction<T, Object> property, Object value1, Object value2) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "not between", value1, value2);
+            return (Criteria) this;
+        }
+
+
+        public <T> Criteria orNotBetween(LambdaFunction<T, Object> property, Object value1, Object value2) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "not between", value1, value2);
+            return (Criteria) this;
+        }
+
+
+        public <T> Example.Criteria andLike(LambdaFunction<T, Object> property, String value) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "like", value);
+            return (Example.Criteria)this;
+        }
+
+
+        public <T> Criteria orLike(LambdaFunction<T, Object> property, String value) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "like", value);
+            return (Criteria) this;
+        }
+
+        public <T> Example.Criteria andNotLike(LambdaFunction<T, Object> property, String value) {
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "not like", value);
+            return (Example.Criteria)this;
+        }
+
+        public <T> Criteria orNotLike(LambdaFunction<T, Object> property, String value) {
+            addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "not like", value);
+            return (Criteria) this;
+        }
+
+        public <T> Example.Criteria andLike(LambdaFunction<T, Object> property, String value,LikeType likeType) {
+            addCriterionLike(Reflections.fieldNameForLambdaFunction(property), value, likeType, true);
+            return (Example.Criteria)this;
+        }
+
+        public <T> Criteria orLike(LambdaFunction<T, Object> property, String value,LikeType likeType) {
+            addOrCriterionLike(Reflections.fieldNameForLambdaFunction(property), value, likeType, true);
+            return (Criteria) this;
+        }
+
+        public <T> Example.Criteria andNotLike(LambdaFunction<T, Object> property, String value,LikeType likeType) {
+            addCriterionLike(Reflections.fieldNameForLambdaFunction(property), value, likeType, false);
+            return (Example.Criteria)this;
+        }
+
+        public <T> Criteria orNotLike(LambdaFunction<T, Object> property, String value,LikeType likeType) {
+            addOrCriterionLike(Reflections.fieldNameForLambdaFunction(property), value, likeType, false);
+            return (Criteria) this;
+        }
     }
 
 
@@ -338,6 +593,11 @@ public class Example extends AbstractExample<Example>{
     @Override
     public <T> T get() {
         return super.get();
+    }
+
+
+    public <T> Optional<T> getOne() {
+        return Optional.ofNullable(super.get());
     }
 
     @Override
@@ -354,7 +614,6 @@ public class Example extends AbstractExample<Example>{
     public int delete() {
         return super.delete();
     }
-
     @Override
     public void clear() {
         super.clear();

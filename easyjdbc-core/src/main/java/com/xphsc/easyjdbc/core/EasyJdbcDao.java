@@ -23,6 +23,7 @@ import com.xphsc.easyjdbc.page.PageInfo;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by ${huipei.x}
@@ -41,7 +42,7 @@ public interface EasyJdbcDao<T> {
      * insertForKey and return primary key
      *persistent  Persistent Entities
      */
-    public Object insertForKey(Object persistent);
+    public Object insertForKey(T persistent);
 
     /**
      *batch insert
@@ -51,6 +52,11 @@ public interface EasyJdbcDao<T> {
      *Obtaining objects based on primary key values
      */
     public <T> T getByPrimaryKey(Serializable primaryKeyValue);
+
+    /**
+     *Optional objects based on primary key values
+     */
+    public Optional<T> getById(Serializable id);
     /**
      *Delete objects based on primary key values
      */
@@ -59,6 +65,11 @@ public interface EasyJdbcDao<T> {
      *Delete objects based on primary key values for list
      */
     public int deleteByIds(Iterable primaryKeyValues);
+
+    /**
+     *delete object based on primary key value
+     */
+    public int delete(T persistent);
     /**
      *update by object
      */
@@ -68,7 +79,6 @@ public interface EasyJdbcDao<T> {
      *update by object
      */
     public int updateWithNull(T persistent);
-
     /**
      *update by object for batchUpdate
      */
@@ -103,12 +113,14 @@ public interface EasyJdbcDao<T> {
      *  count
      */
     public int count();
+
     /**
      *  query selector
      */
     public EasyJdbcSelector selector();
 
     public Example example();
+
 
     /**
      *Cache cleanup

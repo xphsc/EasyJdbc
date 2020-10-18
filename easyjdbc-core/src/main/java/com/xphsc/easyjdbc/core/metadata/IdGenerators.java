@@ -17,9 +17,16 @@ package com.xphsc.easyjdbc.core.metadata;
 
 
 /**
- *  ID生成器配置
+ *  ID generator configuration
  * Created by ${huipei.x}
  */
 public class IdGenerators {
+	/**
+	 * uuid generate ID
+	 */
 	public static final String UUID = "uuid";
+	/**
+	 * Snowflake algorithm generate ID
+	 */
+	public static final String SNOWFLAKEID = "SNOWFLAKEID";
 }

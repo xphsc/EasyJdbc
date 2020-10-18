@@ -23,7 +23,7 @@ import java.lang.annotation.Annotation;
 
 
 /**
- *  Transient注解解析器
+ *  Transient Annotation parser
  * Created by ${huipei.x}
  */
 public class TransientResolver implements Resolver {

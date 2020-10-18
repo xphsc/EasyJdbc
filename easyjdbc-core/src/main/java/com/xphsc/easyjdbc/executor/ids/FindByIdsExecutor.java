@@ -19,6 +19,8 @@ package com.xphsc.easyjdbc.executor.ids;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
+import com.xphsc.easyjdbc.core.lambda.Reflections;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.core.metadata.FieldElement;
@@ -38,8 +40,8 @@ public class FindByIdsExecutor<T> extends AbstractExecutor<T> {
 	private final SQL sqlBuilder = SQL.BUILD();
 	private EntityElement entityElement;
 
-	public FindByIdsExecutor(JdbcBuilder jdbcTemplate, Class<?> persistentClass, Iterable values) {
-		super(jdbcTemplate);
+	public <S> FindByIdsExecutor(LambdaSupplier<S> jdbcBuilder, Class<?> persistentClass, Iterable values) {
+		super(jdbcBuilder);
 		this.persistentClass = persistentClass;
 		this.primaryKeyValues = values;
 	}
@@ -69,7 +71,7 @@ public class FindByIdsExecutor<T> extends AbstractExecutor<T> {
 	@Override
 	protected T doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return (T) this.jdbcTemplate.query(sql,new EntityRowMapper<T>(LOBHANDLER,this.entityElement,this.persistentClass));
+		return (T) this.jdbcBuilder.query(sql,new EntityRowMapper<T>(LOBHANDLER,this.entityElement,this.persistentClass));
 	}
 
 

@@ -22,6 +22,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -31,10 +32,10 @@ import java.util.LinkedList;
 public class ValueBatchSetter implements BatchPreparedStatementSetter {
 
 	private final LobHandler lobHandler;
-	private final LinkedList<LinkedList<ValueElement>> batchValueElements;
+	private final List<LinkedList<ValueElement>> batchValueElements;
 
 	public ValueBatchSetter(LobHandler lobHandler
-				,LinkedList<LinkedList<ValueElement>> batchValueElements) {
+				,List<LinkedList<ValueElement>> batchValueElements) {
 		this.lobHandler = lobHandler;
 		this.batchValueElements = batchValueElements;
 	}
@@ -42,7 +43,7 @@ public class ValueBatchSetter implements BatchPreparedStatementSetter {
 	@Override
 	public void setValues(PreparedStatement ps,int i) throws SQLException {
 
-		LinkedList<ValueElement> valueElements = this.batchValueElements.get(i);
+		List<ValueElement> valueElements = this.batchValueElements.get(i);
 		for (int j = 0; j < valueElements.size(); j++) {
 			int paramIndex = j+1;
 			ValueElement param = valueElements.get(j);

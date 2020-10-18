@@ -15,6 +15,8 @@
  */
 package com.xphsc.easyjdbc.core.support;
 
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
+import com.xphsc.easyjdbc.core.lambda.Reflections;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
@@ -86,8 +88,8 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
      * <p>If no custom translator is provided, a default
      * {@link SQLErrorCodeSQLExceptionTranslator} is used
      * which examines the SQLException's vendor-specific error code.
-     * @see org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator
-     * @see org.springframework.jdbc.support.SQLStateSQLExceptionTranslator
+     * @see SQLErrorCodeSQLExceptionTranslator
+     * @see SQLStateSQLExceptionTranslator
      */
     protected void setExceptionTranslator(SQLExceptionTranslator exceptionTranslator) {
         this.exceptionTranslator = exceptionTranslator;
@@ -152,7 +154,7 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
     public void setDialectName(String dialectName) {
         this.dialectName = dialectName;
     }
-    protected void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+    protected  void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         if(jdbcTemplate.getDataSource()!=null){
             this.dataSource=jdbcTemplate.getDataSource();
@@ -160,10 +162,20 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
 
     }
 
+    protected <T> void setJdbcTemplate(LambdaSupplier<T> jdbcTemplate) {
+        this.jdbcTemplate = Reflections.classForLambdaSupplier(jdbcTemplate);
+        if(this.jdbcTemplate.getDataSource()!=null){
+            this.dataSource=this.jdbcTemplate.getDataSource();
+        }
+
+    }
+
     public JdbcBuilder getJdbcBuilder(){
-        JdbcBuilder jdbcBuilder=new JdbcBuilder(this.getJdbcTemplate(),useLocalCache, showSQL,interfaceClass!=null?interfaceClass:"com.xphsc.easyjdbc.EasyJdbcTemplate");
+        JdbcBuilder jdbcBuilder=new JdbcBuilder(this::getJdbcTemplate,this::isUseLocalCache, this::isShowSQL,this::getInterfaceClass);
         return jdbcBuilder;
     }
+
+
     /**
      * 获取jdbcTemplate
      */
@@ -182,5 +194,16 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
         this.interfaceClass=interfaceClass;
     };
 
+    private boolean isUseLocalCache() {
+        return useLocalCache;
+    }
 
+    private boolean isShowSQL() {
+        return showSQL;
+    }
+
+    private String getInterfaceClass() {
+        this.interfaceClass=interfaceClass!=null?interfaceClass:"com.xphsc.easyjdbc.EasyJdbcTemplate";
+        return interfaceClass;
+    }
 }

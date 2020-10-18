@@ -20,9 +20,12 @@ package com.xphsc.easyjdbc.executor;
 
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
+import com.xphsc.easyjdbc.core.metadata.FieldElement;
+import com.xphsc.easyjdbc.util.Assert;
+import com.xphsc.easyjdbc.util.Jdbcs;
 
 /**
  *   删除执行器
@@ -30,28 +33,41 @@ import com.xphsc.easyjdbc.core.support.JdbcBuilder;
  */
 public class DeleteExecutor extends AbstractExecutor<Integer> {
 	
-	private final Class<?> persistentClass;
-	private final Object primaryKeyValue;
+	private  Class<?> persistentClass;
+	private Object primaryKeyValue;
 	private final SQL sqlBuilder = SQL.BUILD();
-
-	public DeleteExecutor(JdbcBuilder jdbcTemplate, Class<?> persistentClass, Object primaryKeyValue) {
-		super(jdbcTemplate);
+	private  Object persistent;
+	public <S> DeleteExecutor(LambdaSupplier<S> jdbcBuilder, Class<?> persistentClass, Object primaryKeyValue) {
+		super(jdbcBuilder);
 		this.persistentClass = persistentClass;
 		this.primaryKeyValue = primaryKeyValue;
 	}
-	
+
+	public <S> DeleteExecutor(LambdaSupplier<S> jdbcBuilder, Object persistentClass) {
+		super(jdbcBuilder);
+		this.persistent = persistentClass;
+		this.persistentClass=persistentClass.getClass();
+	}
 	@Override
 	public void prepare() {
 		this.checkEntity(this.persistentClass);
 		EntityElement entityElement = ElementResolver.resolve(this.persistentClass);
 		this.sqlBuilder.DELETE_FROM(entityElement.getTable());
+		if(this.primaryKeyValue==null){
+			FieldElement primaryKey = entityElement.getPrimaryKey();
+			Object primaryKeyValue = Jdbcs.invokeMethod(this.persistent, primaryKey.getReadMethod()
+					, "entity：" + entityElement.getName() + " Primary key：" + primaryKey.getName() + " Failure to obtain value");
+			Assert.notNull(primaryKeyValue, "entity:" + entityElement.getName() + ", Primary key cannot be empty");
+			this.primaryKeyValue=primaryKeyValue;
+		}
+
 		this.sqlBuilder.WHERE(entityElement.getPrimaryKey().getColumn()+" = ?");
 	}
 
 	@Override
 	protected Integer doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcTemplate.update(sql,this.primaryKeyValue);
+		return this.jdbcBuilder.update(sql,this.primaryKeyValue);
 	}
 
 

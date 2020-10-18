@@ -18,22 +18,25 @@ package com.xphsc.easyjdbc.executor;
 
 
 import com.xphsc.easyjdbc.builder.SQL;
+import com.xphsc.easyjdbc.core.entity.InsertMode;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
+import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.transform.setter.ValueSetter;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.core.metadata.FieldElement;
 import com.xphsc.easyjdbc.core.metadata.ValueElement;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
+import com.xphsc.easyjdbc.core.metadata.type.FillDateTypeHandler;
 import com.xphsc.easyjdbc.util.Jdbcs;
+import com.xphsc.easyjdbc.util.StringUtil;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  *  新增执行器
@@ -43,20 +46,31 @@ public class InsertExecutor extends AbstractExecutor<Object> {
 
 	private final Object persistent;
 	private final SQL sqlBuilder = SQL.BUILD();
-	private LinkedList<ValueElement> valueElements;
-    boolean isReturnKey=false;
-	Object primaryKey = null;
-	public InsertExecutor(JdbcBuilder jdbcTemplate, Object persistent) {
-		super(jdbcTemplate);
+	private List<ValueElement> valueElements;
+	private boolean returnKey=false;
+	private Object primaryKey = null;
+	private  String insertMode;
+	public <S> InsertExecutor(LambdaSupplier<S> jdbcBuilder, Object persistent) {
+		super(jdbcBuilder);
 		this.persistent = persistent;
 	}
 
-	public InsertExecutor(JdbcBuilder jdbcTemplate, Object persistent, boolean isReturnKey) {
-		super(jdbcTemplate);
+	public <S> InsertExecutor(LambdaSupplier<S> jdbcBuilder, Object persistent, boolean returnKey) {
+		super(jdbcBuilder);
 		this.persistent = persistent;
-		this.isReturnKey = isReturnKey;
+		this.returnKey = returnKey;
 	}
-	
+	public <S> InsertExecutor(LambdaSupplier<S> jdbcBuilder, Object persistent, InsertMode insertMode) {
+		super(jdbcBuilder);
+		this.persistent = persistent;
+		this.insertMode = insertMode.name();
+	}
+	public <S> InsertExecutor(LambdaSupplier<S> jdbcBuilder, Object persistent,  boolean returnKey,InsertMode insertMode) {
+		super(jdbcBuilder);
+		this.persistent = persistent;
+		this.returnKey = returnKey;
+		this.insertMode = insertMode.name();
+	}
 	@Override
 	public void prepare() {
 		this.checkEntity(this.persistent.getClass());
@@ -73,6 +87,15 @@ public class InsertExecutor extends AbstractExecutor<Object> {
 				value = super.generatedId(this.persistent,fieldElement, value);
 				primaryKey=value;
 			}
+			if (fieldElement.isCreatedDateField()) {
+				value=FillDateTypeHandler.fillDate(fieldElement);
+			}
+			if(StringUtil.isNotBlank(insertMode)){
+				if(insertMode.equals(InsertMode.IGNORENULL.toString())&&null==value) {
+					continue;
+				}
+			}
+
 			this.sqlBuilder.VALUES(fieldElement.getColumn(), "?");
 			this.valueElements.add(new ValueElement(value,fieldElement.isClob(),fieldElement.isBlob()));
 		}
@@ -80,13 +103,13 @@ public class InsertExecutor extends AbstractExecutor<Object> {
 
 	@Override
 	protected Object doExecute() throws JdbcDataException{
-		final String sql = this.sqlBuilder.toString().toUpperCase();
-		if(isReturnKey){
+		final String sql = this.sqlBuilder.toString();
+		if(returnKey){
 			KeyHolder keyHolder = new GeneratedKeyHolder();
-			jdbcTemplate.update(new PreparedStatementCreator() {
+			jdbcBuilder.update(new PreparedStatementCreator() {
 									@Override
 									public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-										PreparedStatement ps = con.prepareStatement(sql.toString(), new String[]{"id"});
+										PreparedStatement ps = con.prepareStatement(sql.toString(), 1);
 										int i = 1;
 										for (ValueElement object : valueElements) {
 											ps.setObject(i, object.getValue());
@@ -98,10 +121,8 @@ public class InsertExecutor extends AbstractExecutor<Object> {
 					keyHolder);
 			return keyHolder.getKey()!=null?keyHolder.getKey():primaryKey;
 		}else{
-			return this.jdbcTemplate.update(sql,new ValueSetter(LOBHANDLER,this.valueElements));
+			return this.jdbcBuilder.update(sql,new ValueSetter(LOBHANDLER,this.valueElements));
 		}
 	}
-
-
 
 }

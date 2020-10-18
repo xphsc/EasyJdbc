@@ -18,7 +18,6 @@ package com.xphsc.easyjdbc.core.cache;
 
 
 
-
 import com.xphsc.easyjdbc.util.StringUtil;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class CacheKey implements Cloneable, Serializable {
         this.hashcode = DEFAULT_HASHCODE;
         this.multiplyer = DEFAULT_MULTIPLYER;
         this.count = 0;
-        this.updateList = new ArrayList<Object>();
+        this.updateList = new ArrayList<>();
     }
 
     public CacheKey(Object... objects) {
@@ -113,7 +112,7 @@ public class CacheKey implements Cloneable, Serializable {
     @Override
     protected CacheKey clone() throws CloneNotSupportedException {
         CacheKey cloneCacheKey = (CacheKey) super.clone();
-        cloneCacheKey.updateList = new ArrayList<Object>(updateList);
+        cloneCacheKey.updateList = new ArrayList<>(updateList);
         return cloneCacheKey;
     }
 

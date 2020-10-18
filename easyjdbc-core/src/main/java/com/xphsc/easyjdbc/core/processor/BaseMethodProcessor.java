@@ -36,10 +36,11 @@ public class BaseMethodProcessor extends AbstractDaoMethodProcessor {
     @Override
     public Object process() {
         simpleJdbcDao.modelClass=persistentClass;
+        MethodName methodName=new MethodName(method);
           if(this.parameters!=null){
               MethodParameterType methodParameterType=new MethodParameterType(method);
               if(methodParameterType.returnsPage){
-                  if(method.getName().equals(BaseMethodConstants.FIND_ALL)){
+                  if(methodName.returnFindAll){
                       pageInfo= (PageInfo) parameters[0];
                       Sorts sort=null;
                       if(parameters.length==2){
@@ -50,82 +51,81 @@ public class BaseMethodProcessor extends AbstractDaoMethodProcessor {
               }
 
               if(methodParameterType.returnsSorts){
-                  if(method.getName().equals(BaseMethodConstants.FIND_ALL)){
+                  if(methodName.returnFindAll){
                       Sorts sort= (Sorts) parameters[0];
                       return simpleJdbcDao.findAll(sort);
                   }
               }
 
               if(methodParameterType.returnsSerializable){
-                  if(method.getName().equals(BaseMethodConstants.GET_BY_PRIMARY_KEY)){
+                  if(methodName.returnGetByPrimaryKey){
                       return simpleJdbcDao.getByPrimaryKey((Serializable) parameters[0]);
                   }
-
-                  if(method.getName().equals(BaseMethodConstants.EXISTS)){
+                  if(methodName.returnExists){
                       return simpleJdbcDao.exists((Serializable) parameters[0]);
                   }
-
-                  if(method.getName().equals(BaseMethodConstants.DELETE_BY_PRIMARY_KEY)){
+                  if(methodName.returnGetById){
+                      return simpleJdbcDao.getById((Serializable) parameters[0]);
+                  }
+                  if(methodName.returnDeleteByPrimaryKey){
                       return simpleJdbcDao.deleteByPrimaryKey((Serializable) parameters[0]);
                   }
               }
-
               if(methodParameterType.returnsObject){
-                  if(method.getName().equals(BaseMethodConstants.INSERT)){
+                  if(methodName.returnInsert){
                       return simpleJdbcDao.insert(parameters[0]);
 
-                  }else if(method.getName().equals(BaseMethodConstants.INSERT_FOR_KEY)){
+                  }else if(methodName.returnInsertForKey){
                       return simpleJdbcDao.insertForKey(parameters[0]);
                   }
-                  else if(method.getName().equals(BaseMethodConstants.UPDATE)){
+                  else if(methodName.returnUpdate){
                       return simpleJdbcDao.update(parameters[0]);
                   }
-                  else if(method.getName().equals(BaseMethodConstants.UPDATE_WITH_NULL)){
+                  else if(methodName.returnUpdateWithNull){
                       return simpleJdbcDao.updateWithNull(parameters[0]);
                   }
-
-
+                  else if(methodName.returnDelete){
+                      return simpleJdbcDao.delete(parameters[0]);
+                  }
               }
               if(methodParameterType.returnsIterable) {
-                  if(method.getName().equals(BaseMethodConstants.FIND_BY_IDS)){
+                  if(methodName.returnFindByIds){
                       return simpleJdbcDao.findByIds((Iterable) parameters[0]);
                   }
-                  if(method.getName().equals(BaseMethodConstants.DELETE_BY_IDS)){
+                  if(methodName.returnDeleteByIds){
                       return simpleJdbcDao.deleteByIds((Iterable) parameters[0]);
                   }
               }
 
               if(methodParameterType.returnsList) {
-                  if(method.getName().equals(BaseMethodConstants.BATCH_INSERT)){
+                  if(methodName.returnBatchInsert){
                       return simpleJdbcDao.batchInsert((List) parameters[0]);
                   }
-                  if(method.getName().equals(BaseMethodConstants.BATCH_UPDATE)){
+                  if(methodName.returnBatchUpdate){
                       return simpleJdbcDao.batchUpdate((List) parameters[0]);
                   }
               }
 
 
           }else{
-              if(method.getName().equals(BaseMethodConstants.FIND_ALL)){
+              if(methodName.returnFindAll){
                   return simpleJdbcDao.findAll();
               }
-              if(method.getName().equals(BaseMethodConstants.COUNT)) {
+              if(methodName.returnCount) {
                   return simpleJdbcDao.count();
               }
-              if(method.getName().equals(BaseMethodConstants.EXAMPLE)){
+              if(methodName.returnExample){
                   return simpleJdbcDao.example();
               }
-              if(method.getName().equals(BaseMethodConstants.SELECTOR)){
+              if(methodName.returnSelector){
                   return  simpleJdbcDao.selector();
               }
-              if(method.getName().equals(BaseMethodConstants.GET_EASY_JDBC_TEMPLATE)){
+              if(methodName.returnGetEasyJdbcTemplate){
                   return  simpleJdbcDao.getEasyJdbcTemplate();
               }
-              if(method.getName().equals(BaseMethodConstants.CLEAR)){
-                    simpleJdbcDao.cacheClear();
+              if(methodName.returnCacheClear){
+                  simpleJdbcDao.cacheClear();
               }
-
-
           }
 
         return null;
@@ -168,10 +168,102 @@ public class BaseMethodProcessor extends AbstractDaoMethodProcessor {
         }
 
     }
+
+
+    public static class MethodName {
+        private boolean returnFindAll;
+        private boolean returnGetByPrimaryKey;
+        private boolean returnExists;
+        private boolean returnGetById;
+        private boolean returnDeleteByPrimaryKey;
+        private boolean  returnInsert;
+        private boolean  returnInsertForKey;
+        private boolean returnUpdate;
+        private boolean returnUpdateWithNull;
+        private boolean returnFindByIds;
+        private boolean returnDeleteByIds;
+        private boolean returnDelete;
+        private boolean returnBatchInsert;
+        private boolean returnBatchUpdate;
+        private boolean returnCount;
+        private boolean returnExample;
+        private boolean returnGetEasyJdbcTemplate;
+        private boolean returnCacheClear;
+        private boolean returnSelector;
+        public MethodName(Method method) {
+            String  name=method.getName();
+            if (name.equals(BaseMethodConstants.FIND_ALL)) {
+                this.returnFindAll = true;
+            }
+            if (name.equals(BaseMethodConstants.EXISTS)) {
+                this.returnExists = true;
+            }
+            if (name.equals(BaseMethodConstants.GET_BY_PRIMARY_KEY)) {
+                this.returnGetByPrimaryKey = true;
+            }
+
+            if (name.equals(BaseMethodConstants.GET_BY_ID)) {
+                this.returnGetById = true;
+            }
+            if (name.equals(BaseMethodConstants.DELETE_BY_PRIMARY_KEY)) {
+                this.returnDeleteByPrimaryKey = true;
+            }
+            if (name.equals(BaseMethodConstants.INSERT)) {
+                this.returnInsert = true;
+            }
+            if (name.equals(BaseMethodConstants.INSERT_FOR_KEY)) {
+                this.returnInsertForKey = true;
+            }
+
+            if (name.equals(BaseMethodConstants.UPDATE)) {
+                this.returnUpdate = true;
+            }
+            if (name.equals(BaseMethodConstants.UPDATE_WITH_NULL)) {
+                this.returnUpdateWithNull = true;
+            }
+            if (name.equals(BaseMethodConstants.FIND_BY_IDS)) {
+                this.returnFindByIds = true;
+            }
+
+            if (name.equals(BaseMethodConstants.DELETE_BY_IDS)) {
+                this.returnDeleteByIds = true;
+            }
+            if (name.equals(BaseMethodConstants.DELETE)) {
+                this.returnDelete = true;
+            }
+            if (name.equals(BaseMethodConstants.BATCH_INSERT)) {
+                this.returnBatchInsert = true;
+            }
+            if (name.equals(BaseMethodConstants.BATCH_UPDATE)) {
+                this.returnBatchUpdate = true;
+            }
+            if (name.equals(BaseMethodConstants.COUNT)) {
+                this.returnCount = true;
+            }
+            if (name.equals(BaseMethodConstants.EXAMPLE)) {
+                this.returnExample = true;
+            }
+            if (name.equals(BaseMethodConstants.SELECTOR)) {
+                this.returnSelector = true;
+            }
+            if (name.equals(BaseMethodConstants.GET_EASY_JDBC_TEMPLATE)) {
+                this.returnGetEasyJdbcTemplate = true;
+            }
+            if (name.equals(BaseMethodConstants.CLEAR)) {
+                this.returnCacheClear = true;
+            }
+
+
+        }
+
+    }
+
+
         private class BaseMethodConstants{
         public static final String FIND_ALL="findAll";
         public static final String GET_BY_PRIMARY_KEY="getByPrimaryKey";
         public static final String EXISTS="exists";
+        public static final String GET_BY_ID="getById";
         public static final String DELETE_BY_PRIMARY_KEY="deleteByPrimaryKey";
         public static final String INSERT="insert";
         public static final String INSERT_FOR_KEY="insertForKey";
@@ -179,6 +271,7 @@ public class BaseMethodProcessor extends AbstractDaoMethodProcessor {
         public static final String UPDATE_WITH_NULL="updateWithNull";
         public static final String  FIND_BY_IDS="findByIds";
         public static final String  DELETE_BY_IDS="deleteByIds";
+        public static final String  DELETE="delete";
         public static final String  BATCH_INSERT="batchInsert";
         public static final String  BATCH_UPDATE="batchUpdate";
         public static final String  COUNT="count";

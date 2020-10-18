@@ -21,6 +21,7 @@ package com.xphsc.easyjdbc.core.cache;
  * @date  2019-3-18
  * @description
  */
+
 public interface CachekeyBuiler {
 
     CacheKey createCachekey();

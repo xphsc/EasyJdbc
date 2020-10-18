@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019  huipei.x
+ * Copyright (c) 2018  huipei.x
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xphsc.easyjdbc.core.parser;
+package com.xphsc.easyjdbc.core.metadata.resolver;
+
+
+import com.xphsc.easyjdbc.core.metadata.Element;
+import com.xphsc.easyjdbc.core.metadata.FieldElement;
+
+import java.lang.annotation.Annotation;
 
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description
+ *  Transient Annotation parser
+ * Created by ${huipei.x}
  */
-public interface SQLUpdateParser {
-
-    String sqlProvider(String sql, SQLParser sqlParser);
+public class CreatedDateResolver implements Resolver {
+	@Override
+	public void resolve(Element element, Annotation annotation) {
+		FieldElement fieldElement = (FieldElement)element;
+		fieldElement.setCreatedDateField(Boolean.TRUE);
+	}
+	
 }
