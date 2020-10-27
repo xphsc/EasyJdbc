@@ -31,5 +31,5 @@ easyjdbc在spring jdbctemplate之上进行了一些包装，支持部分常用�
 #### [更新日志 - GitHub](https://github.com/xphsc/easyjdbc/wiki/changelog)
 #### [集成文档 - gitee](https://gitee.com/xphsc/easyjdbc/wikis/Home)
 #### [更新日志 - gitee](https://gitee.com/xphsc/easyjdbc/wikis/changelog?sort_id=751915)
-#### [QQ技术交流群：593802274，893869894]
+#### [QQ技术交流群：59380227]
 欢迎尝试！喜欢记得star哟~
