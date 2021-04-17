@@ -30,7 +30,12 @@ public class DialectAlias {
     public static final String H2 = "h2";
     public static final String HSQLDB = "hsqldb";
     public static final String INFORMIX = "informix";
-
+    public static final String PHOENIX = "phoenix";
+    public static final String HERDDB = "herddb";
+    public static final String DM = "dm";
+    public static final String EDB = "edb";
+    public static final String OSCAR = "oscar";
+    public static final String CLICKHOUSE = "clickhouse";
 
 
 }

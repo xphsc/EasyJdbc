@@ -39,7 +39,7 @@ import java.util.Map;
 public class DaoMethod {
 
     private Class<?> modelClass;
-    private AbstractDaoMethodProcessor daoMethodProcessor=null;
+    private AbstractDaoMethodProcessor daoMethodProcessor;
     private Method method;
     private Object[] parameters;
     private SimpleJdbcDao simpleJdbcDao;

@@ -16,7 +16,7 @@
 package com.xphsc.easyjdbc.core.factory;
 
 
-import com.xphsc.easyjdbc.annotation.EasyDao;
+import com.xphsc.easyjdbc.annotation.Dao;
 import com.xphsc.easyjdbc.core.binding.DaoProxy;
 import com.xphsc.easyjdbc.util.StringUtil;
 import org.springframework.beans.BeansException;
@@ -37,7 +37,7 @@ public class EasyDaoBeanScannerConfigurer implements BeanDefinitionRegistryPostP
 
     private String basePackage;
 
-    private Class<? extends Annotation> annotation = EasyDao.class;
+    private Class<? extends Annotation> annotation = Dao.class;
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {

@@ -15,16 +15,20 @@
  */
 package com.xphsc.easyjdbc.core.factory;
 
-import com.xphsc.easyjdbc.annotation.EasyDao;
+import com.xphsc.easyjdbc.annotation.Dao;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.stereotype.Repository;
+
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Set;
+
+import static org.springframework.beans.factory.support.AbstractBeanDefinition.AUTOWIRE_NO;
 
 /**
  * @author huipei.x
@@ -38,8 +42,11 @@ public class EasyDaoClassPathMapperScanner extends ClassPathBeanDefinitionScanne
 
         super(registry, false);
         addIncludeFilter(new AnnotationTypeFilter(annotation));
-        if (!EasyDao.class.equals(annotation)) {
-            addIncludeFilter(new AnnotationTypeFilter(EasyDao.class));
+        if (!Dao.class.equals(annotation)) {
+            addIncludeFilter(new AnnotationTypeFilter(Dao.class));
+        }
+        if (!Repository.class.equals(annotation)) {
+            addIncludeFilter(new AnnotationTypeFilter(Repository.class));
         }
     }
 

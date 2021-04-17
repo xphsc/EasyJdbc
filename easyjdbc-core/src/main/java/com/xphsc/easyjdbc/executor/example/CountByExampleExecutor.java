@@ -29,7 +29,7 @@ import com.xphsc.easyjdbc.util.Assert;
  *  实体查询执行器
  * Created by ${huipei.x}
  */
-public class CountByExampleExecutor extends AbstractExecutor<Integer> {
+public class CountByExampleExecutor extends AbstractExecutor<Long> {
 
 	private String querySql;
 	private SQL sqlBuilder;
@@ -61,11 +61,11 @@ public class CountByExampleExecutor extends AbstractExecutor<Integer> {
 	}
 
 	@Override
-	protected Integer doExecute() throws JdbcDataException {
+	protected Long doExecute() throws JdbcDataException {
 		if(null==this.parameters||this.parameters.length==0){
-			return this.jdbcBuilder.queryForObject(this.querySql,Integer.class);
+			return this.jdbcBuilder.queryForObject(this.querySql,Long.class);
 		} else {
-			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters,Integer.class);
+			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters,Long.class);
 		}
 	}
 

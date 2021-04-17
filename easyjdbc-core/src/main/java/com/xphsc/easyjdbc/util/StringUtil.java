@@ -187,7 +187,6 @@ public class StringUtil {
         }
 
         String ls = s.toLowerCase();
-
         StringBuilder sb = new StringBuilder(ls.length());
         boolean upperCase = false;
         for (int i = 0; i < ls.length(); i++) {
@@ -211,7 +210,6 @@ public class StringUtil {
         if (s == null) {
             return null;
         }
-
         StringBuilder sb = new StringBuilder();
         boolean upperCase = false;
         for (int i = 0; i < s.length(); i++) {
@@ -224,7 +222,7 @@ public class StringUtil {
             }
 
             if ((i > 0) && Character.isUpperCase(c)) {
-                if (!upperCase || !nextUpperCase) {
+                if (!upperCase && !nextUpperCase) {
                     sb.append('_');
                 }
                 upperCase = true;
@@ -237,6 +235,7 @@ public class StringUtil {
 
         return sb.toString();
     }
+
 
     public static int hashcode(Object object) {
         if (object == null) {

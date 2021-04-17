@@ -52,9 +52,10 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
     private String providerMethodName = null;
     private boolean useGeneratedKeys=false;
     private String keyProperty=null;
+    private boolean hasInsertOrUpdatePlaceHolder=false;
     @Override
     public Object process() {
-        boolean hasInsertOrUpdatePlaceHolder=false;
+
         Object[] result=null;
          getAnnotationType();
         SQLOptionTypeParser sqlOptionTypeParser
@@ -110,15 +111,12 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
         }
 
         SQLParser sqlParser=new DefaultSQLParser();
-        if(sqlParser.hasInsertOrUpdatePlaceHolder(sql)){
+        if(hasInsertOrUpdatePlaceHolder){
             result =sqlParser.sqlPlaceHolder(sql, paramsMap, false);
-            hasInsertOrUpdatePlaceHolder=true;
         }else if(sqlParser.hasOgnlPlaceHolder(sql)){
-            hasInsertOrUpdatePlaceHolder=true;
             result =sqlParser.sqlPlaceHolder(sql, paramsMap, true);
 
         }else{
-            hasInsertOrUpdatePlaceHolder=true;
             result =sqlParser.sqlPlaceHolder(sql, null, true);
         }
 
@@ -169,6 +167,8 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
                 if(hasInsertOrUpdatePlaceHolder){
                     returnResult=simpleJdbcDao.getEasyJdbcTemplate().getJdbcBuilder().update((String) result[0], (Object[]) result[1]);
                 }
+
+
             }
         }
         if(returnsOptional){
@@ -209,6 +209,7 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
 
     private  void getAnnotationType(){
             if (annotation instanceof SqlInsert) {
+                hasInsertOrUpdatePlaceHolder=true;
                 SqlInsert sqlInsert = (SqlInsert) annotation;
                 sql = sqlInsert.value();
             }
@@ -227,6 +228,7 @@ public class AnnotationMethodProcessor extends AbstractDaoMethodProcessor {
         }
 
             if (annotation instanceof SqlUpdate) {
+                hasInsertOrUpdatePlaceHolder=true;
                 SqlUpdate  sqlUpdate = (SqlUpdate) annotation;
                 sql = sqlUpdate.value();
             }

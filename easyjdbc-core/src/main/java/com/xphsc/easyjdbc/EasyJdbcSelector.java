@@ -28,9 +28,8 @@ import com.xphsc.easyjdbc.core.support.JdbcBuilder;
 import com.xphsc.easyjdbc.page.PageInfo;
 import com.xphsc.easyjdbc.page.PageInfoImpl;
 import com.xphsc.easyjdbc.util.Assert;
+import com.xphsc.easyjdbc.util.Collects;
 import com.xphsc.easyjdbc.util.StringUtil;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
-
 import java.util.*;
 
 
@@ -39,7 +38,7 @@ import java.util.*;
  */
 public class EasyJdbcSelector {
 
-	private final JdbcBuilder jdbcTemplate;
+	private final JdbcBuilder jdbcBuilder;
 	private final String dialectName;
 	private String sql;
 	private Integer offset;
@@ -49,8 +48,8 @@ public class EasyJdbcSelector {
 	private  Map<String,String> mappings ;
 	private final LinkedList<Object> parameters;
 
-	protected <T> EasyJdbcSelector(LambdaSupplier<T> jdbcTemplate, StringSupplier dialectName){
-		this.jdbcTemplate= Reflections.classForLambdaSupplier(jdbcTemplate);
+	protected <T> EasyJdbcSelector(LambdaSupplier<T> jdbcBuilder, StringSupplier dialectName){
+		this.jdbcBuilder= Reflections.classForLambdaSupplier(jdbcBuilder);
 		this.dialectName=dialectName.get();
 		parameters= new LinkedList<Object>();
 	}
@@ -166,17 +165,10 @@ public class EasyJdbcSelector {
 			this.sql = this.sqlBuilder.toString();
 		}
 		Assert.hasText(sql, "SQL statement cannot be empty");
-		FindExecutor<List<T>> executor =  new FindExecutor<List<T>>(this::getJdbcTemplate,dialectName,entityClass,sql,parameters.toArray());
+		FindExecutor<List<T>> executor =  new FindExecutor<List<T>>(this::getJdbcBuilder,dialectName,entityClass,sql,parameters.toArray());
 		List<T> results = executor.execute();
 		executor = null;//hlep gc.
-		int size = (results != null ? results.size() : 0);
-		if(size>1){
-			new IncorrectResultSizeDataAccessException(1, size);
-		}
-		if(size==1){
-			return results.get(0);
-		}
-		return null;
+		return Collects.isNotEmpty(results)?results.get(0): null;
 	}
 
 	/**
@@ -197,7 +189,7 @@ public class EasyJdbcSelector {
 		}
 		Assert.hasText(sql, "SQL statement cannot be empty");
 		FindExecutor<List<T>> executor =  new FindExecutor<List<T>>(
-				this::getJdbcTemplate, dialectName,entityClass,sql
+				this::getJdbcBuilder, dialectName,entityClass,sql
 				,parameters.toArray(),this.mappings,offset,limit);
 		List<T> results = executor.execute();
 		executor = null;//hlep gc.
@@ -217,7 +209,7 @@ public class EasyJdbcSelector {
 			}
 			Assert.hasText(sql, "SQL statement cannot be empty");
 			FindExecutor<List<T>> executor =  new FindExecutor<List<T>>(
-					this::getJdbcTemplate, dialectName,entityClass,sql
+					this::getJdbcBuilder, dialectName,entityClass,sql
 					,parameters.toArray(),this.mappings,pageInfo);
 			 results = executor.execute();
 			 total=count();
@@ -234,13 +226,13 @@ public class EasyJdbcSelector {
 	 * Number of query entities
 	 * @return Number of entries
 	 */
-	public int  count() throws JdbcDataException {
+	public long  count() throws JdbcDataException {
 		if(StringUtil.isBlank(this.sql)) {
 			this.sql = this.sqlBuilder.toString();
 		}
 		Assert.hasText(sql, "SQL statement cannot be empty");
-		CountExecutor executor =  new CountExecutor(this::getJdbcTemplate,sql,parameters.toArray());
-		int count = executor.execute();
+		CountExecutor executor =  new CountExecutor(this::getJdbcBuilder,sql,parameters.toArray());
+		long count = executor.execute();
 		executor = null;//hlep gc.
 		return count;
 	}
@@ -318,7 +310,7 @@ public class EasyJdbcSelector {
 		return getSelf();
 	}
 
-	private JdbcBuilder getJdbcTemplate() {
-		return jdbcTemplate;
+	private JdbcBuilder getJdbcBuilder() {
+		return jdbcBuilder;
 	}
 }

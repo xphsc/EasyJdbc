@@ -20,8 +20,6 @@ import com.xphsc.easyjdbc.page.PageInfo;
 import com.xphsc.easyjdbc.page.PageInfoImpl;
 import com.xphsc.easyjdbc.util.Assert;
 import com.xphsc.easyjdbc.util.Collects;
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -42,12 +40,15 @@ public class DefaultSQLSelectParser implements SQLSelectParser  {
         Object returnResult=null;
         if(methodReturnType.returnsList){
             Object[] result=null;
-            if(sqlParser.hasFieldPlaceHolder(selectSql)||sqlParser.hasOgnlPlaceHolder(selectSql)){
+            if(sqlParser.hasFieldPlaceHolder(selectSql)||sqlParser.hasOgnlPlaceHolder(selectSql)||sqlParser.hasObjectPlaceHolder(selectSql)){
                 if(sqlParser.hasFieldPlaceHolder(selectSql)){
                     result =sqlParser.sqlPlaceHolder(selectSql, paramsMap, false);
                 }
                 if (sqlParser.hasOgnlPlaceHolder(selectSql)){
                     result =sqlParser.sqlPlaceHolder(selectSql, paramsMap, true);
+                }
+                if (sqlParser.hasObjectPlaceHolder(selectSql)){
+                    result =sqlParser.sqlPlaceHolder(selectSql, paramsMap,false);
                 }
                 if(Collects.isNotEmpty(paramsMap)){
                     returnResult= methodReturnType.returnsMap?
@@ -55,7 +56,6 @@ public class DefaultSQLSelectParser implements SQLSelectParser  {
                             simpleJdbcDao.getEasyJdbcTemplate().find((String) result[0], modelClass, (Object[]) result[1]);
                 }
             }else{
-
                     returnResult= methodReturnType.returnsMap ?
                             simpleJdbcDao.getEasyJdbcTemplate().getJdbcBuilder().queryForList(selectSql) :
                             simpleJdbcDao.getEasyJdbcTemplate().find(selectSql, modelClass, null);
@@ -69,18 +69,30 @@ public class DefaultSQLSelectParser implements SQLSelectParser  {
 
         }
         if(methodReturnType.returnsPage){
+
+            Object[] result=null ;
+            if(sqlParser.hasFieldPlaceHolder(selectSql)){
+                result =sqlParser.sqlPlaceHolder(selectSql, paramsMap, false);
+            }
+            if (sqlParser.hasOgnlPlaceHolder(selectSql)){
+                result =sqlParser.sqlPlaceHolder(selectSql, paramsMap, true);
+            }
+            if (sqlParser.hasObjectPlaceHolder(selectSql)){
+                result =sqlParser.sqlPlaceHolder(selectSql, paramsMap,false);
+            }
             if(pageInfo==null){
                 pageInfo=new PageInfo();
             }
             boolean containsOffset=Collects.containsKey(paramsMap, "offset");
             boolean containsLimit=Collects.containsKey(paramsMap,"limit");
             if(!containsOffset&&!containsLimit){
-                Assert.isTrue(Collects.containsKey(paramsMap, "pageNum"), "The parameter must have pageNum attribute");
-                Assert.isTrue(Collects.containsKey(paramsMap, "pageSize"), "The parameter must have pageSize attribute");
-                Integer pageNum= Collects.getInteger( paramsMap, "pageNum");
-                Integer pageSize=Collects.getInteger( paramsMap,"pageSize");
-                pageInfo.setPageNum(pageNum);
-                pageInfo.setPageSize(pageSize);
+                    Assert.isTrue(Collects.containsKey(paramsMap, "pageNum"), "The parameter must have pageNum attribute");
+                    Assert.isTrue(Collects.containsKey(paramsMap, "pageSize"), "The parameter must have pageSize attribute");
+                    Integer pageNum= Collects.getInteger( paramsMap, "pageNum");
+                    Integer pageSize=Collects.getInteger(paramsMap,"pageSize");
+                    pageInfo.setPageNum(pageNum);
+                    pageInfo.setPageSize(pageSize);
+
             }else{
                 Assert.isTrue(containsOffset,"Parameters must have offset attributes");
                 Assert.isTrue(containsLimit, "The parameter must have a limit attribute");
@@ -89,14 +101,6 @@ public class DefaultSQLSelectParser implements SQLSelectParser  {
                 pageInfo.setOffset(offset);
                 pageInfo.setPageSize(limit);
 
-            }
-
-            Object[] result=null ;
-            if(sqlParser.hasFieldPlaceHolder(selectSql)){
-                result =sqlParser.sqlPlaceHolder(selectSql, paramsMap, false);
-            }
-            if (sqlParser.hasOgnlPlaceHolder(selectSql)){
-                result =sqlParser.sqlPlaceHolder(selectSql, paramsMap, true);
             }
             PageInfo<?> resultPage = null;
             if(result==null){
@@ -135,10 +139,15 @@ public class DefaultSQLSelectParser implements SQLSelectParser  {
             if (sqlParser.hasOgnlPlaceHolder(selectSql)){
                 result =sqlParser.sqlPlaceHolder(selectSql, paramsMap,true);
             }
+            if (sqlParser.hasObjectPlaceHolder(selectSql)){
+                result =sqlParser.sqlPlaceHolder(selectSql, paramsMap,false);
+            }
             Object[] sqlAndParams={selectSql,null};
             if(methodReturnType.returnsCountTypes){
                 returnResult= result==null?count(simpleJdbcDao, method.getReturnType(),sqlAndParams) : count(simpleJdbcDao, method.getReturnType(), result);
-            }else if(!methodReturnType.returnsVoid){
+            } else if(methodReturnType.returnsVoid){
+                  simpleJdbcDao.getEasyJdbcTemplate().execute((String) sqlAndParams[0]);
+            } else if(!methodReturnType.returnsVoid){
                 result=result==null?sqlAndParams:result;
                 returnResult= methodReturnType.returnsMap?
                        simpleJdbcDao.getEasyJdbcTemplate().getJdbcBuilder().queryForMap((String) result[0], (Object[]) result[1]):
@@ -180,13 +189,13 @@ public class DefaultSQLSelectParser implements SQLSelectParser  {
 
     private static Object count(SimpleJdbcDao simpleJdbcDao,Class<?> returnType, Object[] result){
         Object count= simpleJdbcDao.getEasyJdbcTemplate().count((String) result[0], (Object[]) result[1]);
-        Object  longResult=null;
-        longResult=
-            returnType.isAssignableFrom(Long.class)||
-            returnType.isAssignableFrom(long.class)?
-            Long.valueOf(count.toString()):
-            null;
-        return longResult==null?count:longResult;
+        Object IntegerResult=
+                returnType.isAssignableFrom(int.class)||
+            returnType.isAssignableFrom(Integer.class)?Integer.valueOf(count.toString()):null;
+        Object longResult=
+                returnType.isAssignableFrom(long.class)||
+                        returnType.isAssignableFrom(Long.class)?Long.valueOf(count.toString()):null;
+        return IntegerResult==null?longResult:IntegerResult;
     }
 
 
@@ -230,6 +239,7 @@ public class DefaultSQLSelectParser implements SQLSelectParser  {
           this.returnsOptional = Optional.class.equals(returnType);
 
           if(type instanceof ParameterizedType){
+              final String EQURE_MAP="Map";
                 if(returnsOptional){
                     type = ((ParameterizedType) type).getActualTypeArguments()[0];
                     if(type.equals(Map.class)||
@@ -243,7 +253,7 @@ public class DefaultSQLSelectParser implements SQLSelectParser  {
                     }else{
                         this.returnsList=((ParameterizedType) type).getRawType().equals(List.class);
                         this.returnsPage=((ParameterizedType) type).getRawType().equals(PageInfo.class);
-                        if (((ParameterizedType) type).getActualTypeArguments()[0].getClass().equals(ParameterizedTypeImpl.class)){
+                        if (((ParameterizedType) type).getActualTypeArguments()[0].getTypeName().contains(EQURE_MAP)){
                             entityClass=Map.class;
                         }else{
                             entityClass = (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
@@ -252,11 +262,13 @@ public class DefaultSQLSelectParser implements SQLSelectParser  {
 
 
                 }else{
-                    if (((ParameterizedType) type).getActualTypeArguments()[0].getClass().equals(ParameterizedTypeImpl.class)){
+                     if (((ParameterizedType) type).getActualTypeArguments()[0].getTypeName().contains(EQURE_MAP)){
                         entityClass=Map.class;
                     }else{
                         entityClass = (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0];
                     }
+
+
 
                 }
 

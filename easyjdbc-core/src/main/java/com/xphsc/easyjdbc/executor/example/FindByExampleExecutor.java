@@ -20,7 +20,6 @@ package com.xphsc.easyjdbc.executor.example;
 import com.xphsc.easyjdbc.builder.SQL;
 import com.xphsc.easyjdbc.core.exception.JdbcDataException;
 import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
-import com.xphsc.easyjdbc.core.lambda.Reflections;
 import com.xphsc.easyjdbc.core.metadata.DynamicEntityElement;
 import com.xphsc.easyjdbc.core.metadata.ElementResolver;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
@@ -99,7 +98,9 @@ public class FindByExampleExecutor<T>  extends AbstractExecutor<T> {
             this.dynamicEntityElement = ElementResolver.resolveDynamic(this.persistentClass,this.dynamicMappings);
         }
        List<String> columns=new ArrayList(10);
-        sqlBuilder.FROM(this.newEntityElement.getTable());
+        if(!sqlBuilder.toString().contains(this.newEntityElement.getTable())){
+            sqlBuilder.FROM(this.newEntityElement.getTable());
+        }
         Iterator i = this.newEntityElement.getFieldElements().values().iterator();
             while(i.hasNext()) {
                 FieldElement fieldElement = (FieldElement)i.next();

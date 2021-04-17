@@ -33,8 +33,8 @@ import com.xphsc.easyjdbc.page.PageInfo;
 import com.xphsc.easyjdbc.page.PageInfoImpl;
 import com.xphsc.easyjdbc.core.support.EasyJdbcAccessor;
 import com.xphsc.easyjdbc.util.Assert;
+import com.xphsc.easyjdbc.util.Collects;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 import java.io.Serializable;
@@ -234,12 +234,7 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
     public <T> T get(String sql,Class<?> persistentClass,Object... parameters) throws JdbcDataException{
         Assert.notNull(persistentClass, "Entity type cannot be empty");
         List<T> results = find( sql,persistentClass,parameters);
-        int size = (results != null ? results.size() : 0);
-        if(size>1){
-            new IncorrectResultSizeDataAccessException(1, size);
-        }
-        Assert.notEmpty(results,"The get method must not be empty.");
-        return results.get(0);
+       return Collects.isNotEmpty(results)?results.get(0):null;
     }
 
     /**
@@ -338,8 +333,9 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
     @Override
     public <T> PageInfo<T> findByPage(SQL selectSql,Class<?> persistentClass,PageInfo page,Object... parameters) throws JdbcDataException{
         List<T> list= find(selectSql,persistentClass,page,parameters);
-        int total= count(selectSql.toString(), parameters);
-        return new PageInfoImpl<T>(list,total,page.getPageNum(),page.getPageSize());
+        long total= count(selectSql.toString(), parameters);
+        PageInfo pageInfo= pageInfo(page);
+        return new PageInfoImpl<T>(list,total,pageInfo.getPageNum(),pageInfo.getPageSize());
     }
 
 
@@ -383,12 +379,10 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
     }
     @Override
     public <T> PageInfo<T> findByPage(String selectSql,Class<?> persistentClass,PageInfo page,Object... parameters) throws JdbcDataException{
-
         List<T> list= find(selectSql,persistentClass,page,parameters);
-        int total= count(selectSql.toString(), parameters);
-        int pageNum=(int) Math.ceil((double) ((page.getOffset() +page.getLimit()) / page.getLimit()));
-        int pageSize=page.getLimit();
-        return new PageInfoImpl<T>(list,total,pageNum,pageSize);
+        long total= count(selectSql, parameters);
+        PageInfo pageInfo= pageInfo(page);
+        return new PageInfoImpl<T>(list,total,pageInfo.getPageNum(),pageInfo.getPageSize());
     }
 
     /**
@@ -413,10 +407,10 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
     @Override
     public <T> PageInfo<T> findByPage(String selectSql,Class<?> persistentClass,Integer offset,Integer limit,Object... parameters) throws JdbcDataException{
         List<T> list= find(selectSql,persistentClass,offset,limit,parameters);
-        int total= count(selectSql.toString(), parameters);
-        int pageNum=(int) Math.ceil((double) ((offset +limit) / limit));
-        int pageSize=limit;
-        return new PageInfoImpl<T>(list,total,pageNum,pageSize);
+        long total= count(selectSql.toString(), parameters);
+        PageInfo page=PageInfo.builder().offset(offset).limit(limit).build();
+        PageInfo pageInfo= pageInfo(page);
+        return new PageInfoImpl<T>(list,total,pageInfo.getPageNum(),pageInfo.getPageSize());
     }
 
     @Override
@@ -435,10 +429,10 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
      * @param parameters Statistical parameter
      */
     @Override
-    public int count(String sql,Object... parameters) throws JdbcDataException{
+    public long count(String sql,Object... parameters) throws JdbcDataException{
         Assert.hasText(sql, "SQL statement cannot be empty");
         CountExecutor executor =  new CountExecutor(this::getJdbcBuilder,sql,parameters);
-        int count = executor.execute();
+        long count = executor.execute();
         executor = null;
         return count;
     }
@@ -450,10 +444,10 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
      * @throws JdbcDataException
      */
     @Override
-    public int count(Class<?> persistentClass) throws JdbcDataException{
+    public long count(Class<?> persistentClass) throws JdbcDataException{
         Assert.notNull(persistentClass, "Entity type cannot be empty");
         CountExecutor executor =  new CountExecutor(this::getJdbcBuilder,persistentClass);
-        int count = executor.execute();
+        long count = executor.execute();
         executor = null;
         return count;
     }
@@ -461,9 +455,9 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
     @Override
     public Map<?,?> call(String sql, Class<?> persistentClass, Map<Integer, Integer> outParameters,  Object[] parameters) throws JdbcDataException{
         ExecProcExecutor executor =  new ExecProcExecutor(this::getJdbcBuilder,sql,persistentClass,outParameters,parameters);
-        Map<?,?> count = (Map<?, ?>) executor.execute();
+        Map<?,?> map = (Map<?, ?>) executor.execute();
         executor = null;
-        return count;
+        return map;
     }
 
 
@@ -474,8 +468,8 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
      */
     @Deprecated
    public <T> List<T>  findByExample(Example example) throws JdbcDataException{
-      example.jdbcTemplate=this.getJdbcBuilder();
-       example.dialectName=getDialectName();
+        example.jdbcBuilder=this.getJdbcBuilder();
+        example.dialectName=this.getDialectName();
        List<T> list=example.list();
         return list;
     }
@@ -486,12 +480,9 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
      */
     @Deprecated
     public <T> T  getByExample(Example example) throws JdbcDataException {
-        List<T> results = findByExample(example);
-        int size = (results != null ? results.size() : 0);
-        if(size>1){
-            new IncorrectResultSizeDataAccessException(1, size);
-        }
-        return results.get(0);
+        example.jdbcBuilder=this.getJdbcBuilder();
+        example.dialectName=this.getDialectName();
+        return example.get();
     }
 
     /**
@@ -500,10 +491,10 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
      */
 
     @Deprecated
-    public int countByExample(Example example) throws JdbcDataException{
-       example.jdbcTemplate=this.getJdbcBuilder();
-       example.dialectName=getDialectName();
-        int count=example.count();
+    public long countByExample(Example example) throws JdbcDataException{
+        example.jdbcBuilder=this.getJdbcBuilder();
+        example.dialectName=this.getDialectName();
+        long count=example.count();
         return count;
     }
 
@@ -515,8 +506,8 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
      */
     @Deprecated
    public <T> PageInfo<T> findByPage(Example example) throws JdbcDataException{
-       example.jdbcTemplate=this.getJdbcBuilder();
-       example.dialectName=getDialectName();
+        example.jdbcBuilder=this.getJdbcBuilder();
+        example.dialectName=this.getDialectName();
        PageInfo<T> pageInfo=example.page();
         return pageInfo;
     }
@@ -537,7 +528,10 @@ public class EasyJdbcTemplate extends EasyJdbcAccessor implements EasyJdbcOperat
 
     @Override
     public Example example(Class<?> persistentClass){
-       return new Example(persistentClass,this::getJdbcBuilder,this::getDialectName);
+        Example example=new Example(persistentClass);
+        example.jdbcBuilder=this.getJdbcBuilder();
+        example.dialectName=this.getDialectName();
+       return example;
 
     }
 

@@ -30,8 +30,6 @@ import com.xphsc.easyjdbc.page.PageInfoImpl;
 import com.xphsc.easyjdbc.util.Assert;
 import com.xphsc.easyjdbc.util.Collects;
 import com.xphsc.easyjdbc.util.StringUtil;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
-
 import javax.persistence.Entity;
 import java.util.*;
 
@@ -52,7 +50,7 @@ public abstract class AbstractExample<T> {
     protected LinkedList<String> excludePropertys;
     protected EntityElement entityElement;
     protected  Map<String,String> mappings;
-    public JdbcBuilder jdbcTemplate;
+    public JdbcBuilder jdbcBuilder;
     public  String dialectName;
     protected  LinkedList<Object> parameters;
     protected LinkedList<String> selectPropertys;
@@ -498,10 +496,10 @@ public abstract class AbstractExample<T> {
         if(Collects.isEmpty(parameters)){
             parameters=new LinkedList<>();
         }
-        if(jdbcTemplate!=null){
+        if(jdbcBuilder!=null){
             FindByExampleExecutor<List<T>> executor =  new FindByExampleExecutor<List<T>>(
                     applyWhere(), persistentClass,entityClass,pageInfo
-                    ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),this::getJdbcTemplate,dialectName);
+                    ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),this::getJdbcBuilder,dialectName);
             List<T> results = executor.execute();
             executor = null;
             return results;
@@ -511,14 +509,11 @@ public abstract class AbstractExample<T> {
 
     protected <T> T  get() {
         List<T> results=list();
-        int size = (results != null ? results.size() : 0);
-        if(size>1){
-            new IncorrectResultSizeDataAccessException(1, size);
-        }
-        return results.get(0);
+        return Collects.isNotEmpty(results)?results.get(0): null;
+
     }
 
-    protected int  count()  {
+    protected long  count()  {
         CountByExampleExecutor executor;
         if (Collects.isNotEmpty(selectPropertys)) {
             Assert.isTrue(!this.selectPropertys.toString().contains("("),
@@ -527,16 +522,16 @@ public abstract class AbstractExample<T> {
         if(Collects.isEmpty(parameters)){
             parameters=new LinkedList<>();
         }
-        if(jdbcTemplate!=null) {
+        if(jdbcBuilder!=null) {
             if (sqlBuilder == null ||
                 "".equals(sqlBuilder.toString())
                ) {
                 bulidSelect();
-                executor = new CountByExampleExecutor(applyWhere(), this::getJdbcTemplate, parameters.toArray());
+                executor = new CountByExampleExecutor(applyWhere(), this::getJdbcBuilder, parameters.toArray());
             } else {
-                executor = new CountByExampleExecutor(sqlBuilder, this::getJdbcTemplate, parameters.toArray());
+                executor = new CountByExampleExecutor(sqlBuilder, this::getJdbcBuilder, parameters.toArray());
             }
-            int count = executor.execute();
+            long count = executor.execute();
             executor = null;
             return count;
         }
@@ -557,10 +552,10 @@ public abstract class AbstractExample<T> {
            if(Collects.isEmpty(parameters)){
                parameters=new LinkedList<>();
            }
-            if(jdbcTemplate!=null){
+            if(jdbcBuilder!=null){
                 FindByExampleExecutor<List<T>> executor =  new FindByExampleExecutor<List<T>>(
                         applyWhere(), persistentClass,entityClass,offset,limit
-                        ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),this::getJdbcTemplate,dialectName);
+                        ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),this::getJdbcBuilder,dialectName);
                 results= executor.execute();
             }
            total=count();
@@ -580,7 +575,7 @@ public abstract class AbstractExample<T> {
             parameters=new LinkedList<>();
         }
         Assert.notEmpty(oredCriteria,"Criteria conditional objects cannot be empty!");
-        DeleteByExampleExecutor  executor=new DeleteByExampleExecutor(this::getJdbcTemplate,applyWhere(),parameters.toArray(),persistentClass);
+        DeleteByExampleExecutor  executor=new DeleteByExampleExecutor(this::getJdbcBuilder,applyWhere(),parameters.toArray(),persistentClass);
         int result=executor.execute();
         return result;
     }
@@ -653,7 +648,7 @@ public abstract class AbstractExample<T> {
 
     }
 
-    private JdbcBuilder getJdbcTemplate() {
-        return jdbcTemplate;
+    private JdbcBuilder getJdbcBuilder() {
+        return jdbcBuilder;
     }
 }

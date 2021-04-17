@@ -15,6 +15,7 @@
  */
 package com.xphsc.easyjdbc.core.metadata;
 
+
 import javax.persistence.GenerationType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

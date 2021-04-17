@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 package com.xphsc.easyjdbc.core.metadata;
+
 import java.io.Serializable;
 
 /**

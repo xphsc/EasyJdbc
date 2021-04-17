@@ -19,7 +19,9 @@ package com.xphsc.easyjdbc.core.transform;
 import com.xphsc.easyjdbc.core.exception.EasyJdbcException;
 import com.xphsc.easyjdbc.core.metadata.EntityElement;
 import com.xphsc.easyjdbc.core.metadata.FieldElement;
+import com.xphsc.easyjdbc.core.metadata.resultset.DefaultResultSet;
 import com.xphsc.easyjdbc.util.Jdbcs;
+import com.xphsc.easyjdbc.util.StringUtil;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.lob.LobHandler;
 import java.sql.ResultSet;
@@ -47,8 +49,8 @@ public class EntityRowMapper<T> implements RowMapper<T>{
 		T instance = Jdbcs.newInstance(this.persistentClass);
 		ResultSetMetaData rsm =rs.getMetaData();
 		int col = rsm.getColumnCount();
-		for (int i = 1; i <= col; i++) {  
-			String columnLabel = rsm.getColumnLabel(i).toUpperCase();
+		for (int i = 1; i <= col; i++) {
+			String columnLabel = StringUtil.toUnderScoreCase(rsm.getColumnLabel(i));
 			int columnType = rsm.getColumnType(i);
 			FieldElement fieldElement = this.entityElement.getFieldElements().get(columnLabel.toUpperCase());
 			if(null == fieldElement) {
@@ -60,7 +62,7 @@ public class EntityRowMapper<T> implements RowMapper<T>{
 			} else if(fieldElement.isBlob()){
 				value = this.lobHandler.getBlobAsBytes(rs, i);
 			} else {
-				value = Jdbcs.getResultValue(rs, i, columnType, fieldElement.getType());
+				value = DefaultResultSet.getResultValue(rs, i, columnType, fieldElement.getType());
 			}
 			if(value==null) {
 				continue;

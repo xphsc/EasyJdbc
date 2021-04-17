@@ -16,7 +16,6 @@
 package com.xphsc.easyjdbc.annotation;
 
 import org.springframework.stereotype.Component;
-
 import java.lang.annotation.*;
 
 /**
@@ -28,6 +27,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Component
-public @interface EasyDao {
+public @interface Dao {
     String value() default "";
 }

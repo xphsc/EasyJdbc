@@ -22,10 +22,7 @@ package com.xphsc.easyjdbc.core.entity;
 
 
 import com.xphsc.easyjdbc.core.lambda.LambdaFunction;
-import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.lambda.Reflections;
-import com.xphsc.easyjdbc.core.lambda.StringSupplier;
-import com.xphsc.easyjdbc.core.support.JdbcBuilder;
 import com.xphsc.easyjdbc.page.PageInfo;
 import java.util.*;
 
@@ -41,13 +38,6 @@ public class Example extends AbstractExample<Example>{
         oredCriteria = new ArrayList<Criteria>();
     }
 
-    public <T> Example(Class<?> persistentClass, LambdaSupplier<T> jdbcTemplate, StringSupplier dialectName) {
-        this.jdbcTemplate=Reflections.classForLambdaSupplier(jdbcTemplate);
-        this.dialectName=dialectName.get();
-        this.persistentClass = persistentClass;
-        initEntityElement(persistentClass);
-        oredCriteria = new ArrayList<Criteria>();
-    }
 
     public List<Criteria> getOredCriteria() {
         return oredCriteria;
@@ -601,7 +591,7 @@ public class Example extends AbstractExample<Example>{
     }
 
     @Override
-    public int count() {
+    public long count() {
         return super.count();
     }
 

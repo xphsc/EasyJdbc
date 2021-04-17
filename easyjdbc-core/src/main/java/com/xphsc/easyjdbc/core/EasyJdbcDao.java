@@ -112,7 +112,7 @@ public interface EasyJdbcDao<T> {
     /**
      *  count
      */
-    public int count();
+    public long count();
 
     /**
      *  query selector

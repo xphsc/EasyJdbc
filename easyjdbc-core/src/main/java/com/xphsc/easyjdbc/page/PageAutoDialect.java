@@ -17,9 +17,7 @@ package com.xphsc.easyjdbc.page;
 
 
 import com.xphsc.easyjdbc.core.exception.EasyJdbcException;
-
 import com.xphsc.easyjdbc.page.dialect.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +43,12 @@ public class PageAutoDialect {
         dialectAliasMap.put(DialectAlias.DB2, Db2Dialect.class);
         dialectAliasMap.put(DialectAlias.SQLSERVER, SqlServerDialect.class);
         dialectAliasMap.put(DialectAlias.INFORMIX, InformixDialect.class);
+        dialectAliasMap.put(DialectAlias.PHOENIX, HsqldbDialect.class);
+        dialectAliasMap.put(DialectAlias.HERDDB, HerdDBDialect.class);
+        dialectAliasMap.put(DialectAlias.DM, OracleDialect.class);
+        dialectAliasMap.put(DialectAlias.EDB, OracleDialect.class);
+        dialectAliasMap.put(DialectAlias.OSCAR, MySqlDialect.class);
+        dialectAliasMap.put(DialectAlias.CLICKHOUSE, MySqlDialect.class);
 
     }
     private boolean autoDialect = true;

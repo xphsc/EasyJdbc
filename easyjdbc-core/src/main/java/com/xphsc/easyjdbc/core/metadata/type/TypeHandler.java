@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019  huipei.x
+ * Copyright (c) 2021  huipei.x
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.xphsc.easyjdbc.core.parser;
+package com.xphsc.easyjdbc.core.metadata.type;
 
-import java.util.Map;
+import java.sql.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description
+ * {@link ResultSet}
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description:
+ * @since 2.1.0
  */
-public interface SQLParser {
+public interface TypeHandler<T> {
+    void setParameter(PreparedStatement preparedStatement, int var2, T var3, JdbcType var4) throws SQLException;
 
-      Boolean hasFieldPlaceHolder(String sqlString);
-      Boolean hasOgnlPlaceHolder(String sqlString);
-      Boolean hasObjectPlaceHolder(String sqlString);
-      Object[] sqlPlaceHolder(String sql, Map<String, Object> params, boolean isOgnl);
-      String removeOrders(String sql);
-      Boolean hasOrders(String sql);
-      Map<String,Object> entityMap();
+    T getResult(ResultSet var1, String var2) throws SQLException;
+
+    T getResult(ResultSet var1, int var2) throws SQLException;
+
+    T getResult(CallableStatement var1, int var2) throws SQLException;
+
 }

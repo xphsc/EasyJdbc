@@ -17,6 +17,7 @@ package com.xphsc.easyjdbc.core.support;
 
 import com.xphsc.easyjdbc.core.lambda.LambdaSupplier;
 import com.xphsc.easyjdbc.core.lambda.Reflections;
+import com.xphsc.easyjdbc.page.PageInfo;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
@@ -175,7 +176,21 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
         return jdbcBuilder;
     }
 
-
+    protected PageInfo  pageInfo(PageInfo page){
+        PageInfo pageInfo=new PageInfo();
+        int pageNum;
+        int pageSize;
+        if(page.getOffset()==-1&&page.getPageNum()>=1){
+         pageNum=page.getPageNum();
+         pageSize=page.getPageSize();
+        }else{
+         pageNum=(int) Math.ceil((double) ((page.getOffset() +page.getLimit()) / page.getLimit()));
+         pageSize=page.getLimit();
+        }
+         pageInfo.setPageNum(pageNum);
+         pageInfo.setPageSize(pageSize);
+         return pageInfo;
+     }
     /**
      * 获取jdbcTemplate
      */
@@ -203,7 +218,7 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
     }
 
     private String getInterfaceClass() {
-        this.interfaceClass=interfaceClass!=null?interfaceClass:"com.xphsc.easyjdbc.EasyJdbcTemplate";
+        this.interfaceClass=interfaceClass!=null?interfaceClass:"easyJdbcTemplate";
         return interfaceClass;
     }
 }

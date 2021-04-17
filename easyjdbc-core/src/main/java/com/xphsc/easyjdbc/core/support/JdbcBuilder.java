@@ -43,7 +43,7 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
 
     private JdbcTemplate jdbcTemplate;
 
-    private static Cache  CACHE ;
+    private volatile static Cache  CACHE ;
 
     private boolean useLocalCache;
 
@@ -61,8 +61,11 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
 
     private static Cache getCacheInstance(){
         if(CACHE==null){
-            CACHE = new PerpetualCache("Localcache");
-
+            synchronized(Cache.class){
+                if (CACHE == null){
+                    CACHE = new PerpetualCache("Localcache");
+                }
+            }
         }
         return CACHE;
     }
@@ -197,7 +200,6 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
 
 
     private<T> T selectOne(String sql, RowMapper<T> rowMapper,Class<T> requiredType,  int[] argTypes,Object... args)  throws DataAccessException {
-
         T  result = null;
         if(rowMapper!=null){
               result= (T)jdbcTemplate.queryForObject(sql, args, rowMapper);

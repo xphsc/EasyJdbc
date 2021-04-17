@@ -51,4 +51,5 @@ public class DaoProxy<T> implements InvocationHandler, Serializable {
     private EasyJdbcTemplate getEasyJdbcTemplate() {
         return easyJdbcTemplate;
     }
+
 }

@@ -28,6 +28,7 @@ public class PageRowBounds {
 	public static String pagination(String dialectName,String sql, int startRow, int size){
 		autoDialect=new PageAutoDialect();
 		autoDialect.initDelegateDialect(dialectName);
+		autoDialect.clearDelegate();
 		return autoDialect.getDelegate().pagination(sql,startRow,size);
 	}
 

@@ -31,7 +31,7 @@ import com.xphsc.easyjdbc.core.parser.SQLParser;
  *  实体查询执行器
  * Created by ${huipei.x}
  */
-public class CountExecutor extends AbstractExecutor<Integer> {
+public class CountExecutor extends AbstractExecutor<Long> {
 
 	private final String sql;
 	private final Object[] parameters;
@@ -61,10 +61,10 @@ public class CountExecutor extends AbstractExecutor<Integer> {
 
 	@Override
 	public void prepare() {
-		if (!this.sql.startsWith("SELECT COUNT")){
+		if (!this.sql.trim().toUpperCase().startsWith("SELECT COUNT")){
 			String countRexp = "(?i)^select (?:(?!select|from)[\\s\\S])*(\\(select (?:(?!from)[\\s\\S])* from [^\\)]*\\)(?:(?!select|from)[^\\(])*)*from";
 			String replacement = "SELECT COUNT(1) AS COUNT FROM";
-			this.querySql = this.sql.replaceFirst(countRexp, replacement);
+			this.querySql = this.sql.trim().replaceFirst(countRexp, replacement);
 		}
 		else {
 			this.querySql = this.sql;
@@ -78,11 +78,11 @@ public class CountExecutor extends AbstractExecutor<Integer> {
 
 
 	@Override
-	protected Integer doExecute() throws JdbcDataException {
+	protected Long doExecute() throws JdbcDataException {
 		if(null==this.parameters||this.parameters.length==0){
-			return this.jdbcBuilder.queryForObject(this.querySql,Integer.class);
+			return this.jdbcBuilder.queryForObject(this.querySql,Long.class);
 		} else {
-			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters,Integer.class);
+			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters,Long.class);
 		}
 	}
 

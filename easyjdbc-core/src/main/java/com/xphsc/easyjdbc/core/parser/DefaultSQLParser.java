@@ -16,6 +16,7 @@
 package com.xphsc.easyjdbc.core.parser;
 
 
+
 import com.xphsc.easyjdbc.util.Beans;
 import com.xphsc.easyjdbc.util.StringUtil;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.regex.Pattern;
  */
 public class DefaultSQLParser implements SQLParser {
     private static final String EMPTY = "";
-    private TreeMap<String,Object> entityMap;
+    private Map<String,Object> objectMap;
     @Override
     public Boolean hasFieldPlaceHolder(String sqlString) {
         Boolean flag = false;
@@ -55,9 +56,9 @@ public class DefaultSQLParser implements SQLParser {
 
 
     @Override
-    public  Boolean hasInsertOrUpdatePlaceHolder(String sqlString) {
+    public  Boolean hasObjectPlaceHolder(String sqlString) {
         Boolean flag = false;
-        Matcher m = INSERT_UPDATE_PLACE_HOLDER_PATTERN.matcher(sqlString);
+        Matcher m = OBJECT_PLACE_HOLDER_PATTERN.matcher(sqlString);
         while (m.find()) {
             flag = true;
         }
@@ -74,7 +75,7 @@ public class DefaultSQLParser implements SQLParser {
         if(isOgnl){
             m = OGNL_PLACE_HOLDER_PATTERN.matcher(sql);
         }else{
-            m = INSERT_UPDATE_PLACE_HOLDER_PATTERN.matcher(sql);
+            m = OBJECT_PLACE_HOLDER_PATTERN.matcher(sql);
 
         }
         while (m.find()) {
@@ -96,17 +97,33 @@ public class DefaultSQLParser implements SQLParser {
             if(val!=null){
                 list.add(val);
             }
+
         }
+
         if(val==null){
+
             if(params!=null){
                 Object value = params.get(StringUtil.substringBeforeLast(newkey, "."));
-                entityMap= Beans.beanToTreeMap(value);
-                for(Map.Entry<String,Object> entity:entityMap.entrySet()){
-                    if(!"class".equals(entity.getKey()) &&entity.getValue()!=null){
-                        list.add(entity.getValue());
-                    }
+                if(sql.toUpperCase().trim().contains(UPDATE)){
+                     TreeMap<String,Object>  entityMap= Beans.beanToTreeMap(value);
+                    for(Map.Entry<String,Object> entity:entityMap.entrySet()){
+                        if(!"class".equals(entity.getKey()) &&entity.getValue()!=null){
+                            list.add(entity.getValue());
+                        }
 
+                    }
+                }else{
+                   Map<String,Object> entityMap=Beans.beanToMap(value);
+                    objectMap=entityMap;
+                    for(Map.Entry<String,Object> entity:entityMap.entrySet()){
+                        if(!"class".equals(entity.getKey()) &&entity.getValue()!=null){
+                            list.add(entity.getValue());
+                        }
+
+                    }
                 }
+
+
             }
 
         }
@@ -116,7 +133,7 @@ public class DefaultSQLParser implements SQLParser {
 
     @Override
     public Map<String,Object> entityMap(){
-        return entityMap;
+        return objectMap;
     }
     @Override
     public  String removeOrders(String sql) {
@@ -143,11 +160,11 @@ public class DefaultSQLParser implements SQLParser {
     }
 
     private static String REGEX_HASORDERS="order\\s*by[\\w|\\W|\\s|\\S]*";
-
+    private static String UPDATE="UPDATE";
     private static final Pattern FIELD_PLACE_HOLDER_PATTERN = Pattern.compile("\\#\\{\\s*\\w+\\s*\\}"); // 正则匹配 #{key}
 
     private static final Pattern OGNL_PLACE_HOLDER_PATTERN = Pattern.compile(":[ tnx0Bfr]*[0-9a-z.A-Z_]+"); // 正则匹配 :
 
-    private static final Pattern INSERT_UPDATE_PLACE_HOLDER_PATTERN = Pattern.compile("#\\{[ tnx0Bfr]*[0-9a-z.A-Z_]+\\}"); // 正则匹配 #{key}
+    private static final Pattern OBJECT_PLACE_HOLDER_PATTERN = Pattern.compile("#\\{[ tnx0Bfr]*[0-9a-z.A-Z_]+\\}"); // 正则匹配 #{key}
 
 }

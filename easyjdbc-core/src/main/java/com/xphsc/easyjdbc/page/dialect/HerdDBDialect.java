@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 huipei.x
+ * Copyright (c) 2020 huipei.x
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,25 @@
  */
 package com.xphsc.easyjdbc.page.dialect;
 
+
 /**
- * Created by ${huipei.x} on
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description:
+ * @since 2.0.0
  */
-public class MySqlDialect  extends AbstractDialect {
+public class HerdDBDialect  extends AbstractDialect{
+
 
     @Override
     public String pagination(String sql, int startRow, int size) {
-    StringBuilder sqlBuilder = new StringBuilder(sql.length() + 14);
-    sqlBuilder.append(sql);
-    if (startRow == 0) {
-        sqlBuilder.append(" LIMIT ");
-        sqlBuilder.append(size);
-    } else {
-        sqlBuilder.append(" LIMIT ");
-        sqlBuilder.append(startRow);
-        sqlBuilder.append(", ");
-        sqlBuilder.append(size);
-    }
-    return sqlBuilder.toString();
+        StringBuilder sqlBuilder = new StringBuilder(sql.length() + 14);
+        sqlBuilder.append(sql);
+        if (startRow == 0) {
+            sqlBuilder.append("\n LIMIT ? ");
+        } else {
+            sqlBuilder.append("\n LIMIT ?, ? ");
+        }
+        return sqlBuilder.toString();
     }
 }

@@ -44,12 +44,12 @@ public class Sorts {
 
     public Sorts(Direction direction, String property) {
       Order order= new Order(direction,property);
-        orders=new ArrayList<>();
+        orders=new ArrayList<Order>();
         orders.add(order);
     }
 
 
-    public <T> Sorts sort(Sorts.Direction direction, LambdaFunction<T, Object>  property) {
+    public <S> Sorts sort(Sorts.Direction direction, LambdaFunction<S, Object>  property) {
         Sorts.Order order = new Sorts.Order(direction, Reflections.fieldNameForLambdaFunction(property));
         this.orders = new ArrayList();
         this.orders.add(order);
@@ -69,7 +69,7 @@ public class Sorts {
             this.property = property;
         }
 
-        public <T> Order order(Sorts.Direction direction, LambdaFunction<T, Object> property) {
+        public <S> Order order(Sorts.Direction direction, LambdaFunction<S, Object> property) {
             this.direction = direction;
             this.property =  Reflections.fieldNameForLambdaFunction(property);
             return this;

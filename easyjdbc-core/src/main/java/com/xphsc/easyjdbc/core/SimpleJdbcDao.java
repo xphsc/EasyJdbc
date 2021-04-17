@@ -158,7 +158,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
 
 
     @Override
-    public int count() {
+    public long count() {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
         Example example=example();
         return example.count();
@@ -183,7 +183,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     public <T> PageInfo<T> findAll(PageInfo pageInfo){
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
         Example example=example();
-        if(pageInfo.getOffset()!=-1&&pageInfo.getPageNum()>=1){
+        if(pageInfo.getOffset()==-1&&pageInfo.getPageNum()>=1){
             example.pageInfo(pageInfo.getPageNum(),pageInfo.getPageSize());
         }else{
             example.offsetPage(pageInfo.getOffset()>=0?pageInfo.getOffset():0,pageInfo.getLimit());
@@ -195,7 +195,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     public <T> PageInfo<T> findAll(PageInfo pageInfo, Sorts sort) {
         Example example=example();
         example.orderByClause(sort);
-        if(pageInfo.getOffset()!=-1&&pageInfo.getPageNum()>=1){
+        if(pageInfo.getOffset()==-1&&pageInfo.getPageNum()>=1){
             example.pageInfo(pageInfo.getPageNum(),pageInfo.getPageSize());
         }else{
             example.offsetPage(pageInfo.getOffset()>=0?pageInfo.getOffset():0,pageInfo.getLimit());
@@ -217,7 +217,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     @Override
     public Example example() {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
-        return new Example(modelClass,this::getJdbcBuilder,this::getDialectName);
+        return  easyJdbcTemplate.example(modelClass);
     }
 
     @Override

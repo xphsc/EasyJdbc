@@ -197,7 +197,7 @@ public interface EasyJdbcOperations {
      * @param sql Statistics SQL
      * @param parameters Statistical parameter
      */
-     int count(String sql,Object... parameters) throws JdbcDataException;
+    long count(String sql,Object... parameters) throws JdbcDataException;
 
     /**
      *
@@ -205,7 +205,7 @@ public interface EasyJdbcOperations {
      * @return
      * @throws JdbcDataException
      */
-     int count(Class<?> persistentClass) throws JdbcDataException;
+    long count(Class<?> persistentClass) throws JdbcDataException;
 
 
      Map<?,?> call(String sql, Class<?> persistentClass, Map<Integer, Integer> outParameters,  Object[] parameters) throws JdbcDataException;

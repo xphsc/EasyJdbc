@@ -15,6 +15,7 @@
  */
 package com.xphsc.easyjdbc.core.lambda;
 
+
 import com.xphsc.easyjdbc.core.exception.EasyJdbcException;
 import java.beans.Introspector;
 import java.lang.invoke.SerializedLambda;
@@ -46,7 +47,6 @@ public class Reflections {
             } else if(IS_PATTERN.matcher(getter).matches()) {
                 getter = getter.substring(2);
             }
-
             return Introspector.decapitalize(getter);
         } catch (ReflectiveOperationException var) {
             throw new EasyJdbcException(var);
