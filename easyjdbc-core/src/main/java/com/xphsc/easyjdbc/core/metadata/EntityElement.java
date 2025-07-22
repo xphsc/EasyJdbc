@@ -40,7 +40,7 @@ public class EntityElement implements Element {
 	 */
 	private String catalog;
 	/**
-	 *  指定数据库的用户名
+	 * 指定数据库的用户名
 	 */
 	private String schema;
 	/**
@@ -62,35 +62,44 @@ public class EntityElement implements Element {
 	/**
 	 * 属性
 	 */
-	private Map<String,FieldElement> fieldElements = new LinkedHashMap<String,FieldElement>();
+	private Map<String, FieldElement> fieldElements = new LinkedHashMap<String, FieldElement>();
 
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public String getTable() {
 		return table;
 	}
+
 	public void setTable(String table) {
 		this.table = table;
 	}
+
 	public String getCatalog() {
 		return catalog;
 	}
+
 	public void setCatalog(String catalog) {
 		this.catalog = catalog;
 	}
+
 	public String getSchema() {
 		return schema;
 	}
+
 	public void setSchema(String schema) {
 		this.schema = schema;
 	}
+
 	public FieldElement getPrimaryKey() {
 		return primaryKey;
 	}
+
 	public void setPrimaryKey(FieldElement primaryKey) {
 		this.primaryKey = primaryKey;
 	}
@@ -106,20 +115,25 @@ public class EntityElement implements Element {
 	public UniqueConstraint[] getUniqueConstraints() {
 		return uniqueConstraints;
 	}
+
 	public void setUniqueConstraints(UniqueConstraint[] uniqueConstraints) {
 		this.uniqueConstraints = uniqueConstraints;
 	}
+
 	public Class<?> getPersistentClass() {
 		return persistentClass;
 	}
+
 	public void setPersistentClass(Class<?> persistentClass) {
 		this.persistentClass = persistentClass;
 	}
+
 	public Map<String, FieldElement> getFieldElements() {
 		return Collections.unmodifiableMap(this.fieldElements);
 	}
+
 	public void addFieldElement(String columnName, FieldElement fieldElement) {
 		this.fieldElements.put(columnName, fieldElement);
 	}
-	
+
 }

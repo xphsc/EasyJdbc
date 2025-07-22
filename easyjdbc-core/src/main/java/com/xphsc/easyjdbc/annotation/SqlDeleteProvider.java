@@ -18,9 +18,19 @@ package com.xphsc.easyjdbc.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: The annotation that specify a method that provide an SQL for deleting record(s)
+ * public interface UserDao {
+ *     @SqlDeleteProvider(type = SqlProvider.class, method = "deleteById")
+ *     int deleteById(int id);
+ *     int deleteById(Map map);
+ *     public static class SqlProvider {
+ *         public static String deleteById() {
+ *             return "DELETE FROM users WHERE id = #{id}";
+ *         }
+ *     }
+ * }
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

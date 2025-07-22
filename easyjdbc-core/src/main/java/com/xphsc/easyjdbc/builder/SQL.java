@@ -15,8 +15,12 @@
  */
 package com.xphsc.easyjdbc.builder;
 
+
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: SQL类继承自AbstractSQL，用于构建SQL查询
+ * 它提供了一种链式调用的方式来构造SQL语句
  */
 public class SQL extends AbstractSQL<SQL> {
     public SQL(){}

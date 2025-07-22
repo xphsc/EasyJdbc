@@ -18,10 +18,28 @@ package com.xphsc.easyjdbc.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: The annotation that specify a method that provide an SQL for updating record(s).
+ * For reference, the example
+ * public interface UserDao {
+ *     @SqlUpdateProvider(type = SqlProvider.class, method = "update")
+ *     boolean update(Map map);
+ *     @since 2.1.1
+ *     boolean update(@SqlParam("user") User user);
+ *     public static class SqlProvider {
+ *         public static String update(Map map) {
+ *             return "UPDATE users SET name = #{name} WHERE id = #{id}";
+ *         }
+ *          @since 2.1.1
+ *         public static String update(User user) {
+ *  *             return "UPDATE users SET name = #{user.name} WHERE id = #{user.id}";
+ *  *         }
+ *     }
+ *
+ * }
  */
+
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

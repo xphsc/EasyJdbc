@@ -31,21 +31,25 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Optional;
-
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description:  Interface for data access operations on persistent entities using JDBC.
+ * Provides methods for basic CRUD operations, batch processing, and query functionality.
+ * @param <T> The type of the persistent entity.
  */
 public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
 
     public Class<T> modelClass;
     private JdbcBuilder jdbcBuilder;
-    private  String dialectName;
-  public SimpleJdbcDao(EasyJdbcTemplate easyJdbcTemplate)  {
-      this.easyJdbcTemplate=easyJdbcTemplate;
+    private String dialectName;
+
+    public SimpleJdbcDao(EasyJdbcTemplate easyJdbcTemplate) {
+        this.easyJdbcTemplate = easyJdbcTemplate;
     }
 
-    public SimpleJdbcDao()  {
-        if (this.getClass().getGenericSuperclass() instanceof ParameterizedType){
+    public SimpleJdbcDao() {
+        if (this.getClass().getGenericSuperclass() instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) this.getClass().getGenericSuperclass();
             modelClass = (Class<T>) pt.getActualTypeArguments()[0];
         }
@@ -54,16 +58,14 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     private EasyJdbcTemplate easyJdbcTemplate;
 
 
-
-
     public void easyJdbcTemplate(LambdaSupplier<EasyJdbcTemplate> easyJdbcTemplate) {
-        if(getEasyJdbcTemplate()!=null){
+        if (getEasyJdbcTemplate() != null) {
             this.easyJdbcTemplate = getEasyJdbcTemplate();
-        }else{
-            this.easyJdbcTemplate =easyJdbcTemplate.get();
+        } else {
+            this.easyJdbcTemplate = easyJdbcTemplate.get();
         }
-        jdbcBuilder= this.easyJdbcTemplate.getJdbcBuilder();
-        dialectName=this.easyJdbcTemplate.getDialectName();
+        jdbcBuilder = this.easyJdbcTemplate.getJdbcBuilder();
+        dialectName = this.easyJdbcTemplate.getDialectName();
 
     }
 
@@ -85,7 +87,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     }
 
     @Override
-    public int batchInsert(List<T> persistents) throws JdbcDataException{
+    public int batchInsert(List<T> persistents) throws JdbcDataException {
         Assert.notEmpty(persistents, "Entity list cannot be empty");
         int rows = easyJdbcTemplate.batchInsert(persistents);
         return rows;
@@ -95,13 +97,13 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     public int deleteByPrimaryKey(Serializable primaryKeyValue) {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
         Assert.notNull(primaryKeyValue, "Primary key cannot be empty");
-        int rows =easyJdbcTemplate.deleteByPrimaryKey(modelClass, primaryKeyValue);
+        int rows = easyJdbcTemplate.deleteByPrimaryKey(modelClass, primaryKeyValue);
         return rows;
     }
 
 
     @Override
-    public int deleteByIds(Iterable primaryKeyValues){
+    public int deleteByIds(Iterable primaryKeyValues) {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
         int rows = easyJdbcTemplate.deleteByIds(modelClass, primaryKeyValues);
         return rows;
@@ -109,37 +111,37 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
 
     @Override
     public int delete(T persistent) {
-        DeleteExecutor executor= new DeleteExecutor(this::getJdbcBuilder, persistent);
+        DeleteExecutor executor = new DeleteExecutor(this::getJdbcBuilder, persistent);
         int rows = executor.execute();
         executor = null;
         return rows;
     }
 
     @Override
-    public int update(T persistent) throws JdbcDataException{
+    public int update(T persistent) throws JdbcDataException {
         Assert.notNull(persistent, "Entities cannot be empty");
-        int rows= easyJdbcTemplate.update(persistent);
+        int rows = easyJdbcTemplate.update(persistent);
         return rows;
     }
 
     @Override
     public int updateWithNull(T persistent) {
-        UpdateExecutor executor = new UpdateExecutor(this::getJdbcBuilder,persistent,false);
+        UpdateExecutor executor = new UpdateExecutor(this::getJdbcBuilder, persistent, false);
         int rows = executor.execute();
         executor = null;
         return rows;
     }
 
     @Override
-    public int batchUpdate(List<T> persistents) throws JdbcDataException{
+    public int batchUpdate(List<T> persistents) throws JdbcDataException {
         Assert.notEmpty(persistents, "Entity list cannot be empty");
-        int rows=easyJdbcTemplate.batchUpdate(persistents);
+        int rows = easyJdbcTemplate.batchUpdate(persistents);
         return rows;
     }
 
     @Override
     public boolean exists(Serializable primaryKeyValue) {
-        return getByPrimaryKey(primaryKeyValue)!=null?true:false;
+        return getByPrimaryKey(primaryKeyValue) != null ? true : false;
     }
 
 
@@ -147,7 +149,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     public <T> T getByPrimaryKey(Serializable primaryKeyValue) {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
         Assert.notNull(primaryKeyValue, "Primary key cannot be empty");
-        T entity=easyJdbcTemplate.getByPrimaryKey(modelClass, primaryKeyValue);
+        T entity = easyJdbcTemplate.getByPrimaryKey(modelClass, primaryKeyValue);
         return entity;
     }
 
@@ -160,7 +162,7 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     @Override
     public long count() {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
-        Example example=example();
+        Example example = example();
         return example.count();
     }
 
@@ -168,47 +170,48 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     @Override
     public <T> List<T> findAll() {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
-        Example example=example();
+        Example example = example();
         return example.list();
     }
 
     @Override
     public <T> List<T> findAll(Sorts sort) {
-        Example example=example();
+        Example example = example();
         example.orderByClause(sort);
         return example.list();
     }
 
     @Override
-    public <T> PageInfo<T> findAll(PageInfo pageInfo){
+    public <T> PageInfo<T> findAll(PageInfo pageInfo) {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
-        Example example=example();
-        if(pageInfo.getOffset()==-1&&pageInfo.getPageNum()>=1){
-            example.pageInfo(pageInfo.getPageNum(),pageInfo.getPageSize());
-        }else{
-            example.offsetPage(pageInfo.getOffset()>=0?pageInfo.getOffset():0,pageInfo.getLimit());
+        Example example = example();
+        if (pageInfo.getOffset() == -1 && pageInfo.getPageNum() >= 1) {
+            example.pageInfo(pageInfo.getPageNum(), pageInfo.getPageSize());
+        } else {
+            example.offsetPage(pageInfo.getOffset() >= 0 ? pageInfo.getOffset() : 0, pageInfo.getLimit());
         }
         return example.page();
     }
 
     @Override
     public <T> PageInfo<T> findAll(PageInfo pageInfo, Sorts sort) {
-        Example example=example();
+        Example example = example();
         example.orderByClause(sort);
-        if(pageInfo.getOffset()==-1&&pageInfo.getPageNum()>=1){
-            example.pageInfo(pageInfo.getPageNum(),pageInfo.getPageSize());
-        }else{
-            example.offsetPage(pageInfo.getOffset()>=0?pageInfo.getOffset():0,pageInfo.getLimit());
+        if (pageInfo.getOffset() == -1 && pageInfo.getPageNum() >= 1) {
+            example.pageInfo(pageInfo.getPageNum(), pageInfo.getPageSize());
+        } else {
+            example.offsetPage(pageInfo.getOffset() >= 0 ? pageInfo.getOffset() : 0, pageInfo.getLimit());
         }
         return example.page();
     }
 
     @Override
-    public <T> List<T> findByIds(Iterable values){
+    public <T> List<T> findByIds(Iterable values) {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
-        List<T> list=easyJdbcTemplate.findByIds(modelClass, values);
-        return  list;
+        List<T> list = easyJdbcTemplate.findByIds(modelClass, values);
+        return list;
     }
+
     @Override
     public EasyJdbcSelector selector() {
         return easyJdbcTemplate.selector();
@@ -217,12 +220,12 @@ public  class SimpleJdbcDao<T>  implements EasyJdbcDao<T> {
     @Override
     public Example example() {
         Assert.notNull(modelClass, "Entity interface generic type cannot be empty");
-        return  easyJdbcTemplate.example(modelClass);
+        return easyJdbcTemplate.example(modelClass);
     }
 
     @Override
     public void cacheClear() {
-         easyJdbcTemplate.clear();
+        easyJdbcTemplate.clear();
     }
 
     private JdbcBuilder getJdbcBuilder() {

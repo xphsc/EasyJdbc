@@ -27,11 +27,12 @@ import org.springframework.jdbc.support.SQLStateSQLExceptionTranslator;
 import javax.sql.DataSource;
 
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: EasyJdbcAccessor类是一个抽象类，主要用于简化JDBC操作的模板代码
+ * 该类的主要作用是为子类提供一个方便的途径来处理数据库操作，而无需重复编写常见的JDBC逻辑该类的主要作用是为子类提供一个方便的途径来处理数据库操作，而无需重复编写常见的JDBC逻辑
  */
 public abstract class EasyJdbcAccessor implements InitializingBean {
-
-
 
     private DataSource dataSource;
 
@@ -39,29 +40,29 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
 
     private boolean lazyInit = true;
     /**
-     *Database dialect
+     * Database dialect
      */
-    private  String dialectName;
+    private String dialectName;
 
     private JdbcTemplate jdbcTemplate;
     /**
-     *Setting up local cache
+     * Setting up local cache
      */
     private boolean useLocalCache;
     /**
-     *Setting Display SQL
+     * Setting Display SQL
      */
     private boolean showSQL;
 
-    private String   interfaceClass;
+    private String interfaceClass;
 
     /**
      * Set the JDBC DataSource to obtain connections from.
      */
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        if(jdbcTemplate!=null){
-            jdbcTemplate=new JdbcTemplate(dataSource);
+        if (jdbcTemplate != null) {
+            jdbcTemplate = new JdbcTemplate(dataSource);
         }
     }
 
@@ -76,6 +77,7 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
      * Specify the database product name for the DataSource that this accessor uses.
      * This allows to initialize a SQLErrorCodeSQLExceptionTranslator without
      * obtaining a Connection from the DataSource to get the metadata.
+     *
      * @param dbName the database product name that identifies the error codes entry
      * @see SQLErrorCodeSQLExceptionTranslator#setDatabaseProductName
      * @see java.sql.DatabaseMetaData#getDatabaseProductName()
@@ -89,6 +91,7 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
      * <p>If no custom translator is provided, a default
      * {@link SQLErrorCodeSQLExceptionTranslator} is used
      * which examines the SQLException's vendor-specific error code.
+     *
      * @see SQLErrorCodeSQLExceptionTranslator
      * @see SQLStateSQLExceptionTranslator
      */
@@ -101,6 +104,7 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
      * <p>Creates a default {@link SQLErrorCodeSQLExceptionTranslator}
      * for the specified DataSource if none set, or a
      * {@link SQLStateSQLExceptionTranslator} in case of no DataSource.
+     *
      * @see #getDataSource()
      */
     protected synchronized SQLExceptionTranslator getExceptionTranslator() {
@@ -108,8 +112,7 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
             DataSource dataSource = getDataSource();
             if (dataSource != null) {
                 this.exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(dataSource);
-            }
-            else {
+            } else {
                 this.exceptionTranslator = new SQLStateSQLExceptionTranslator();
             }
         }
@@ -121,6 +124,7 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
      * on first encounter of a SQLException. Default is "true"; can be switched to
      * "false" for initialization on startup.
      * <p>Early initialization just applies if {@code afterPropertiesSet()} is called.
+     *
      * @see #getExceptionTranslator()
      * @see #afterPropertiesSet()
      */
@@ -130,12 +134,12 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
 
     /**
      * Return whether to lazily initialize the SQLExceptionTranslator for this accessor.
+     *
      * @see #getExceptionTranslator()
      */
     protected boolean isLazyInit() {
         return this.lazyInit;
     }
-
 
 
     @Override
@@ -155,42 +159,44 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
     public void setDialectName(String dialectName) {
         this.dialectName = dialectName;
     }
-    protected  void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+
+    protected void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        if(jdbcTemplate.getDataSource()!=null){
-            this.dataSource=jdbcTemplate.getDataSource();
+        if (jdbcTemplate.getDataSource() != null) {
+            this.dataSource = jdbcTemplate.getDataSource();
         }
 
     }
 
     protected <T> void setJdbcTemplate(LambdaSupplier<T> jdbcTemplate) {
         this.jdbcTemplate = Reflections.classForLambdaSupplier(jdbcTemplate);
-        if(this.jdbcTemplate.getDataSource()!=null){
-            this.dataSource=this.jdbcTemplate.getDataSource();
+        if (this.jdbcTemplate.getDataSource() != null) {
+            this.dataSource = this.jdbcTemplate.getDataSource();
         }
 
     }
 
-    public JdbcBuilder getJdbcBuilder(){
-        JdbcBuilder jdbcBuilder=new JdbcBuilder(this::getJdbcTemplate,this::isUseLocalCache, this::isShowSQL,this::getInterfaceClass);
+    public JdbcBuilder getJdbcBuilder() {
+        JdbcBuilder jdbcBuilder = new JdbcBuilder(this::getJdbcTemplate, this::isUseLocalCache, this::isShowSQL, this::getInterfaceClass);
         return jdbcBuilder;
     }
 
-    protected PageInfo  pageInfo(PageInfo page){
-        PageInfo pageInfo=new PageInfo();
+    protected PageInfo pageInfo(PageInfo page) {
+        PageInfo pageInfo = new PageInfo();
         int pageNum;
         int pageSize;
-        if(page.getOffset()==-1&&page.getPageNum()>=1){
-         pageNum=page.getPageNum();
-         pageSize=page.getPageSize();
-        }else{
-         pageNum=(int) Math.ceil((double) ((page.getOffset() +page.getLimit()) / page.getLimit()));
-         pageSize=page.getLimit();
+        if (page.getOffset() == -1 && page.getPageNum() >= 1) {
+            pageNum = page.getPageNum();
+            pageSize = page.getPageSize();
+        } else {
+            pageNum = (int) Math.ceil((double) ((page.getOffset() + page.getLimit()) / page.getLimit()));
+            pageSize = page.getLimit();
         }
-         pageInfo.setPageNum(pageNum);
-         pageInfo.setPageSize(pageSize);
-         return pageInfo;
-     }
+        pageInfo.setPageNum(pageNum);
+        pageInfo.setPageSize(pageSize);
+        return pageInfo;
+    }
+
     /**
      * 获取jdbcTemplate
      */
@@ -198,16 +204,23 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
         return this.jdbcTemplate;
     }
 
-    public boolean showSQL(boolean showSQL){
-        return this.showSQL=showSQL;
-    };
-    public boolean useLocalCache(boolean useLocalCache){
-        return this.useLocalCache=useLocalCache;
-    };
+    public boolean showSQL(boolean showSQL) {
+        return this.showSQL = showSQL;
+    }
 
-    public void   interfaceClass(String interfaceClass){
-        this.interfaceClass=interfaceClass;
-    };
+    ;
+
+    public boolean useLocalCache(boolean useLocalCache) {
+        return this.useLocalCache = useLocalCache;
+    }
+
+    ;
+
+    public void interfaceClass(String interfaceClass) {
+        this.interfaceClass = interfaceClass;
+    }
+
+    ;
 
     private boolean isUseLocalCache() {
         return useLocalCache;
@@ -218,7 +231,7 @@ public abstract class EasyJdbcAccessor implements InitializingBean {
     }
 
     private String getInterfaceClass() {
-        this.interfaceClass=interfaceClass!=null?interfaceClass:"easyJdbcTemplate";
+        this.interfaceClass = interfaceClass != null ? interfaceClass : "easyJdbcTemplate";
         return interfaceClass;
     }
 }

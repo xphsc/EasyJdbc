@@ -10,15 +10,17 @@ public enum InsertMode {
     /**
      *
      */
-        RETURNKEY,
-        IGNORENULL;
+    RETURNKEY,
+    IGNORENULL;
 
     private InsertMode() {
 
     }
+
     private InsertMode(String name) {
-        this.name=name;
+        this.name = name;
     }
+
     private String name;
 
     public String getName() {

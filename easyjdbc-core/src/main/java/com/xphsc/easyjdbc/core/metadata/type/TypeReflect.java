@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
 /**
  * {@link Type}
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: YTypeReflect
  * @since 2.1.0
  */
 public abstract class TypeReflect<T> {

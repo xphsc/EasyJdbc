@@ -36,7 +36,7 @@ public class CountExecutor extends AbstractExecutor<Long> {
 	private final String sql;
 	private final Object[] parameters;
 	private String querySql;
-	
+
 	public <S> CountExecutor(LambdaSupplier<S> jdbcBuilder, String sql, Object[] parameters) {
 		super(jdbcBuilder);
 		this.sql = sql;
@@ -46,10 +46,10 @@ public class CountExecutor extends AbstractExecutor<Long> {
 	public <S> CountExecutor(LambdaSupplier<S> jdbcTemplate, Class<?> persistentClass) {
 		super(jdbcTemplate);
 		this.checkEntity(persistentClass);
-		EntityElement entityElement= ElementResolver.resolve(persistentClass);
+		EntityElement entityElement = ElementResolver.resolve(persistentClass);
 		SQL sqlBuilder = SQL.BUILD().FROM(entityElement.getTable());
-		for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
-			if(fieldElement.isTransientField()) {
+		for (FieldElement fieldElement : entityElement.getFieldElements().values()) {
+			if (fieldElement.isTransientField()) {
 				continue;
 			}
 			sqlBuilder.SELECT(fieldElement.getColumn());
@@ -61,28 +61,26 @@ public class CountExecutor extends AbstractExecutor<Long> {
 
 	@Override
 	public void prepare() {
-		if (!this.sql.trim().toUpperCase().startsWith("SELECT COUNT")){
+		if (!this.sql.trim().toUpperCase().startsWith("SELECT COUNT")) {
 			String countRexp = "(?i)^select (?:(?!select|from)[\\s\\S])*(\\(select (?:(?!from)[\\s\\S])* from [^\\)]*\\)(?:(?!select|from)[^\\(])*)*from";
 			String replacement = "SELECT COUNT(1) AS COUNT FROM";
 			this.querySql = this.sql.trim().replaceFirst(countRexp, replacement);
-		}
-		else {
+		} else {
 			this.querySql = this.sql;
 		}
-		SQLParser sqlParser=new DefaultSQLParser();
-		if(sqlParser.hasOrders(querySql)){
-			this.querySql=sqlParser.removeOrders(querySql);
+		SQLParser sqlParser = new DefaultSQLParser();
+		if (sqlParser.hasOrders(querySql)) {
+			this.querySql = sqlParser.removeOrders(querySql);
 		}
 	}
 
 
-
 	@Override
 	protected Long doExecute() throws JdbcDataException {
-		if(null==this.parameters||this.parameters.length==0){
-			return this.jdbcBuilder.queryForObject(this.querySql,Long.class);
+		if (null == this.parameters || this.parameters.length == 0) {
+			return this.jdbcBuilder.queryForObject(this.querySql, Long.class);
 		} else {
-			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters,Long.class);
+			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters, Long.class);
 		}
 	}
 

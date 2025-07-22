@@ -32,7 +32,7 @@ public class ColumnResolver implements Resolver {
 
 	@Override
 	public void resolve(Element element, Annotation annotation) {
-		FieldElement fieldElement = (FieldElement)element;
+		FieldElement fieldElement = (FieldElement) element;
 		javax.persistence.Column column = (javax.persistence.Column) annotation;
 		if (StringUtil.isNotBlank(column.name())) {
 			fieldElement.setColumn(column.name());

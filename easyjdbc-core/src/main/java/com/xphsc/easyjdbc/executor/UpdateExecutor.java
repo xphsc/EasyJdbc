@@ -42,63 +42,63 @@ public class UpdateExecutor extends AbstractExecutor<Integer> {
 	private final Object persistent;
 	private final boolean ignoreNull;
 	private final SQL sqlBuilder = SQL.BUILD();
-	
+
 	private LinkedList<ValueElement> valueElements;
-	
-	public <S> UpdateExecutor(LambdaSupplier<S> jdbcBuilder , Object persistent, boolean ignoreNull) {
+
+	public <S> UpdateExecutor(LambdaSupplier<S> jdbcBuilder, Object persistent, boolean ignoreNull) {
 		super(jdbcBuilder);
 		this.persistent = persistent;
 		this.ignoreNull = ignoreNull;
 	}
-	
+
 	@Override
 	public void prepare() {
 		this.checkEntity(this.persistent.getClass());
 		EntityElement entityElement = ElementResolver.resolve(this.persistent.getClass());
-		this.valueElements =new LinkedList();
+		this.valueElements = new LinkedList();
 		this.sqlBuilder.UPDATE(entityElement.getTable());
 		FieldElement primaryKey = entityElement.getPrimaryKey();
 		Object primaryKeyValue = Jdbcs.invokeMethod(this.persistent, primaryKey.getReadMethod()
 				, "entity：" + entityElement.getName() + " Primary key：" + primaryKey.getName() + " Failure to obtain value");
 		Assert.notNull(primaryKeyValue, "entity:" + entityElement.getName() + ", Primary key cannot be empty");
 		FieldElement version = entityElement.getVersion();
-		Object versionValue=null;
-       if(version!=null){
-		    versionValue = Jdbcs.invokeMethod(this.persistent, version.getReadMethod()
-				   , "entity：" + entityElement.getName() + " version：" + version.getName() + " Failure to obtain value");
-	  }
-		for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
-			if(fieldElement.isTransientField()) {
+		Object versionValue = null;
+		if (version != null) {
+			versionValue = Jdbcs.invokeMethod(this.persistent, version.getReadMethod()
+					, "entity：" + entityElement.getName() + " version：" + version.getName() + " Failure to obtain value");
+		}
+		for (FieldElement fieldElement : entityElement.getFieldElements().values()) {
+			if (fieldElement.isTransientField()) {
 				continue;
 			}
-			if(fieldElement.isPrimaryKey()) {
+			if (fieldElement.isPrimaryKey()) {
 				continue;
 			}
 
 			Object value = Jdbcs.invokeMethod(this.persistent, fieldElement.getReadMethod()
 					, "entity：" + entityElement.getName() + " field：" + fieldElement.getName() + "Failure to obtain value");
-			if(ignoreNull && null == value) {
+			if (ignoreNull && null == value) {
 				continue;
 			}
 			if (fieldElement.isModifieDateField()) {
-				value= FillDateTypeHandler.fillDate(fieldElement);
+				value = FillDateTypeHandler.fillDate(fieldElement);
 			}
-			if(fieldElement.isVersion()) {
-				NextVersion  nextVersion=new DefaultVersion();
-				Object newVersion=nextVersion.nextVersion(versionValue);
-				if(newVersion!=null){
-					this.sqlBuilder.SET(version.getColumn()+"="+newVersion);
+			if (fieldElement.isVersion()) {
+				NextVersion nextVersion = new DefaultVersion();
+				Object newVersion = nextVersion.nextVersion(versionValue);
+				if (newVersion != null) {
+					this.sqlBuilder.SET(version.getColumn() + "=" + newVersion);
 				}
-			}else{
+			} else {
 				this.sqlBuilder.SET(fieldElement.getColumn() + " = ?");
-				this.valueElements.add(new ValueElement(value,fieldElement.isClob(), fieldElement.isBlob()));
+				this.valueElements.add(new ValueElement(value, fieldElement.isClob(), fieldElement.isBlob()));
 			}
 
 		}
 
 		this.sqlBuilder.WHERE(primaryKey.getColumn() + " = ?");
 		this.valueElements.add(new ValueElement(primaryKeyValue, primaryKey.isClob(), primaryKey.isBlob()));
-		if(versionValue!=null){
+		if (versionValue != null) {
 			this.sqlBuilder.WHERE(version.getColumn() + " = ?");
 			this.valueElements.add(new ValueElement(versionValue, primaryKey.isClob(), primaryKey.isBlob()));
 		}
@@ -109,7 +109,7 @@ public class UpdateExecutor extends AbstractExecutor<Integer> {
 	@Override
 	protected Integer doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcBuilder.update(sql,new ValueSetter(LOBHANDLER,this.valueElements));
+		return this.jdbcBuilder.update(sql, new ValueSetter(LOBHANDLER, this.valueElements));
 	}
 
 

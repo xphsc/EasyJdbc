@@ -17,10 +17,16 @@ package com.xphsc.easyjdbc.annotation;
 
 import java.lang.annotation.*;
 
+
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: The annotation that specify an SQL for deleting record(s).
+ * For reference, the example
+ *  public interface UserDao {
+ *     @Delete("SqlDelete FROM users WHERE id = #{id}")
+ *     boolean deleteById(@SqlParam("id") int id);
+ *   }
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

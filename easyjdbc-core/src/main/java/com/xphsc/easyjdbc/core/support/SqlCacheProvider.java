@@ -16,9 +16,10 @@
 package com.xphsc.easyjdbc.core.support;
 
 /**
- * @author huipei.x
- * @date  2019-3-18
- * @description
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: SqlCacheProvider接口
+ * 它主要用于根据SQL语句和参数生成缓存键，以便在缓存机制中唯一标识一个查询
  */
 public interface SqlCacheProvider {
 

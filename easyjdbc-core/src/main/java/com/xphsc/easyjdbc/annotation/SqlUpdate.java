@@ -18,9 +18,14 @@ package com.xphsc.easyjdbc.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: the annotation that specify an SQL for updating record(s).
+ * For reference, the example
+ * public interface UserDao {
+ *    @SqlUpdate("UPDATE users SET name = #{user.name} WHERE id = #{user.id}")
+ *     User update(@SqlParam("user") User user);
+ * }
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

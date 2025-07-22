@@ -34,12 +34,13 @@ public class DeleteByExampleExecutor extends AbstractExecutor<Integer> {
 
 	private SQL sqlBuilder;
 	private final Class<?> persistentClass;
-	private  Object[] parameters;
-	public <S> DeleteByExampleExecutor(LambdaSupplier<S> jdbcBuilder,SQL applyWhere,Object[] parameters,Class<?> persistentClass) {
+	private Object[] parameters;
+
+	public <S> DeleteByExampleExecutor(LambdaSupplier<S> jdbcBuilder, SQL applyWhere, Object[] parameters, Class<?> persistentClass) {
 		super(jdbcBuilder);
 		this.sqlBuilder = applyWhere;
-		this.persistentClass=persistentClass;
-		this.parameters=parameters;
+		this.persistentClass = persistentClass;
+		this.parameters = parameters;
 	}
 
 
@@ -54,7 +55,7 @@ public class DeleteByExampleExecutor extends AbstractExecutor<Integer> {
 	@Override
 	protected Integer doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		Assert.isTrue(sql.contains("WHERE"),"Delete must have where condition!");
+		Assert.isTrue(sql.contains("WHERE"), "Delete must have where condition!");
 		return this.jdbcBuilder.update(sql, this.parameters);
 	}
 

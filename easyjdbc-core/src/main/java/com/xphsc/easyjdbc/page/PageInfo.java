@@ -18,21 +18,25 @@ package com.xphsc.easyjdbc.page;
 import java.io.Serializable;
 import java.util.List;
 
+
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: 通用的分页信息类，用于封装分页查询的结果
+ * 实现了Serializable接口以支持序列化，便于在网络传输或存储
  */
 public class PageInfo<T> implements Serializable {
-    public int pageNum;
-    public int pageSize;
-    public long total = 0L;
-    public List<T> list;
-    public int totalPages;
-    public int offset=-1;
-    public int limit;
-    public int prePage;
-    public int nextPage;
-    public boolean hasPrePage;
-    public boolean hasNextPage;
+    private int pageNum;
+    private int pageSize;
+    private long total = 0L;
+    private List<T> list;
+    private int totalPages;
+    private int offset=-1;
+    private int limit;
+    private int prePage;
+    private int nextPage;
+    private boolean hasPrePage;
+    private boolean hasNextPage;
 
     public PageInfo() {
     }
@@ -42,6 +46,9 @@ public class PageInfo<T> implements Serializable {
         this.pageSize=pageSize;
     }
 
+    public static PageInfo of(int pageNum, int pageSize) {
+        return new PageInfo(pageNum, pageSize);
+    }
 
     private  PageInfo(Builder builder){
         this.pageNum=builder.pageNum;
@@ -63,17 +70,17 @@ public class PageInfo<T> implements Serializable {
     }
 
     public static class Builder {
-        private int pageNum;
-        private int pageSize;
-        private long total = 0L;
-        private List<Object> list;
-        private int totalPages;
-        private int offset=-1;
-        private int limit;
-        private int prePage;
-        private int nextPage;
-        private boolean hasPrePage;
-        private boolean hasNextPage;
+        public int pageNum;
+        public int pageSize;
+        public long total = 0L;
+        public List<Object> list;
+        public int totalPages;
+        public int offset=-1;
+        public int limit;
+        public int prePage;
+        public int nextPage;
+        public boolean hasPrePage;
+        public boolean hasNextPage;
         public Builder(){}
 
 
@@ -136,6 +143,7 @@ public class PageInfo<T> implements Serializable {
             return new PageInfo(this);
         }
     }
+
     public int getPageNum() {
         return pageNum;
     }

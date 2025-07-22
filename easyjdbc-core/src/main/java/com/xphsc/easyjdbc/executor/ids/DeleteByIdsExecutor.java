@@ -37,12 +37,12 @@ public class DeleteByIdsExecutor extends AbstractExecutor<Integer> {
 	private final Iterable primaryKeyValues;
 	private final SQL sqlBuilder = SQL.BUILD();
 
-	public <S> DeleteByIdsExecutor(LambdaSupplier<S> jdbcBuilder , Class<?> persistentClass, Iterable primaryKeyValues) {
+	public <S> DeleteByIdsExecutor(LambdaSupplier<S> jdbcBuilder, Class<?> persistentClass, Iterable primaryKeyValues) {
 		super(jdbcBuilder);
 		this.persistentClass = persistentClass;
 		this.primaryKeyValues = primaryKeyValues;
 	}
-	
+
 	@Override
 	public void prepare() {
 		StringBuilder sb = new StringBuilder();
@@ -50,12 +50,12 @@ public class DeleteByIdsExecutor extends AbstractExecutor<Integer> {
 		EntityElement entityElement = ElementResolver.resolve(this.persistentClass);
 		this.sqlBuilder.DELETE_FROM(entityElement.getTable());
 		sb.append(entityElement.getPrimaryKey().getColumn() + " in ");
-		String inValues="";
+		String inValues = "";
 		for (Object value : primaryKeyValues) {
-			inValues+="'"+value+"',";
+			inValues += "'" + value + "',";
 		}
-		inValues = inValues.substring(0, inValues.length()-1);
-		sb.append(" (" + inValues+")");
+		inValues = inValues.substring(0, inValues.length() - 1);
+		sb.append(" (" + inValues + ")");
 		this.sqlBuilder.WHERE(sb.toString());
 	}
 

@@ -19,9 +19,10 @@ import com.xphsc.easyjdbc.core.cache.CacheKey;
 import com.xphsc.easyjdbc.core.cache.CachekeyBuiler;
 
 /**
- * @author huipei.x
- * @date  2019-3-18
- * @description
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: DefaultCacheSqlProvider类实现了SqlCacheProvider和CachekeyBuiler接口
+ * 它主要用于根据SQL语句和参数生成缓存键，以便在缓存机制中唯一标识一个查询
  */
 public class DefaultCacheSqlProvider implements SqlCacheProvider, CachekeyBuiler {
 
@@ -30,13 +31,14 @@ public class DefaultCacheSqlProvider implements SqlCacheProvider, CachekeyBuiler
 
     public DefaultCacheSqlProvider(String sql, Object[] objects) {
         this.sql = sql;
-        this.objects=objects;
+        this.objects = objects;
 
     }
+
     @Override
     public CacheKey createCachekey() {
         CacheKey cacheKey = new CacheKey(sql);
-        if(objects!=null){
+        if (objects != null) {
             for (Object object : objects) {
                 cacheKey.update(object);
             }

@@ -18,9 +18,14 @@ package com.xphsc.easyjdbc.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: The annotation that specify options for customizing default behaviors.
+ * public interface UserDao {
+ *     @SqlOptions(useGeneratedKeys = true, keyProperty = "id")
+ *     @SqlInsert("INSERT INTO users (name) VALUES(#{user.name})")
+ *     int insert(@SqlParam(user) User user);
+ * }
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

@@ -29,9 +29,10 @@ import org.springframework.util.StringUtils;
 import java.lang.annotation.Annotation;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description:  EasyDaoBeanScannerConfigurer class implements BeanDefinitionRegistryPostProcessor for scanning and registering Dao layer interfaces
+ * This class is mainly used to automatically scan the specified package path for Dao layer interfaces annotated with @Dao, and register them as Bean definitions
  */
 public class EasyDaoBeanScannerConfigurer implements BeanDefinitionRegistryPostProcessor {
 
@@ -47,10 +48,10 @@ public class EasyDaoBeanScannerConfigurer implements BeanDefinitionRegistryPostP
         registerRequestProxyHandler(registry);
 
         EasyDaoClassPathMapperScanner scanner = new EasyDaoClassPathMapperScanner(registry, annotation);
-         /**
+        /**
          * Loading Dao Layer Interface
          */
-        if(StringUtil.isNotBlank(this.basePackage)){
+        if (StringUtil.isNotBlank(this.basePackage)) {
             scanner.scan(StringUtils.tokenizeToStringArray(this.basePackage, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS));
         }
     }

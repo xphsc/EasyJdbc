@@ -23,7 +23,7 @@ import java.lang.annotation.*;
 /**
  * {@link DaoScannerRegistrar }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:  Use this annotation daoscan to register the easyjddbc mapper interface when Java
+ * @description:  Use this annotation daoScan to register the easyjddbc mapper interface when Java
  * @since 2.0.8
  */
 @Retention(RetentionPolicy.RUNTIME)

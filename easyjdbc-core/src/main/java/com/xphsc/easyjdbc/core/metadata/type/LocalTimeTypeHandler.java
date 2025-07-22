@@ -24,7 +24,7 @@ import java.time.LocalTime;
 /**
  * {@link BaseTypeHandler}
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: LocalTime类型处理器类，用于处理 JDBC 时间类型转换
  * @since 2.1.0
  */
 public class LocalTimeTypeHandler extends BaseTypeHandler<LocalTime> {
@@ -35,7 +35,6 @@ public class LocalTimeTypeHandler extends BaseTypeHandler<LocalTime> {
     public void setNonNullParameter(PreparedStatement ps, int i, LocalTime parameter, JdbcType var4) throws SQLException {
         ps.setObject(i, parameter);
     }
-
 
 
     @Override

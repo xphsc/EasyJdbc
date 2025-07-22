@@ -29,10 +29,10 @@ import java.lang.annotation.Annotation;
  * Created by ${huipei.x}
  */
 public class GeneratedValueResolver implements Resolver {
-	
+
 	@Override
 	public void resolve(Element element, Annotation annotation) {
-		FieldElement fieldElement = (FieldElement)element;
+		FieldElement fieldElement = (FieldElement) element;
 		EntityElement entityElement = fieldElement.getEntityElement();
 		javax.persistence.GeneratedValue generatedValue = (javax.persistence.GeneratedValue) annotation;
 		Assert.isTrue(fieldElement.isPrimaryKey(),
@@ -41,5 +41,5 @@ public class GeneratedValueResolver implements Resolver {
 		fieldElement.setStrategy(generatedValue.strategy());
 		fieldElement.setGenerator(generatedValue.generator());
 	}
-	
+
 }

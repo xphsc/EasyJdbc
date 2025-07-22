@@ -33,123 +33,128 @@ import com.xphsc.easyjdbc.util.StringUtil;
 import javax.persistence.Entity;
 import java.util.*;
 
+
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: 抽象Example类
+ * 该类提供了一系列方法来定制SQL查询的各个部分，如选择字段、排序、分页等
+ * @param <T> 泛型参数，表示当前实例的类型
  */
 public abstract class AbstractExample<T> {
 
-    protected SQL sqlBuilder= SQL.BUILD()  ;
+    protected SQL sqlBuilder = SQL.BUILD();
     protected Sorts orderByClause;
-    protected  boolean distinct;
+    protected boolean distinct;
     protected List<Example.Criteria> oredCriteria;
     protected Class<?> entityClass;
     protected Class<?> persistentClass;
     protected PageInfo pageInfo;
-	private Integer offset;
+    private Integer offset;
     private Integer limit;
     protected LinkedList<String> excludePropertys;
     protected EntityElement entityElement;
-    protected  Map<String,String> mappings;
+    protected Map<String, String> mappings;
     public JdbcBuilder jdbcBuilder;
-    public  String dialectName;
-    protected  LinkedList<Object> parameters;
+    public String dialectName;
+    protected LinkedList<Object> parameters;
     protected LinkedList<String> selectPropertys;
     protected LinkedList<String> groupByClause;
-    protected Boolean isAggregate=false;
+    protected Boolean isAggregate = false;
 
-    protected T mapping(String property,String field){
+    protected T mapping(String property, String field) {
         Assert.hasText(checkProperty(property).getColumn(), "The column of the mapping cannot be empty");
         Assert.hasText(field, "Mapping attributes cannot be empty");
-        if(Collects.isEmpty(mappings)){
-            mappings= new HashMap();
+        if (Collects.isEmpty(mappings)) {
+            mappings = new HashMap();
         }
         this.mappings.put(field, checkProperty(property).getColumn());
-        return  (T) this;
-    }
-
-
-    public T isDistinct(boolean distinct){
-        this.distinct=distinct;
-        return  (T) this;
-    }
-
-    public T orderByClause(Sorts sorts){
-        this.orderByClause=sorts;
         return (T) this;
     }
 
-    public T entityClass(Class<?> entityClass){
-        this.entityClass=entityClass;
+
+    public T isDistinct(boolean distinct) {
+        this.distinct = distinct;
         return (T) this;
     }
 
-    public T pageInfo(int pageNum,int pageSize){
+    public T orderByClause(Sorts sorts) {
+        this.orderByClause = sorts;
+        return (T) this;
+    }
+
+    public T entityClass(Class<?> entityClass) {
+        this.entityClass = entityClass;
+        return (T) this;
+    }
+
+    public T pageInfo(int pageNum, int pageSize) {
         Assert.isTrue(pageNum >= 1, "PageNum must be greater than or equal to 1");
         Assert.isTrue(pageSize > 0, "PageSize must be greater than 0");
-        if(pageInfo==null){
-            pageInfo=new PageInfo();
+        if (pageInfo == null) {
+            pageInfo = new PageInfo();
         }
-        this.pageInfo.pageNum=pageNum;
-        this.pageInfo.pageSize=pageSize;
+        this.pageInfo.setPageNum(pageNum);
+        this.pageInfo.setPageSize(pageSize);
         return (T) this;
     }
 
-    public T  offsetPage(int offset, int limit){
+    public T offsetPage(int offset, int limit) {
         Assert.isTrue(offset >= 0, "Offset must be greater than or equal to 0");
         Assert.isTrue(limit > 0, "Limit must be greater than 0");
-        this.offset=offset;
-        this.limit=limit;
+        this.offset = offset;
+        this.limit = limit;
         return (T) this;
     }
 
-    protected T excludePropertys(String... excludePropertys){
-        LinkedList<String> columns=new LinkedList();
-        for(String property:excludePropertys){
+    protected T excludePropertys(String... excludePropertys) {
+        LinkedList<String> columns = new LinkedList();
+        for (String property : excludePropertys) {
             columns.add(checkProperty(property).getColumn());
         }
-        this.excludePropertys=columns;
+        this.excludePropertys = columns;
         return (T) this;
     }
 
-    protected T selectPropertys(String... propertys){
-        LinkedList<String> columns=new LinkedList();
-        for(String property:propertys){
+    protected T selectPropertys(String... propertys) {
+        LinkedList<String> columns = new LinkedList();
+        for (String property : propertys) {
             columns.add(checkProperty(property).getColumn());
         }
-        this.selectPropertys=columns;
+        this.selectPropertys = columns;
         return (T) this;
     }
 
-    protected T selectPropertys(Aggregation aggregation,String... propertys){
-        LinkedList<String> columns=new LinkedList();
-        if(Collects.isEmpty(mappings)){
-            mappings= new HashMap();
+    protected T selectPropertys(Aggregation aggregation, String... propertys) {
+        LinkedList<String> columns = new LinkedList();
+        if (Collects.isEmpty(mappings)) {
+            mappings = new HashMap();
         }
-        for(Aggregation.Aggregate aggregate :aggregation.getAggregates()){
-            if(aggregate.getAsProperty()!=null){
-                columns.add(aggregate.getAggregateType().name()+"("+checkProperty(aggregate.getProperty()).getColumn()+") AS "+aggregate.getAsProperty());
+        for (Aggregation.Aggregate aggregate : aggregation.getAggregates()) {
+            if (aggregate.getAsProperty() != null) {
+                columns.add(aggregate.getAggregateType().name() + "(" + checkProperty(aggregate.getProperty()).getColumn() + ") AS " + aggregate.getAsProperty());
                 this.mappings.put(aggregate.getAsProperty(), aggregate.getAsProperty());
-            }else{
-                columns.add(aggregate.getAggregateType().name()+"("+checkProperty(aggregate.getProperty()).getColumn()+")  ");
+            } else {
+                columns.add(aggregate.getAggregateType().name() + "(" + checkProperty(aggregate.getProperty()).getColumn() + ")  ");
             }
 
         }
-        for(String property:propertys){
-            columns.add(checkProperty(property).getColumn()+" AS "+checkProperty(property).getName());
+        for (String property : propertys) {
+            columns.add(checkProperty(property).getColumn() + " AS " + checkProperty(property).getName());
             this.mappings.put(checkProperty(property).getName(), checkProperty(property).getName());
         }
-        this.selectPropertys=columns;
-        this.isAggregate=true;
+        this.selectPropertys = columns;
+        this.isAggregate = true;
         return (T) this;
     }
 
 
-    protected T groupByClause(String... groupBys){
-        LinkedList<String> groupByClause=new LinkedList<>();
-        for(String groupBy:groupBys){
+    protected T groupByClause(String... groupBys) {
+        LinkedList<String> groupByClause = new LinkedList<>();
+        for (String groupBy : groupBys) {
             groupByClause.add(groupBy);
         }
-        this.groupByClause=groupByClause;
+        this.groupByClause = groupByClause;
         return (T) this;
     }
 
@@ -273,6 +278,7 @@ public abstract class AbstractExample<T> {
 
 
     protected List<Criterion> criteria;
+
     protected void addCriterion(String condition) {
         if (condition == null) {
             try {
@@ -374,9 +380,10 @@ public abstract class AbstractExample<T> {
             }
         }
     }
-    protected void addOrCriterionLike(String property,Object value,LikeType likeType,boolean islike) {
-        String like= islike ? "like" : "not like";
-        if(StringUtil.isNotBlank(likeType.getType())){
+
+    protected void addOrCriterionLike(String property, Object value, LikeType likeType, boolean islike) {
+        String like = islike ? "like" : "not like";
+        if (StringUtil.isNotBlank(likeType.getType())) {
             switch (likeType.getType()) {
                 case "left":
                     addOrCriterion(property, like, value + "%");
@@ -400,21 +407,20 @@ public abstract class AbstractExample<T> {
      */
 
     protected SQL applyWhere() {
-        List<?> newOredCriteria=null;
-            newOredCriteria=oredCriteria;
+        List<?> newOredCriteria = null;
+        newOredCriteria = oredCriteria;
         StringBuilder sb = new StringBuilder();
         boolean firstCriteria = true;
         if (!newOredCriteria.isEmpty()) {
             for (int i = 0; i < newOredCriteria.size(); i++) {
-                List<Criterion> criterions=null;
-                    Example.Criteria criteria = (Example.Criteria) newOredCriteria.get(i);
-                    if (firstCriteria) {
-                        firstCriteria = false;
-                    } else {
-                        sb.append(" "+criteria.andOr+" ");
-                    }
-                    criterions = criteria.getCriteria();
-
+                List<Criterion> criterions = null;
+                Example.Criteria criteria = (Example.Criteria) newOredCriteria.get(i);
+                if (firstCriteria) {
+                    firstCriteria = false;
+                } else {
+                    sb.append(" " + criteria.andOr + " ");
+                }
+                criterions = criteria.getCriteria();
 
 
                 boolean firstCriterion = true;
@@ -424,37 +430,37 @@ public abstract class AbstractExample<T> {
                         firstCriterion = false;
                     } else {
                         sb.append(" ");
-                        sb.append(" "+criterion.andOr+" ");
+                        sb.append(" " + criterion.andOr + " ");
                     }
                     sb.append(" ");
-                    if(criterion.getCondition().trim().endsWith("in")||
+                    if (criterion.getCondition().trim().endsWith("in") ||
                             criterion.noValue
-                            ){
+                    ) {
                         sb.append(criterion.getCondition());
-                    }else{
+                    } else {
                         sb.append(criterion.getCondition() + " ?");
                     }
                     if (criterion.getValue() != null) {
                         if (criterion.isListValue()) {
-                            String inValues="";
-                            List<Object> list= (List) criterion.getValue();
+                            String inValues = "";
+                            List<Object> list = (List) criterion.getValue();
                             for (Object value : list) {
-                                inValues+="'"+value+"',";
+                                inValues += "'" + value + "',";
                             }
-                            inValues = inValues.substring(0, inValues.length()-1);
-                            sb.append(" (" + inValues+")");
+                            inValues = inValues.substring(0, inValues.length() - 1);
+                            sb.append(" (" + inValues + ")");
                         }
                         if (criterion.betweenValue) {
-                            if(Collects.isEmpty(parameters)){
-                                parameters= new LinkedList<Object>();
+                            if (Collects.isEmpty(parameters)) {
+                                parameters = new LinkedList<Object>();
                             }
                             parameters.add(criterion.getValue());
-                            sb.append(" " + "and"+ " ? ");
+                            sb.append(" " + "and" + " ? ");
                             parameters.add(criterion.getSecondValue());
                         }
-                        if(criterion.singleValue){
-                            if(Collects.isEmpty(parameters)){
-                                parameters= new LinkedList<Object>();
+                        if (criterion.singleValue) {
+                            if (Collects.isEmpty(parameters)) {
+                                parameters = new LinkedList<Object>();
                             }
                             parameters.add(criterion.getValue());
                         }
@@ -462,18 +468,19 @@ public abstract class AbstractExample<T> {
                 }
 
                 if (!criterions.isEmpty()) {
-                    if (Collects.isNotEmpty(selectPropertys)&&this.selectPropertys.toString().contains("(")) {
+                    if (Collects.isNotEmpty(selectPropertys) && this.selectPropertys.toString().contains("(")) {
                         sqlBuilder.HAVING(sb.toString());
-                    }else{
-                        sqlBuilder.WHERE(sb.toString());}
+                    } else {
+                        sqlBuilder.WHERE(sb.toString());
+                    }
                 }
             }
         }
-        if(Collects.isEmpty(groupByClause)) {
-            this.groupByClause =new LinkedList<>();
+        if (Collects.isEmpty(groupByClause)) {
+            this.groupByClause = new LinkedList<>();
         }
         if (Collects.isNotEmpty(groupByClause)) {
-            for (Object  groupBy : groupByClause) {
+            for (Object groupBy : groupByClause) {
                 this.sqlBuilder = sqlBuilder.GROUP_BY(checkProperty(groupBy.toString()).getColumn());
             }
 
@@ -492,14 +499,14 @@ public abstract class AbstractExample<T> {
         return sqlBuilder;
     }
 
-    protected <T> List<T>  list() {
-        if(Collects.isEmpty(parameters)){
-            parameters=new LinkedList<>();
+    protected <T> List<T> list() {
+        if (Collects.isEmpty(parameters)) {
+            parameters = new LinkedList<>();
         }
-        if(jdbcBuilder!=null){
-            FindByExampleExecutor<List<T>> executor =  new FindByExampleExecutor<List<T>>(
-                    applyWhere(), persistentClass,entityClass,pageInfo
-                    ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),this::getJdbcBuilder,dialectName);
+        if (jdbcBuilder != null) {
+            FindByExampleExecutor<List<T>> executor = new FindByExampleExecutor<List<T>>(
+                    applyWhere(), persistentClass, entityClass, pageInfo
+                    , entityElement, excludePropertys, mappings, distinct, selectPropertys, parameters.toArray(), this::getJdbcBuilder, dialectName);
             List<T> results = executor.execute();
             executor = null;
             return results;
@@ -507,25 +514,25 @@ public abstract class AbstractExample<T> {
         return null;
     }
 
-    protected <T> T  get() {
-        List<T> results=list();
-        return Collects.isNotEmpty(results)?results.get(0): null;
+    protected <T> T get() {
+        List<T> results = list();
+        return Collects.isNotEmpty(results) ? results.get(0) : null;
 
     }
 
-    protected long  count()  {
+    protected long count() {
         CountByExampleExecutor executor;
         if (Collects.isNotEmpty(selectPropertys)) {
             Assert.isTrue(!this.selectPropertys.toString().contains("("),
                     "The current SQL statement contains the default count (1) aggregate function, and there must be no aggregate function.");
         }
-        if(Collects.isEmpty(parameters)){
-            parameters=new LinkedList<>();
+        if (Collects.isEmpty(parameters)) {
+            parameters = new LinkedList<>();
         }
-        if(jdbcBuilder!=null) {
+        if (jdbcBuilder != null) {
             if (sqlBuilder == null ||
-                "".equals(sqlBuilder.toString())
-               ) {
+                    "".equals(sqlBuilder.toString())
+            ) {
                 bulidSelect();
                 executor = new CountByExampleExecutor(applyWhere(), this::getJdbcBuilder, parameters.toArray());
             } else {
@@ -538,66 +545,67 @@ public abstract class AbstractExample<T> {
         return 0;
     }
 
-     protected <T> PageInfo<T> page() {
-         List<T> results=null;
-         long total=0L;
-       if(offset==null&&limit==null){
-            if(pageInfo==null){
-                pageInfo=new PageInfo();
-          }
-         results=list();
-         total=count();
-            return new PageInfoImpl<T>(results,total,pageInfo.getPageNum(),pageInfo.getPageSize());
-     }else{
-           if(Collects.isEmpty(parameters)){
-               parameters=new LinkedList<>();
-           }
-            if(jdbcBuilder!=null){
-                FindByExampleExecutor<List<T>> executor =  new FindByExampleExecutor<List<T>>(
-                        applyWhere(), persistentClass,entityClass,offset,limit
-                        ,entityElement,excludePropertys,mappings,distinct,selectPropertys,parameters.toArray(),this::getJdbcBuilder,dialectName);
-                results= executor.execute();
+    protected <T> PageInfo<T> page() {
+        List<T> results = null;
+        long total = 0L;
+        if (offset == null && limit == null) {
+            if (pageInfo == null) {
+                pageInfo = new PageInfo();
             }
-           total=count();
-           if(pageInfo==null){
-               pageInfo=new PageInfo();
-           }
-           this.pageInfo.pageNum=(int) Math.ceil((double) ((offset +limit) / limit));
-           this.pageInfo.pageSize=limit;
-            return new PageInfoImpl<T>(results,total,pageInfo.getPageNum(),pageInfo.pageSize);
+            results = list();
+            total = count();
+            return new PageInfoImpl<T>(results, total, pageInfo.getPageNum(), pageInfo.getPageSize());
+        } else {
+            if (Collects.isEmpty(parameters)) {
+                parameters = new LinkedList<>();
+            }
+            if (jdbcBuilder != null) {
+                FindByExampleExecutor<List<T>> executor = new FindByExampleExecutor<List<T>>(
+                        applyWhere(), persistentClass, entityClass, offset, limit
+                        , entityElement, excludePropertys, mappings, distinct, selectPropertys, parameters.toArray(), this::getJdbcBuilder, dialectName);
+                results = executor.execute();
+            }
+            total = count();
+
+            if (pageInfo == null) {
+                pageInfo = new PageInfo();
+            }
+            this.pageInfo.setPageNum((int) Math.ceil((double) ((offset + limit) / limit)));
+            this.pageInfo.setPageSize(limit);
+            return new PageInfoImpl<T>(results, total, pageInfo.getPageNum(), pageInfo.getPageSize());
 
         }
 
     }
 
-    protected  int delete() {
-        if(Collects.isEmpty(parameters)){
-            parameters=new LinkedList<>();
+    protected int delete() {
+        if (Collects.isEmpty(parameters)) {
+            parameters = new LinkedList<>();
         }
-        Assert.notEmpty(oredCriteria,"Criteria conditional objects cannot be empty!");
-        DeleteByExampleExecutor  executor=new DeleteByExampleExecutor(this::getJdbcBuilder,applyWhere(),parameters.toArray(),persistentClass);
-        int result=executor.execute();
+        Assert.notEmpty(oredCriteria, "Criteria conditional objects cannot be empty!");
+        DeleteByExampleExecutor executor = new DeleteByExampleExecutor(this::getJdbcBuilder, applyWhere(), parameters.toArray(), persistentClass);
+        int result = executor.execute();
         return result;
     }
 
 
-    private void bulidSelect(){
+    private void bulidSelect() {
         sqlBuilder.FROM(this.entityElement.getTable());
         Iterator i = this.entityElement.getFieldElements().values().iterator();
-        while(i.hasNext()) {
-            FieldElement fieldElement = (FieldElement)i.next();
-            if(fieldElement.isTransientField()) {
+        while (i.hasNext()) {
+            FieldElement fieldElement = (FieldElement) i.next();
+            if (fieldElement.isTransientField()) {
                 continue;
             }
-            if(distinct){
+            if (distinct) {
                 sqlBuilder.SELECT_DISTINCT(fieldElement.getColumn());
-            }else{
+            } else {
                 sqlBuilder.SELECT(fieldElement.getColumn());
             }
         }
     }
 
-    protected void initEntityElement(Class<?> entityClass){
+    protected void initEntityElement(Class<?> entityClass) {
         this.checkEntity(entityClass);
         this.entityElement = ElementResolver.resolve(this.persistentClass);
     }
@@ -612,13 +620,13 @@ public abstract class AbstractExample<T> {
 
 
     protected FieldElement checkProperty(String fieldName) {
-        List nameList=new ArrayList<>();
-        FieldElement newfieldElement=new FieldElement();
-        for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
-            if(fieldElement.isTransientField()) {
+        List nameList = new ArrayList<>();
+        FieldElement newfieldElement = new FieldElement();
+        for (FieldElement fieldElement : entityElement.getFieldElements().values()) {
+            if (fieldElement.isTransientField()) {
                 continue;
             }
-            if(fieldElement.getName().equals(fieldName)){
+            if (fieldElement.getName().equals(fieldName)) {
                 newfieldElement.setColumn(fieldElement.getColumn());
                 newfieldElement.setType(fieldElement.getType());
             }
@@ -627,7 +635,7 @@ public abstract class AbstractExample<T> {
         newfieldElement.setName(fieldName);
         if (nameList.contains(fieldName)) {
             return newfieldElement;
-        } else{
+        } else {
             throw new EasyJdbcException("The current entity class does not contain the name  <" + fieldName + ">  Properties!");
         }
     }
@@ -635,13 +643,13 @@ public abstract class AbstractExample<T> {
 
     protected void clear() {
         this.oredCriteria.clear();
-        if (this.parameters!=null){
+        if (this.parameters != null) {
             this.parameters.clear();
         }
-        if (this.groupByClause!=null){
+        if (this.groupByClause != null) {
             this.groupByClause.clear();
         }
-        if (this.groupByClause!=null){
+        if (this.groupByClause != null) {
             this.groupByClause.clear();
         }
         this.distinct = false;

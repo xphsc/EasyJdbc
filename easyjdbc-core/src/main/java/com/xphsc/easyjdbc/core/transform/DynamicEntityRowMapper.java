@@ -32,38 +32,38 @@ import java.sql.SQLException;
  * Created by ${huipei.x}
  */
 public class DynamicEntityRowMapper<T> implements RowMapper<T>{
-	
+
 	private final LobHandler lobHandler;
 	private final DynamicEntityElement dynamicEntityElement;
 	private final Class<?> dynamicEntityClass;
 	private final boolean isMap;
 
 	public DynamicEntityRowMapper(LobHandler lobHandler
-			,DynamicEntityElement dynamicEntityElement,Class<?> dynamicEntityClass) {
+			, DynamicEntityElement dynamicEntityElement, Class<?> dynamicEntityClass) {
 		this.lobHandler = lobHandler;
 		this.dynamicEntityElement = dynamicEntityElement;
 		this.dynamicEntityClass = dynamicEntityClass;
 		this.isMap = true;
 	}
-	
+
 	@Override
 	public T mapRow(ResultSet rs, int rowNum) throws SQLException {
 		T instance = Jdbcs.newInstance(this.dynamicEntityClass);
-		ResultSetMetaData rsm =rs.getMetaData();
+		ResultSetMetaData rsm = rs.getMetaData();
 		int col = rsm.getColumnCount();   //获得列的个数
 		for (int i = 1; i <= col; i++) {
 			String columnLabel = StringUtil.toUnderScoreCase(rsm.getColumnLabel(i));
 			int columnType = rsm.getColumnType(i);
 			DynamicFieldElement dynamicFieldElement = this.dynamicEntityElement
-								.getDynamicFieldElements().get(columnLabel.toUpperCase());
-			if(null == dynamicFieldElement) {
+					.getDynamicFieldElements().get(columnLabel.toUpperCase());
+			if (null == dynamicFieldElement) {
 				continue;
 			}
 			Object value = DefaultResultSet.getResultValue(rs, i, columnType, dynamicFieldElement.getType());
-			if(value==null) {
+			if (value == null) {
 				continue;
 			}
-			String errorMsg = "实体："+this.dynamicEntityElement.getName()+" 字段："+dynamicFieldElement.getName()+" 设置值失败";
+			String errorMsg = "实体：" + this.dynamicEntityElement.getName() + " 字段：" + dynamicFieldElement.getName() + " 设置值失败";
 			Jdbcs.invokeMethod(instance, dynamicFieldElement.getWriteMethod(), errorMsg, value);
 		}
 		return instance;

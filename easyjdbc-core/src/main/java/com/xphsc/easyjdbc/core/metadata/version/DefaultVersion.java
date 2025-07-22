@@ -23,12 +23,12 @@ package com.xphsc.easyjdbc.core.metadata.version;
 public class DefaultVersion implements NextVersion {
     @Override
     public Object nextVersion(Object versionValue) throws VersionException {
-        Object newVersion=null;
-        if(versionValue instanceof Integer ) {
-            newVersion = (Integer)versionValue+1;
+        Object newVersion = null;
+        if (versionValue instanceof Integer) {
+            newVersion = (Integer) versionValue + 1;
 
-        } else if (versionValue instanceof Long ) {
-            newVersion = (Long)versionValue+1;
+        } else if (versionValue instanceof Long) {
+            newVersion = (Long) versionValue + 1;
         } else {
             throw new VersionException("The default version only supports version numbers of Integer and Long types. If you need to, please expand!");
         }

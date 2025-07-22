@@ -48,7 +48,7 @@ public class DaoScannerRegistrar implements ImportBeanDefinitionRegistrar {
 
 
         Class<? extends Annotation> annotationClass = annoAttrs.getClass("annotationClass");
-        EasyDaoClassPathMapperScanner scanner = new EasyDaoClassPathMapperScanner(registry,annotationClass);
+        EasyDaoClassPathMapperScanner scanner = new EasyDaoClassPathMapperScanner(registry, annotationClass);
         Class<? extends BeanNameGenerator> generatorClass = annoAttrs.getClass("nameGenerator");
         if (!BeanNameGenerator.class.equals(generatorClass)) {
             scanner.setBeanNameGenerator(BeanUtils.instantiateClass(generatorClass));
@@ -70,6 +70,7 @@ public class DaoScannerRegistrar implements ImportBeanDefinitionRegistrar {
         }
         scanner.doScan(StringUtils.toStringArray(basePackages));
     }
+
     private void registerRequestProxyHandler(BeanDefinitionRegistry registry) {
         GenericBeanDefinition jdbcDaoProxyDefinition = new GenericBeanDefinition();
         jdbcDaoProxyDefinition.setBeanClass(DaoProxy.class);

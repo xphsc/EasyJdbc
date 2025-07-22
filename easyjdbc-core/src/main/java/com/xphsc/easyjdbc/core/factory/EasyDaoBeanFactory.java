@@ -20,10 +20,13 @@ import org.springframework.beans.factory.FactoryBean;
 import java.lang.reflect.Proxy;
 
 
+
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description:  EasyDaoBeanFactory是一个实现了FactoryBean接口的类，用于创建和管理DAO接口的代理实例
+ * 它通过使用Java的动态代理机制来创建DAO接口的实现类实例，从而实现对DAO层的统一管理和代理
+ * @param <T> 表示DAO接口的类型
  */
 public class EasyDaoBeanFactory<T> implements FactoryBean<T> {
 

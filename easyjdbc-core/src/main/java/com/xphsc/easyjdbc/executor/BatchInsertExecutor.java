@@ -40,7 +40,7 @@ public class BatchInsertExecutor extends AbstractExecutor<int[]> {
 	private final LinkedList persistents = new LinkedList();
 	private final SQL sqlBuilder = SQL.BUILD();
 	private List<LinkedList<ValueElement>> batchValueElements;
-	
+
 	public <S> BatchInsertExecutor(LambdaSupplier<S> jdbcBuilder, List<?> persistents) {
 		super(jdbcBuilder);
 		this.persistents.addAll(persistents);
@@ -53,24 +53,24 @@ public class BatchInsertExecutor extends AbstractExecutor<int[]> {
 		EntityElement entityElement = ElementResolver.resolve(persistentClass);
 		this.batchValueElements = new LinkedList();
 		this.sqlBuilder.INSERT_INTO(entityElement.getTable());
-		for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
+		for (FieldElement fieldElement : entityElement.getFieldElements().values()) {
 			if (fieldElement.isTransientField()) {
 				continue;
 			}
 			this.sqlBuilder.VALUES(fieldElement.getColumn(), "?");
 		}
 		for (Object persistent : persistents) {
-			LinkedList<ValueElement> valueElements =new LinkedList();
-			for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
-				if(fieldElement.isTransientField()) {
+			LinkedList<ValueElement> valueElements = new LinkedList();
+			for (FieldElement fieldElement : entityElement.getFieldElements().values()) {
+				if (fieldElement.isTransientField()) {
 					continue;
 				}
 				Object value = Jdbcs.invokeMethod(persistent, fieldElement.getReadMethod()
 						, "entity：" + entityElement.getName() + " field：" + fieldElement.getName() + " Failure to obtain value");
-				if(fieldElement.isPrimaryKey()) {
-					value = super.generatedId(persistent,fieldElement, value);
+				if (fieldElement.isPrimaryKey()) {
+					value = super.generatedId(persistent, fieldElement, value);
 				}
-				valueElements.add(new ValueElement(value,fieldElement.isClob(),fieldElement.isBlob()));
+				valueElements.add(new ValueElement(value, fieldElement.isClob(), fieldElement.isBlob()));
 			}
 			this.batchValueElements.add(valueElements);
 		}
@@ -79,7 +79,7 @@ public class BatchInsertExecutor extends AbstractExecutor<int[]> {
 	@Override
 	protected int[] doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcBuilder.batchUpdate(sql,new ValueBatchSetter(LOBHANDLER,this.batchValueElements));
+		return this.jdbcBuilder.batchUpdate(sql, new ValueBatchSetter(LOBHANDLER, this.batchValueElements));
 	}
 
 }

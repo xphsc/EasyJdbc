@@ -38,7 +38,7 @@ public class EntityRowMapper<T> implements RowMapper<T>{
 	private final EntityElement entityElement;
 	private final Class<?> persistentClass;
 
-	public EntityRowMapper(LobHandler lobHandler,EntityElement entityElement,Class<?> persistentClass) {
+	public EntityRowMapper(LobHandler lobHandler, EntityElement entityElement, Class<?> persistentClass) {
 		this.persistentClass = persistentClass;
 		this.entityElement = entityElement;
 		this.lobHandler = lobHandler;
@@ -47,30 +47,30 @@ public class EntityRowMapper<T> implements RowMapper<T>{
 	@Override
 	public T mapRow(ResultSet rs, int rowNum) throws SQLException {
 		T instance = Jdbcs.newInstance(this.persistentClass);
-		ResultSetMetaData rsm =rs.getMetaData();
+		ResultSetMetaData rsm = rs.getMetaData();
 		int col = rsm.getColumnCount();
 		for (int i = 1; i <= col; i++) {
 			String columnLabel = StringUtil.toUnderScoreCase(rsm.getColumnLabel(i));
 			int columnType = rsm.getColumnType(i);
 			FieldElement fieldElement = this.entityElement.getFieldElements().get(columnLabel.toUpperCase());
-			if(null == fieldElement) {
+			if (null == fieldElement) {
 				continue;
 			}
 			Object value = null;
-			if(fieldElement.isClob()){
+			if (fieldElement.isClob()) {
 				value = this.lobHandler.getClobAsString(rs, i);
-			} else if(fieldElement.isBlob()){
+			} else if (fieldElement.isBlob()) {
 				value = this.lobHandler.getBlobAsBytes(rs, i);
 			} else {
 				value = DefaultResultSet.getResultValue(rs, i, columnType, fieldElement.getType());
 			}
-			if(value==null) {
+			if (value == null) {
 				continue;
 			}
-			if(null == fieldElement.getWriteMethod()) {
-				throw new EasyJdbcException("实体："+this.entityElement.getName()+" 字段："+fieldElement.getName()+" 没有set方法");
+			if (null == fieldElement.getWriteMethod()) {
+				throw new EasyJdbcException("实体：" + this.entityElement.getName() + " 字段：" + fieldElement.getName() + " 没有set方法");
 			}
-			String errorMsg = "实体："+this.entityElement.getName()+" 字段："+fieldElement.getName()+" 设置值失败";
+			String errorMsg = "实体：" + this.entityElement.getName() + " 字段：" + fieldElement.getName() + " 设置值失败";
 			Jdbcs.invokeMethod(instance, fieldElement.getWriteMethod(), errorMsg, value);
 		}
 		return instance;

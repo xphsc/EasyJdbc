@@ -18,9 +18,14 @@ package com.xphsc.easyjdbc.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: The annotation that specify an SQL for inserting record(s).
+ * For reference, the example
+ * public interface UserDao {
+ *     @SqlInsert("INSERT INTO users (id, name) VALUES(#{user.id}, #{user.name})")
+ *     void insert(@SqlParam("user") User user);
+ * }
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

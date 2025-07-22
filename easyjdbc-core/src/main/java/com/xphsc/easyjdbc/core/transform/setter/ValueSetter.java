@@ -29,7 +29,7 @@ import java.util.List;
  * Created by ${huipei.x}
  */
 public class ValueSetter implements PreparedStatementSetter {
-	
+
 	private final LobHandler lobHandler;
 	private final List<ValueElement> valueElements;
 
@@ -41,17 +41,17 @@ public class ValueSetter implements PreparedStatementSetter {
 	@Override
 	public void setValues(PreparedStatement ps) throws SQLException {
 		for (int i = 0; i < this.valueElements.size(); i++) {
-			int paramIndex = i+1;
+			int paramIndex = i + 1;
 			ValueElement param = this.valueElements.get(i);
-			if(param.isClob()){
-				if(null != param.getValue()){
-					this.lobHandler.getLobCreator().setClobAsString(ps,paramIndex,(String)param.getValue());
+			if (param.isClob()) {
+				if (null != param.getValue()) {
+					this.lobHandler.getLobCreator().setClobAsString(ps, paramIndex, (String) param.getValue());
 				} else {
 					ps.setObject(paramIndex, null);
 				}
-			} else if(param.isBlob()){
-				if(null != param.getValue()){
-					this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex, (byte[])param.getValue());
+			} else if (param.isBlob()) {
+				if (null != param.getValue()) {
+					this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex, (byte[]) param.getValue());
 				} else {
 					ps.setObject(paramIndex, null);
 				}

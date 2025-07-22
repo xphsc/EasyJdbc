@@ -7,7 +7,8 @@ import java.sql.*;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: 抽象类型处理器类，用于处理 JDBC 类型转换
+ * 继承自 TypeReflect 并实现 TypeHandler 接口
  * @since 2.1.0
  */
 public abstract class BaseTypeHandler<T> extends TypeReflect<T> implements TypeHandler<T> {

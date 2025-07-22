@@ -19,7 +19,10 @@ package com.xphsc.easyjdbc.page;
 import java.util.List;
 
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: 通用的分页信息实现类，用于封装分页查询的结果
+ * 实现了Serializable接口以支持序列化，便于在网络传输或存储
  */
 public class PageInfoImpl<T> extends PageInfo<T> {
 
@@ -27,35 +30,33 @@ public class PageInfoImpl<T> extends PageInfo<T> {
     }
 
     public PageInfoImpl(List<T> list, long total, int pageNum, int pageSize) {
-        this.pageNum = pageNum;
+        this.setPageNum(pageNum);
         if(pageNum < 1) {
-            this.pageNum = 1;
+            this.setPageNum(1);
         }
-        this.pageSize = pageSize;
-        this.total = total;
-        this.list = list;
-        this.prePage = this.pageNum - 1;
-        if(this.prePage < 1) {
-            this.hasPrePage = false;
-            this.prePage = 1;
+        this.setPageSize(pageSize);
+        this.setTotal(total);
+        this.setList(list);
+        this.setPrePage(this.getPageNum()-1);
+        if(this.getPrePage() < 1) {
+            this.setHasPrePage(false);
+            this.setPrePage(1);
         } else {
-            this.hasPrePage = true;
+            this.setHasPrePage(true);
         }
-
-        this.totalPages = (int)Math.ceil((double)total / (double)pageSize);
-        if(this.pageNum > this.totalPages) {
-            this.pageNum = this.totalPages;
+        this.setTotalPages((int)Math.ceil((double)total / (double)pageSize));
+        if(this.getPageNum() > this.getTotalPages()) {
+            this.setPageNum(this.getTotalPages());
         }
-
-        this.nextPage = this.pageNum + 1;
-        if(this.nextPage > this.totalPages) {
-            this.hasNextPage = false;
-            this.nextPage = this.totalPages;
+        this.setNextPage(this.getPageNum()+1);
+        if(this.getNextPage() > this.getTotalPages()) {
+            this.setHasNextPage(false);
+            this.setNextPage(this.getTotalPages());
         } else {
-            this.hasNextPage = true;
+            this.setHasNextPage(true);
         }
-      this.offset = (this.pageNum * pageSize)-pageSize;
-        this.limit=this.pageSize;
+        this.setOffset((this.getPageNum() * pageSize)-pageSize);
+        this.setLimit(this.getPageSize());
 
     }
 

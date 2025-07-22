@@ -18,9 +18,19 @@ package com.xphsc.easyjdbc.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: The annotation that specify a method that provide an SQL for inserting record(s).
+ * For reference, the example
+ * public interface UserDao {
+ *     @SqlInsertProvider(type = SqlProvider.class, method = "insert")
+ *     void insert((Map map);
+ *     public static class SqlProvider {
+ *         public static String insert() {
+ *             return "INSERT INTO users (id, name) VALUES(#{id}, #{name})";
+ *         }
+ *     }
+ * }
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

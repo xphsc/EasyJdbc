@@ -19,9 +19,12 @@ import org.springframework.stereotype.Component;
 import java.lang.annotation.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: 注解用于标记数据访问层（Data Access Object）的组件类。
+ * 它继承了 {@code Component} 注解，使得被 {@code Dao} 注解的类自动成为 Spring 框架管理的 Bean。
+ * {@code Dao} 注解的应用旨在通过约定优于配置的原则，简化数据访问层的开发。
+ * 它提供了一种标准化的方式来标识 DAO 类，而无需手动在 XML 或配置类
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)

@@ -20,67 +20,75 @@ import com.xphsc.easyjdbc.EasyJdbcTemplate;
 import com.xphsc.easyjdbc.core.entity.Example;
 import com.xphsc.easyjdbc.core.entity.Sorts;
 import com.xphsc.easyjdbc.page.PageInfo;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Created by ${huipei.x}
- */
 
+/**
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description:  Interface for data access operations on persistent entities using JDBC.
+ * Provides methods for basic CRUD operations, batch processing, and query functionality.
+ * @param <T> The type of the persistent entity.
+ */
 public interface EasyJdbcDao<T> {
 
     public EasyJdbcTemplate getEasyJdbcTemplate();
 
     /**
-     *insert
+     * insert
      */
     public int insert(T persistent);
 
     /**
      * insertForKey and return primary key
-     *persistent  Persistent Entities
+     * persistent  Persistent Entities
      */
     public Object insertForKey(T persistent);
 
     /**
-     *batch insert
+     * batch insert
      */
     public int batchInsert(List<T> persistents);
+
     /**
-     *Obtaining objects based on primary key values
+     * Obtaining objects based on primary key values
      */
     public <T> T getByPrimaryKey(Serializable primaryKeyValue);
 
     /**
-     *Optional objects based on primary key values
+     * Optional objects based on primary key values
      */
     public Optional<T> getById(Serializable id);
+
     /**
-     *Delete objects based on primary key values
+     * Delete objects based on primary key values
      */
     public int deleteByPrimaryKey(Serializable primaryKeyValue);
+
     /**
-     *Delete objects based on primary key values for list
+     * Delete objects based on primary key values for list
      */
     public int deleteByIds(Iterable primaryKeyValues);
 
     /**
-     *delete object based on primary key value
+     * delete object based on primary key value
      */
     public int delete(T persistent);
+
     /**
-     *update by object
+     * update by object
      */
     public int update(T persistent);
 
     /**
-     *update by object
+     * update by object
      */
     public int updateWithNull(T persistent);
+
     /**
-     *update by object for batchUpdate
+     * update by object for batchUpdate
      */
     public int batchUpdate(List<T> persistents);
 
@@ -88,34 +96,39 @@ public interface EasyJdbcDao<T> {
      * ID exist
      */
     public boolean exists(Serializable primaryKeyValue);
+
     /**
-     *Query all
+     * Query all
      */
     public <T> List<T> findAll();
+
     /**
-     *Query all by sorting object
+     * Query all by sorting object
      */
     public <T> List<T> findAll(Sorts sort);
+
     /**
-     *Query all based on paging objects
+     * Query all based on paging objects
      */
     public <T> PageInfo<T> findAll(PageInfo pageInfo);
 
     /**
-     *All queries are based on paging and sorting objects
+     * All queries are based on paging and sorting objects
      */
-    public <T> PageInfo<T> findAll(PageInfo pageInfo,Sorts sort);
+    public <T> PageInfo<T> findAll(PageInfo pageInfo, Sorts sort);
+
     /**
-     *  Query according to IDS
+     * Query according to IDS
      */
     public <T> List<T> findByIds(Iterable values);
+
     /**
-     *  count
+     * count
      */
     public long count();
 
     /**
-     *  query selector
+     * query selector
      */
     public EasyJdbcSelector selector();
 
@@ -123,7 +136,7 @@ public interface EasyJdbcDao<T> {
 
 
     /**
-     *Cache cleanup
+     * Cache cleanup
      */
     public void cacheClear();
 }

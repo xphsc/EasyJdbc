@@ -32,11 +32,12 @@ import com.xphsc.easyjdbc.util.Jdbcs;
  * Created by ${huipei.x}
  */
 public class DeleteExecutor extends AbstractExecutor<Integer> {
-	
-	private  Class<?> persistentClass;
+
+	private Class<?> persistentClass;
 	private Object primaryKeyValue;
 	private final SQL sqlBuilder = SQL.BUILD();
-	private  Object persistent;
+	private Object persistent;
+
 	public <S> DeleteExecutor(LambdaSupplier<S> jdbcBuilder, Class<?> persistentClass, Object primaryKeyValue) {
 		super(jdbcBuilder);
 		this.persistentClass = persistentClass;
@@ -46,28 +47,29 @@ public class DeleteExecutor extends AbstractExecutor<Integer> {
 	public <S> DeleteExecutor(LambdaSupplier<S> jdbcBuilder, Object persistentClass) {
 		super(jdbcBuilder);
 		this.persistent = persistentClass;
-		this.persistentClass=persistentClass.getClass();
+		this.persistentClass = persistentClass.getClass();
 	}
+
 	@Override
 	public void prepare() {
 		this.checkEntity(this.persistentClass);
 		EntityElement entityElement = ElementResolver.resolve(this.persistentClass);
 		this.sqlBuilder.DELETE_FROM(entityElement.getTable());
-		if(this.primaryKeyValue==null){
+		if (this.primaryKeyValue == null) {
 			FieldElement primaryKey = entityElement.getPrimaryKey();
 			Object primaryKeyValue = Jdbcs.invokeMethod(this.persistent, primaryKey.getReadMethod()
 					, "entity：" + entityElement.getName() + " Primary key：" + primaryKey.getName() + " Failure to obtain value");
 			Assert.notNull(primaryKeyValue, "entity:" + entityElement.getName() + ", Primary key cannot be empty");
-			this.primaryKeyValue=primaryKeyValue;
+			this.primaryKeyValue = primaryKeyValue;
 		}
 
-		this.sqlBuilder.WHERE(entityElement.getPrimaryKey().getColumn()+" = ?");
+		this.sqlBuilder.WHERE(entityElement.getPrimaryKey().getColumn() + " = ?");
 	}
 
 	@Override
 	protected Integer doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcBuilder.update(sql,this.primaryKeyValue);
+		return this.jdbcBuilder.update(sql, this.primaryKeyValue);
 	}
 
 

@@ -38,12 +38,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by ${huipei.x}
  */
 public class ElementResolver {
-	
+
 	public static final Map<String, EntityElement> ENTITIES = new ConcurrentHashMap<String, EntityElement>();
 	public static final Map<String, DynamicEntityElement> DYNAMIC_ENTITIES = new ConcurrentHashMap<String, DynamicEntityElement>();
-	private static final Map<Class<?>, Resolver> RESOLVERS = new ConcurrentHashMap<Class<?>,Resolver>();
+	private static final Map<Class<?>, Resolver> RESOLVERS = new ConcurrentHashMap<Class<?>, Resolver>();
 
-	static{
+	static {
 		RESOLVERS.put(javax.persistence.Table.class, new TableResolver());
 		RESOLVERS.put(javax.persistence.Id.class, new IdResolver());
 		RESOLVERS.put(javax.persistence.GeneratedValue.class, new GeneratedValueResolver());
@@ -58,24 +58,24 @@ public class ElementResolver {
 	/**
 	 * 解析实体
 	 */
-	public static EntityElement resolve(Class<?> persistentClass){
+	public static EntityElement resolve(Class<?> persistentClass) {
 		String persistentClassName = persistentClass.getName();
-		if (ENTITIES.containsKey(persistentClassName)){
+		if (ENTITIES.containsKey(persistentClassName)) {
 			return ENTITIES.get(persistentClassName);
 		}
 		EntityElement entityElement = new EntityElement();
 		entityElement.setPersistentClass(persistentClass);
 		entityElement.setName(persistentClassName);
-		for(Annotation annotation:persistentClass.getAnnotations()){
+		for (Annotation annotation : persistentClass.getAnnotations()) {
 			Resolver resolver = RESOLVERS.get(annotation.annotationType());
-			if(null!=resolver) {
+			if (null != resolver) {
 				resolver.resolve(entityElement, annotation);
 			}
 		}
-		Set<Class<?>> mappedSuperclass  = getMappedSuperclass(persistentClass);
-		Set<Field> fields =  Jdbcs.getFields(persistentClass, mappedSuperclass);
-		for(Field field:fields){
-			if(Modifier.isFinal(field.getModifiers())) {
+		Set<Class<?>> mappedSuperclass = getMappedSuperclass(persistentClass);
+		Set<Field> fields = Jdbcs.getFields(persistentClass, mappedSuperclass);
+		for (Field field : fields) {
+			if (Modifier.isFinal(field.getModifiers())) {
 				continue;
 			}
 			String fieldName = field.getName();
@@ -89,27 +89,27 @@ public class ElementResolver {
 			fieldElement.setReadMethod(readMethod);
 			fieldElement.setWriteMethod(writeMethod);
 			Annotation[] annotations = field.getAnnotations();
-			if ((null == annotations || annotations.length == 0)&&null!=readMethod) {
+			if ((null == annotations || annotations.length == 0) && null != readMethod) {
 				annotations = readMethod.getAnnotations();
 			}
-			for(Annotation annotation:field.getAnnotations()){
+			for (Annotation annotation : field.getAnnotations()) {
 				Resolver resolver = RESOLVERS.get(annotation.annotationType());
-				if(null!=resolver) {
+				if (null != resolver) {
 					resolver.resolve(fieldElement, annotation);
 				}
 			}
-			if(!fieldElement.isTransientField()){
+			if (!fieldElement.isTransientField()) {
 				Assert.notNull(readMethod, "实体:" + persistentClassName + ", 字段：" + fieldName + " 没有get方法");
-				Assert.notNull(writeMethod,"实体:" + persistentClassName + ", 字段：" + fieldName + " 没有set方法");
+				Assert.notNull(writeMethod, "实体:" + persistentClassName + ", 字段：" + fieldName + " 没有set方法");
 			}
-			if(StringUtil.isEmpty(fieldElement.getColumn())) {
+			if (StringUtil.isEmpty(fieldElement.getColumn())) {
 				fieldElement.setColumn(Jdbcs.camelToUnderline(fieldName));
 			}
 			fieldElement.setEntityElement(null);
 			fieldElement.setField(null);
 			entityElement.addFieldElement(fieldElement.getColumn().toUpperCase(), fieldElement);
 		}
-		Assert.notNull(entityElement.getPrimaryKey(),"实体："+entityElement.getName()+",必须要注解主键。");
+		Assert.notNull(entityElement.getPrimaryKey(), "实体：" + entityElement.getName() + ",必须要注解主键。");
 		entityElement.setPersistentClass(null);
 		ENTITIES.put(persistentClassName, entityElement);
 		return entityElement;
@@ -122,9 +122,9 @@ public class ElementResolver {
 		final Set<Class<?>> classes = new HashSet<Class<?>>();
 		Class<?> superclass = cls.getSuperclass();
 		while (superclass != null) {
-			if(null!=superclass.getAnnotation(javax.persistence.MappedSuperclass.class)){
+			if (null != superclass.getAnnotation(javax.persistence.MappedSuperclass.class)) {
 				Assert.isNull(superclass.getAnnotation(javax.persistence.Table.class),
-						"实体："+superclass.getName()+",注解错误。 MappedSuperclass、Table两个注解不能同时用在一个类上");
+						"实体：" + superclass.getName() + ",注解错误。 MappedSuperclass、Table两个注解不能同时用在一个类上");
 				classes.add(superclass);
 			}
 			superclass = superclass.getSuperclass();
@@ -135,44 +135,44 @@ public class ElementResolver {
 	/**
 	 * 解析动态实体
 	 */
-	public static DynamicEntityElement resolveDynamic(Class<?> dynamicEntityClass,Map<String,String> dynamicMappings) {
+	public static DynamicEntityElement resolveDynamic(Class<?> dynamicEntityClass, Map<String, String> dynamicMappings) {
 		boolean dynamicMappinged = false;
-		if(null!=dynamicMappings&&!dynamicMappings.isEmpty()) {
+		if (null != dynamicMappings && !dynamicMappings.isEmpty()) {
 			dynamicMappinged = true;
 		}
 		String dynamicEntityClassName = dynamicEntityClass.getName();
-		if (!dynamicMappinged&&DYNAMIC_ENTITIES.containsKey(dynamicEntityClassName)){
+		if (!dynamicMappinged && DYNAMIC_ENTITIES.containsKey(dynamicEntityClassName)) {
 			return DYNAMIC_ENTITIES.get(dynamicEntityClassName);
 		}
 		DynamicEntityElement dynamicEntityElement = new DynamicEntityElement();
 		dynamicEntityElement.setName(dynamicEntityClassName);
 		Set<Class<?>> superclass = new HashSet();
 		Set<Field> fields = Jdbcs.getFields(dynamicEntityClass, superclass);
-		for(Field field:fields){
-			if(Modifier.isFinal(field.getModifiers())) {
+		for (Field field : fields) {
+			if (Modifier.isFinal(field.getModifiers())) {
 				continue;
 			}
 			String fieldName = field.getName();
 			Method readMethod = Jdbcs.getReadMethod(dynamicEntityClass, superclass, fieldName);
 			Method writeMethod = Jdbcs.getWriteMethod(dynamicEntityClass, superclass, fieldName, field.getType());
-			Assert.notNull(readMethod,"实体:" + dynamicEntityClassName + ", 字段：" + fieldName + " 没有get方法");
-			Assert.notNull(writeMethod,"实体:" + dynamicEntityClassName + ", 字段：" + fieldName + " 没有set方法");
+			Assert.notNull(readMethod, "实体:" + dynamicEntityClassName + ", 字段：" + fieldName + " 没有get方法");
+			Assert.notNull(writeMethod, "实体:" + dynamicEntityClassName + ", 字段：" + fieldName + " 没有set方法");
 			DynamicFieldElement dynamicFieldElement = new DynamicFieldElement();
 			dynamicFieldElement.setName(fieldName);
 			dynamicFieldElement.setType(field.getType());
 			dynamicFieldElement.setReadMethod(readMethod);
 			dynamicFieldElement.setWriteMethod(writeMethod);
-			String columnName =  Jdbcs.camelToUnderline(fieldName);
-			if(dynamicMappinged&&StringUtil.isNotEmpty(dynamicMappings.get(fieldName))) {
+			String columnName = Jdbcs.camelToUnderline(fieldName);
+			if (dynamicMappinged && StringUtil.isNotEmpty(dynamicMappings.get(fieldName))) {
 				columnName = dynamicMappings.get(fieldName);
 			}
 			dynamicFieldElement.setColumn(columnName);
 			dynamicEntityElement.addDynamicFieldElements(columnName.toUpperCase(), dynamicFieldElement);
 		}
-		if(!dynamicMappinged) {
+		if (!dynamicMappinged) {
 			DYNAMIC_ENTITIES.put(dynamicEntityClassName, dynamicEntityElement);
 		}
 		return dynamicEntityElement;
 	}
-	
+
 }

@@ -39,7 +39,7 @@ public class GetExecutor<T> extends AbstractExecutor<T> {
 	private final SQL sqlBuilder = SQL.BUILD();
 	private EntityElement entityElement;
 
-	public <S> GetExecutor(LambdaSupplier<S> jdbcBuilder , Class<?> persistentClass, Object primaryKeyValue) {
+	public <S> GetExecutor(LambdaSupplier<S> jdbcBuilder, Class<?> persistentClass, Object primaryKeyValue) {
 		super(jdbcBuilder);
 		this.persistentClass = persistentClass;
 		this.primaryKeyValue = primaryKeyValue;
@@ -51,8 +51,8 @@ public class GetExecutor<T> extends AbstractExecutor<T> {
 		this.checkEntity(this.persistentClass);
 		this.entityElement = ElementResolver.resolve(this.persistentClass);
 		this.sqlBuilder.FROM(entityElement.getTable());
-		for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
-			if(fieldElement.isTransientField()) {
+		for (FieldElement fieldElement : entityElement.getFieldElements().values()) {
+			if (fieldElement.isTransientField()) {
 				continue;
 			}
 			this.sqlBuilder.SELECT(fieldElement.getColumn());
@@ -63,7 +63,7 @@ public class GetExecutor<T> extends AbstractExecutor<T> {
 	@Override
 	protected T doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcBuilder.queryForObject(sql,new EntityRowMapper<T>(LOBHANDLER,this.entityElement,this.persistentClass),this.primaryKeyValue);
+		return this.jdbcBuilder.queryForObject(sql, new EntityRowMapper<T>(LOBHANDLER, this.entityElement, this.persistentClass), this.primaryKeyValue);
 	}
 
 

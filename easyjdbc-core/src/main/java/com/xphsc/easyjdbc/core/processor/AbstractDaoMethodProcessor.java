@@ -26,9 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: 抽象的数据访问方法处理器类，用于处理特定的数据访问操作
+ * 该类提供了处理数据访问方法所需的基本属性和方法，具体的数据访问逻辑由子类实现
+ * @param <T> 注解类型，表示该处理器处理的方法上所使用的注解类型
  */
 public abstract class AbstractDaoMethodProcessor<T>  {
 
@@ -45,7 +47,7 @@ public abstract class AbstractDaoMethodProcessor<T>  {
 
     protected Map<String, Object> paramsMap = new HashMap<String, Object>(16);
 
-    protected  Class<?> persistentClass;
+    protected Class<?> persistentClass;
 
     public abstract Object process();
 
@@ -66,7 +68,7 @@ public abstract class AbstractDaoMethodProcessor<T>  {
     }
 
     @SuppressWarnings("unchecked")
-   public Class<T> getParameterizedType() {
+    public Class<T> getParameterizedType() {
         return (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 

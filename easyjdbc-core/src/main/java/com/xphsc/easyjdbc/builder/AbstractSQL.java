@@ -23,7 +23,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: AbstractSQL 抽象类，用于构建SQL查询
+ * 它提供了一种链式调用的方式来构造SQL语句
  */
 public abstract class AbstractSQL<T> {
 

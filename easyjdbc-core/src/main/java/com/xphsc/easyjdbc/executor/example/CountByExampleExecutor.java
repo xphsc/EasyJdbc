@@ -33,39 +33,39 @@ public class CountByExampleExecutor extends AbstractExecutor<Long> {
 
 	private String querySql;
 	private SQL sqlBuilder;
-	private  Object[] parameters;
+	private Object[] parameters;
 
 
-	public <S> CountByExampleExecutor(SQL sqlBuilder,LambdaSupplier<S> jdbcBuilder,Object[] parameters) {
+	public <S> CountByExampleExecutor(SQL sqlBuilder, LambdaSupplier<S> jdbcBuilder, Object[] parameters) {
 		super(jdbcBuilder);
-		this.sqlBuilder=sqlBuilder;
-		this.parameters=parameters;
+		this.sqlBuilder = sqlBuilder;
+		this.parameters = parameters;
 	}
 
 
 	@Override
 	public void prepare() {
 		Assert.isTrue(!this.sqlBuilder.toString().contains("GROUP BY"), "The current SQL statement contains the default count (1) aggregate function, and there must be no GROUP BY!");
-		if (!this.sqlBuilder.toString().startsWith("SELECT COUNT")){
+		if (!this.sqlBuilder.toString().startsWith("SELECT COUNT")) {
 			String countRexp = "(?i)^select (?:(?!select|from)[\\s\\S])*(\\(select (?:(?!from)[\\s\\S])* from [^\\)]*\\)(?:(?!select|from)[^\\(])*)*from";
 			String replacement = "SELECT COUNT(1) AS COUNT FROM";
 			this.querySql = this.sqlBuilder.toString().replaceFirst(countRexp, replacement);
 		} else {
 			this.querySql = this.sqlBuilder.toString();
 		}
-		SQLParser sqlParser=new DefaultSQLParser();
-		if(sqlParser.hasOrders(querySql)){
-			this.querySql=sqlParser.removeOrders(querySql);
+		SQLParser sqlParser = new DefaultSQLParser();
+		if (sqlParser.hasOrders(querySql)) {
+			this.querySql = sqlParser.removeOrders(querySql);
 		}
 
 	}
 
 	@Override
 	protected Long doExecute() throws JdbcDataException {
-		if(null==this.parameters||this.parameters.length==0){
-			return this.jdbcBuilder.queryForObject(this.querySql,Long.class);
+		if (null == this.parameters || this.parameters.length == 0) {
+			return this.jdbcBuilder.queryForObject(this.querySql, Long.class);
 		} else {
-			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters,Long.class);
+			return this.jdbcBuilder.queryForObject(this.querySql, this.parameters, Long.class);
 		}
 	}
 

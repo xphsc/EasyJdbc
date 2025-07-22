@@ -21,17 +21,21 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: 数据访问层代理类，用于动态代理DAO接口
+ * 通过此代理类，可以实现对DAO接口的透明化调用，无需手动编写SQL即可完成数据库操作
+ * param <T> DAO接口的类型
  */
 public class DaoProxy<T> implements InvocationHandler, Serializable {
 
-    private  Class<T> daoInterface;
-    private EasyJdbcTemplate easyJdbcTemplate ;
+    private Class<T> daoInterface;
+    private EasyJdbcTemplate easyJdbcTemplate;
+
     public DaoProxy(EasyJdbcTemplate easyJdbcTemplate) {
-        this.easyJdbcTemplate=easyJdbcTemplate;
+        this.easyJdbcTemplate = easyJdbcTemplate;
     }
 
     public void setDaoInterface(Class<T> daoInterface) {
@@ -44,7 +48,7 @@ public class DaoProxy<T> implements InvocationHandler, Serializable {
         if (Object.class.equals(method.getDeclaringClass())) {
             return method.invoke(this, args);
         }
-        DaoMethod daoMethod = new DaoMethod(daoInterface,this::getEasyJdbcTemplate, method, args);
+        DaoMethod daoMethod = new DaoMethod(daoInterface, this::getEasyJdbcTemplate, method, args);
         return daoMethod.doExecute();
     }
 

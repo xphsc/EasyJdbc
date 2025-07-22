@@ -62,7 +62,7 @@ public class CacheKey implements Cloneable, Serializable {
 
     public void update(Object object) {
         int baseHashcode = object == null ? 1 : StringUtil.hashcode(object);
-         count++;
+        count++;
         checksum += baseHashcode;
         baseHashcode *= count;
         hashcode = multiplyer * hashcode + baseHashcode;
@@ -119,7 +119,7 @@ public class CacheKey implements Cloneable, Serializable {
     @Override
     public String toString() {
         StringBuilder returnValue = new StringBuilder().append(hashcode).append(':').append(checksum);
-      for (Object object : updateList) {
+        for (Object object : updateList) {
             returnValue.append(':').append(object.toString());
         }
         return returnValue.toString();

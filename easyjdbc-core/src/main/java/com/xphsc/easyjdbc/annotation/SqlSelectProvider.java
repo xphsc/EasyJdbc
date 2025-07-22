@@ -18,9 +18,26 @@ package com.xphsc.easyjdbc.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: The annotation that specify a method that provide an SQL for retrieving record(s).
+ * For reference, the example
+ * public interface UserDao  {
+ *     @SqlSelectProvider(type = SqlProvider.class, method = "findById")
+ *     User findById(Map map);
+ *     @since 2.1.1
+ *     User findById(@SqlParam("id") int id);
+ *     User findById(@SqlParam("user") User user);
+ *     public static class SqlProvider {
+ *         public static String findById() {
+ *             return "SELECT id, name FROM users WHERE id = #{id}";
+ *         }
+ *          @since 2.1.1
+ *          public static String findById(User user) {
+ *            return "SELECT id, name FROM users WHERE id = #{user.id}";
+ *         }
+ *     }
+ * }
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

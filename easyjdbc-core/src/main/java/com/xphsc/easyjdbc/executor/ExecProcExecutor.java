@@ -21,21 +21,19 @@ public class ExecProcExecutor<E> extends AbstractExecutor<E> {
     private final Class<?> persistentClass;
     private final String sql;
     private final Object[] parameters;
-    private  Map<Integer, Integer> outParameters;
+    private Map<Integer, Integer> outParameters;
 
-    public <S> ExecProcExecutor(LambdaSupplier<S> jdbcBuilder,String sql, Class<?> persistentClass, Map<Integer, Integer> outParameters,  Object[] parameters) {
+    public <S> ExecProcExecutor(LambdaSupplier<S> jdbcBuilder, String sql, Class<?> persistentClass, Map<Integer, Integer> outParameters, Object[] parameters) {
         super(jdbcBuilder);
         this.persistentClass = persistentClass;
         this.sql = sql;
         this.parameters = parameters;
-        this.outParameters=outParameters;
+        this.outParameters = outParameters;
     }
 
     @Override
     protected void prepare() {
     }
-
-
 
 
     @Override
@@ -45,7 +43,7 @@ public class ExecProcExecutor<E> extends AbstractExecutor<E> {
             @Override
             public CallableStatement createCallableStatement(Connection con) throws SQLException {
                 CallableStatement cs = con.prepareCall(sql);
-                if (parameters!=null) {
+                if (parameters != null) {
                     for (int i = 0; i < parameters.length; i++) {
                         cs.setObject(i + 1, parameters[i]);
                     }
@@ -66,12 +64,12 @@ public class ExecProcExecutor<E> extends AbstractExecutor<E> {
                     for (Integer key : outParameters.keySet()) {
                         outParameterResult.put(key, cs.getObject(key));
                     }
-                   procResult.put("outParameters",outParameterResult);
+                    procResult.put("outParameters", outParameterResult);
                 }
-                   procResult.put("updateCount",cs.getUpdateCount());
+                procResult.put("updateCount", cs.getUpdateCount());
                 ResultSet result = cs.getResultSet();
                 List<Object> list = new ArrayList();
-                if(result!=null) {
+                if (result != null) {
                     RowMapper<?> rowMapper = null;
                     if (Map.class.isAssignableFrom(persistentClass)) {
                         rowMapper = (RowMapper<?>) new ColumnMapRowMapper();
@@ -81,10 +79,10 @@ public class ExecProcExecutor<E> extends AbstractExecutor<E> {
                         rowMapper = new BeanPropertyRowMapper(persistentClass);
                     }
                     int rowNum = 1;
-                    while(result.next()) {
+                    while (result.next()) {
                         list.add(rowMapper.mapRow(result, rowNum++));
                     }
-                    procResult.put("list",list);
+                    procResult.put("list", list);
                 }
                 return null;
             }

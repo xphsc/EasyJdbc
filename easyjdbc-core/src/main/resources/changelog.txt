@@ -1,8 +1,78 @@
-easyjdbc Changelog
+easyjdbc 2.x Changelog
 ===================================
-
-Changes in version 1.1.0 (2019-05-25)
+Changes in version 2.1.1
 ---------------------------------------------
+* Add  support use annotation @SqlSelectProvider passing objects and base types as parameters through annotation @sqlParam
+* Add Example conditional expressions  useCondition 表达式条件, true 使用，false 不使用
+* Add necessary class comments and optimize internal code
+* Add support @SqlInsertProvider @SqlUpdateProvider @SqlDeleteProvider to pass objects and base types as parameters through annotation @SqlParam
+* Fix bug  use @SqlInsertProvider @SqlUpdateProvider @SqlDelete @SqlDeleteProvider Invalid
+---------------------------------------------
+Changes in version 2.1.0
+---------------------------------------------
+* Fix bug jdk8 null pointer when date type value is null
+* Add supporting jdk8 date types instant, offsetdatetime, offsettime, year
+---------------------------------------------
+Changes in version 2.0.8
+---------------------------------------------
+* Add supporting Use this annotation daoscan to register the easyjddbc mapper interface when Java
+* Change the default annotation easydao to Dao interface for easyjdbc Daos
+* Annotation Dao and annotation repository interface for easyjdbc daodongs are supported by default
+---------------------------------------------
+Changes in version 2.0.7.RELEASE
+---------------------------------------------
+* Fix bugs The return type int of the count method is long
+* Fix bugs When SQL query get method is  null pointer and null object are returned
+* Fix bugs Annotation SQL query alias hump no longer need to bring _
+* Annotation @ select SQL query parameters are supported as objects
+* Add supporting databases, such as' Derby ',' Phoenix(phoenix) '达梦数据库 database (dm), 阿里云PPAS数据库 database(edb), 神通数据库 database(oscar), herddb(herddb)
+
+---------------------------------------------
+Changes in version 2.0.6
+---------------------------------------------
+* Fix bugs Paging method sends pageinfo object parameters pagenum and PageSize an error;
+* The count method passes in the SQL statement to filter the header space
+* Fix bugs caused by version 2.0.5
+---------------------------------------------
+Changes in version 2.0.5
+---------------------------------------------
+* Fix bugs The public method findall transfers the attribute offset of pageinfo class ;
+* Remove unnecessary methods and classes
+* Add insert to filter empty inserts
+* Add annotations @ createddate and @ modifieddate to fill in date values for insert and update, respectively
+---------------------------------------------
+Changes in version 2.0.4
+---------------------------------------------
+* Fix bugs annotation sqloptions failure
+* Fix bugs annotation sqlupdate condition parameter
+
+Changes in version 2.0.3
+---------------------------------------------
+* Overall optimization of code structure
+* Fix bugs findbyids and deletebyids
+* Total number of bug page objects repaired 0
+
+
+Changes in version 2.0.1 (2019-06-22)
+---------------------------------------------
+* Overall optimization of code structure
+Changes in version 2.0.0-RELEASE (2019-06-21)
+---------------------------------------------
+* Bug Fix @Version Causes Null Pointer Modification Problem from #IY4UJ by  蜗牛de战争
+* Add update to EasyJdbcDao to initialize objects by passing in
+* Overall optimization of code structure
+
+Changes in version 2.0.0 (2019-05-26)
+---------------------------------------------
+* Support JDK1.8 function expression
+* Add Optional SQL Annotation Return
+* Add Example conditional expressions such as Example for example:
+Example example=userDao.example();
+Sorts sorts=new Sorts();
+sorts.sort(Sorts.Direction.ASC,User::getId);
+example.orderByClause(sorts);
+Example.Criteria C= example.createCriteria();
+C.andEqualTo(User::getId,2);
 * Add Optimistic Locks and @Version for update
 * Increase the local query cache and set useLocalCache to true or false
 * Increase the showsql and set showsql to true or false
@@ -10,14 +80,6 @@ Changes in version 1.1.0 (2019-05-25)
 * Fixed multi-value problem with annotation @SqlUpdate modification
 * Overall optimization of code structure
 
-Changes in version 1.0.9
----------------------------------------------
-* Fix the problem of returning map pages from annotation queries
-
-
-Changes in version 1.0.8
----------------------------------------------
-* Fixed annotation query return map problem
 
 
 

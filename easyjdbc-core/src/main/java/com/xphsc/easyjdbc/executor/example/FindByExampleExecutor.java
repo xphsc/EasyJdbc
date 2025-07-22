@@ -40,125 +40,127 @@ import java.util.*;
  */
 public class FindByExampleExecutor<T>  extends AbstractExecutor<T> {
     private final Class<?> persistentClass;
-    private SQL sqlBuilder ;
+    private SQL sqlBuilder;
     private EntityElement entityElement;
     private EntityElement newEntityElement;
-    private  Integer startRow;
-    private  Integer limit;
-    private  String dialectName;
+    private Integer startRow;
+    private Integer limit;
+    private String dialectName;
     private DynamicEntityElement dynamicEntityElement;
     private boolean isDynamic;
-    private  Map<String,String> dynamicMappings;
-    protected  boolean distinct=false;
+    private Map<String, String> dynamicMappings;
+    protected boolean distinct = false;
     protected LinkedList<String> excludePropertys;
     protected LinkedList<String> selectPropertys;
-    private  Object[] parameters;
-    public <S> FindByExampleExecutor(SQL applyWhere,Class<?> persistentClass,Class<?> entityClass, PageInfo pageInfo, EntityElement entityElement,LinkedList<String> excludePropertys,Map<String,String> mappings,boolean distinct,LinkedList<String> selectPropertys,Object[] parameters,LambdaSupplier<S> jdbcBuilder,String dialectName) {
+    private Object[] parameters;
+
+    public <S> FindByExampleExecutor(SQL applyWhere, Class<?> persistentClass, Class<?> entityClass, PageInfo pageInfo, EntityElement entityElement, LinkedList<String> excludePropertys, Map<String, String> mappings, boolean distinct, LinkedList<String> selectPropertys, Object[] parameters, LambdaSupplier<S> jdbcBuilder, String dialectName) {
         super(jdbcBuilder);
         this.sqlBuilder = applyWhere;
-        this.persistentClass=(entityClass==null?persistentClass:entityClass);
-        if(pageInfo!=null){
-            startRow=(pageInfo.getPageNum()-1)*pageInfo.pageSize;
-            limit=pageInfo.pageSize;
+        this.persistentClass = (entityClass == null ? persistentClass : entityClass);
+        if (pageInfo != null) {
+            startRow = (pageInfo.getPageNum() - 1) * pageInfo.getPageSize();
+            limit = pageInfo.getPageSize();
         }
         this.dialectName = dialectName;
-        this.excludePropertys=excludePropertys;
-        dynamicMappings=mappings;
+        this.excludePropertys = excludePropertys;
+        dynamicMappings = mappings;
         this.distinct = distinct;
-        this.newEntityElement=entityElement;
-        this.parameters=parameters;
-        this.selectPropertys=selectPropertys;
+        this.newEntityElement = entityElement;
+        this.parameters = parameters;
+        this.selectPropertys = selectPropertys;
     }
 
-    public <S> FindByExampleExecutor(SQL applyWhere,Class<?> persistentClass,Class<?> entityClass, Integer offset, Integer limit, EntityElement entityElement,LinkedList<String> excludePropertys,Map<String,String> mappings,boolean distinct,LinkedList<String> selectPropertys,Object[] parameters,LambdaSupplier<S> jdbcBuilder,String dialectName) {
+    public <S> FindByExampleExecutor(SQL applyWhere, Class<?> persistentClass, Class<?> entityClass, Integer offset, Integer limit, EntityElement entityElement, LinkedList<String> excludePropertys, Map<String, String> mappings, boolean distinct, LinkedList<String> selectPropertys, Object[] parameters, LambdaSupplier<S> jdbcBuilder, String dialectName) {
         super(jdbcBuilder);
         this.sqlBuilder = applyWhere;
-        this.persistentClass=(entityClass==null?persistentClass:entityClass);
-        if(offset!=null&&limit!=null){
-            this.startRow=offset;
-            this.limit=limit;
+        this.persistentClass = (entityClass == null ? persistentClass : entityClass);
+        if (offset != null && limit != null) {
+            this.startRow = offset;
+            this.limit = limit;
         }
         this.dialectName = dialectName;
-        this.excludePropertys=excludePropertys;
-        dynamicMappings=mappings;
+        this.excludePropertys = excludePropertys;
+        dynamicMappings = mappings;
         this.distinct = distinct;
-        this.newEntityElement=entityElement;
-        this.parameters=parameters;
-        this.selectPropertys=selectPropertys;
+        this.newEntityElement = entityElement;
+        this.parameters = parameters;
+        this.selectPropertys = selectPropertys;
     }
 
 
     @Override
     public void prepare() {
-        if(this.isEntity(this.persistentClass)){
+        if (this.isEntity(this.persistentClass)) {
             this.isDynamic = false;
             this.entityElement = ElementResolver.resolve(this.persistentClass);
         } else {
             this.isDynamic = true;
-            this.dynamicEntityElement = ElementResolver.resolveDynamic(this.persistentClass,this.dynamicMappings);
+            this.dynamicEntityElement = ElementResolver.resolveDynamic(this.persistentClass, this.dynamicMappings);
         }
-       List<String> columns=new ArrayList(10);
-        if(!sqlBuilder.toString().contains(this.newEntityElement.getTable())){
+        List<String> columns = new ArrayList(10);
+        if (!sqlBuilder.toString().contains(this.newEntityElement.getTable())) {
             sqlBuilder.FROM(this.newEntityElement.getTable());
         }
         Iterator i = this.newEntityElement.getFieldElements().values().iterator();
-            while(i.hasNext()) {
-                FieldElement fieldElement = (FieldElement)i.next();
-                if(fieldElement.isTransientField()) {
-                    continue;
-                }
-                columns.add(fieldElement.getColumn());
-                if(Collects.isEmpty(excludePropertys)&&Collects.isEmpty(selectPropertys)){
-                    buildSQL(fieldElement.getColumn());
-                }
-
+        while (i.hasNext()) {
+            FieldElement fieldElement = (FieldElement) i.next();
+            if (fieldElement.isTransientField()) {
+                continue;
+            }
+            columns.add(fieldElement.getColumn());
+            if (Collects.isEmpty(excludePropertys) && Collects.isEmpty(selectPropertys)) {
+                buildSQL(fieldElement.getColumn());
             }
 
-        if(Collects.isNotEmpty(excludePropertys)&&Collects.isEmpty(selectPropertys)){
-            columns= Collects.removeAll(columns, this.excludePropertys);
-            for(String column:columns){
+        }
+
+        if (Collects.isNotEmpty(excludePropertys) && Collects.isEmpty(selectPropertys)) {
+            columns = Collects.removeAll(columns, this.excludePropertys);
+            for (String column : columns) {
                 buildSQL(column);
             }
         }
 
-       if(Collects.isNotEmpty(selectPropertys)&&Collects.isEmpty(excludePropertys)){
+        if (Collects.isNotEmpty(selectPropertys) && Collects.isEmpty(excludePropertys)) {
             Iterator<String> selecti = selectPropertys.iterator();
-            while(selecti.hasNext()) {
-                String column =selecti.next();
+            while (selecti.hasNext()) {
+                String column = selecti.next();
                 buildSQL(column);
 
             }
         }
     }
 
-    private SQL buildSQL(String column){
-        if(distinct){
+    private SQL buildSQL(String column) {
+        if (distinct) {
             sqlBuilder.SELECT_DISTINCT(column);
-        }else{
+        } else {
             sqlBuilder.SELECT(column);
         }
         return sqlBuilder;
     }
+
     @Override
     protected T doExecute() throws JdbcDataException {
         RowMapper rowMapper = null;
         String sql = this.sqlBuilder.toString();
-        if(null!=this.startRow&&-1!=this.startRow&& null!=this.limit&&this.limit>0){
-          sql=  PageRowBounds.pagination(dialectName, this.sqlBuilder.toString(), startRow, this.limit);
+        if (null != this.startRow && -1 != this.startRow && null != this.limit && this.limit > 0) {
+            sql = PageRowBounds.pagination(dialectName, this.sqlBuilder.toString(), startRow, this.limit);
         }
 
 
-        if(this.isDynamic){
-            rowMapper = new DynamicEntityRowMapper(LOBHANDLER,this.dynamicEntityElement,this.persistentClass);
+        if (this.isDynamic) {
+            rowMapper = new DynamicEntityRowMapper(LOBHANDLER, this.dynamicEntityElement, this.persistentClass);
         } else {
-            rowMapper = new EntityRowMapper(LOBHANDLER,this.entityElement,this.persistentClass);
+            rowMapper = new EntityRowMapper(LOBHANDLER, this.entityElement, this.persistentClass);
         }
-                if(null==this.parameters||this.parameters.length==0){
-                    return (T) this.jdbcBuilder.query(sql,rowMapper);
-                } else {
-                    return (T) this.jdbcBuilder.query(sql,this.parameters,rowMapper);
-                }
+        if (null == this.parameters || this.parameters.length == 0) {
+            return (T) this.jdbcBuilder.query(sql, rowMapper);
+        } else {
+            return (T) this.jdbcBuilder.query(sql, this.parameters, rowMapper);
         }
+    }
 
 
 }

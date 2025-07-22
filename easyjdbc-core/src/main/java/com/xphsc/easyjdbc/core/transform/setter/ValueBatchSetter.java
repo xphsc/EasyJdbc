@@ -35,27 +35,27 @@ public class ValueBatchSetter implements BatchPreparedStatementSetter {
 	private final List<LinkedList<ValueElement>> batchValueElements;
 
 	public ValueBatchSetter(LobHandler lobHandler
-				,List<LinkedList<ValueElement>> batchValueElements) {
+			, List<LinkedList<ValueElement>> batchValueElements) {
 		this.lobHandler = lobHandler;
 		this.batchValueElements = batchValueElements;
 	}
-	
+
 	@Override
-	public void setValues(PreparedStatement ps,int i) throws SQLException {
+	public void setValues(PreparedStatement ps, int i) throws SQLException {
 
 		List<ValueElement> valueElements = this.batchValueElements.get(i);
 		for (int j = 0; j < valueElements.size(); j++) {
-			int paramIndex = j+1;
+			int paramIndex = j + 1;
 			ValueElement param = valueElements.get(j);
-			if(param.isClob()){
-				if(null != param.getValue()){
-					this.lobHandler.getLobCreator().setClobAsString(ps,paramIndex,(String)param.getValue());
+			if (param.isClob()) {
+				if (null != param.getValue()) {
+					this.lobHandler.getLobCreator().setClobAsString(ps, paramIndex, (String) param.getValue());
 				} else {
 					ps.setObject(paramIndex, null);
 				}
-			} else if(param.isBlob()){
-				if(null != param.getValue()){
-					this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex, (byte[])param.getValue());
+			} else if (param.isBlob()) {
+				if (null != param.getValue()) {
+					this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex, (byte[]) param.getValue());
 				} else {
 					ps.setObject(paramIndex, null);
 				}
@@ -69,5 +69,5 @@ public class ValueBatchSetter implements BatchPreparedStatementSetter {
 	public int getBatchSize() {
 		return this.batchValueElements.size();
 	}
-	
+
 }

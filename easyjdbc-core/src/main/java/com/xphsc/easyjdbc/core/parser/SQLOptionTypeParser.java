@@ -17,11 +17,11 @@ package com.xphsc.easyjdbc.core.parser;
 
 import com.xphsc.easyjdbc.core.metadata.SQLOptionType;
 import java.lang.reflect.Method;
-
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: 默认的SQL选项类型解析器类
+ * 该类负责解析方法上标注的SQL相关注解，以确定方法对应的SQL命令类型
  */
 public interface SQLOptionTypeParser {
  SQLOptionType getSqlCommandType(Method method);

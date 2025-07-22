@@ -29,8 +29,8 @@ import java.lang.annotation.Annotation;
 public class ModifieDateResolver implements Resolver {
 	@Override
 	public void resolve(Element element, Annotation annotation) {
-		FieldElement fieldElement = (FieldElement)element;
+		FieldElement fieldElement = (FieldElement) element;
 		fieldElement.setModifieDateField(Boolean.TRUE);
 	}
-	
+
 }

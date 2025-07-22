@@ -31,9 +31,11 @@ import java.util.Set;
 import static org.springframework.beans.factory.support.AbstractBeanDefinition.AUTOWIRE_NO;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: A custom scanner that extends ClassPathBeanDefinitionScanner, specifically for scanning and registering bean definitions of Dao interfaces.
+ * This class is primarily responsible for scanning specified packages to find interfaces annotated with @Dao or @Repository,
+ * and registers them as bean definitions in the Spring application context.
  */
 public class EasyDaoClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
@@ -52,9 +54,9 @@ public class EasyDaoClassPathMapperScanner extends ClassPathBeanDefinitionScanne
 
     @Override
     public Set<BeanDefinitionHolder> doScan(String... basePackages) {
-        Set<BeanDefinitionHolder> beanDefinitions=null;
-        if(basePackages !=null){
-           beanDefinitions = super.doScan(basePackages);
+        Set<BeanDefinitionHolder> beanDefinitions = null;
+        if (basePackages != null) {
+            beanDefinitions = super.doScan(basePackages);
         }
 
         if (beanDefinitions.isEmpty()) {
@@ -74,12 +76,12 @@ public class EasyDaoClassPathMapperScanner extends ClassPathBeanDefinitionScanne
     /**
      * The default is Scan@Component, so all of the @Component annotations will be Scan.
      */
-   @Override
+    @Override
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
-        if(beanDefinition.getMetadata()!=null){
+        if (beanDefinition.getMetadata() != null) {
             return beanDefinition.getMetadata().isInterface() && beanDefinition.getMetadata().isIndependent();
         }
-      return false;
+        return false;
     }
 
 }

@@ -23,9 +23,10 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: SQLSelectParser接口，用于解析和执行SQL查询语句
+ * 它根据方法签名和参数来动态生成SQL并处理返回结果
  */
 public interface SQLSelectParser {
 

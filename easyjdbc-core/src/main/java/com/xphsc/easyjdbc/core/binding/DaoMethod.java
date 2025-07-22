@@ -31,10 +31,12 @@ import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: DaoMethod类用于封装DAO接口中方法的执行逻辑
+ * 主要负责根据方法定义创建相应的处理器，并执行对应的数据库操作
  */
 public class DaoMethod {
 
@@ -43,24 +45,25 @@ public class DaoMethod {
     private Method method;
     private Object[] parameters;
     private SimpleJdbcDao simpleJdbcDao;
+
     public DaoMethod(Class<?> daoInterface, LambdaSupplier<EasyJdbcTemplate> easyJdbcTemplate, Method method, Object[] parameters) throws Exception {
-        simpleJdbcDao=new SimpleJdbcDao();
-        easyJdbcTemplate.get().interfaceClass(daoInterface.getName()+"."+method.getName());
-        modelClass= getEntityClass(EasyJdbcDao.class, daoInterface);
+        simpleJdbcDao = new SimpleJdbcDao();
+        easyJdbcTemplate.get().interfaceClass(daoInterface.getName() + "." + method.getName());
+        modelClass = getGenericEntityClass(EasyJdbcDao.class, daoInterface);
         simpleJdbcDao.easyJdbcTemplate(easyJdbcTemplate);
-        simpleJdbcDao.modelClass=modelClass;
-        this.method=method;
-        this.parameters=parameters;
+        simpleJdbcDao.modelClass = modelClass;
+        this.method = method;
+        this.parameters = parameters;
     }
 
 
     protected Object doExecute() throws Exception {
         Annotation[] annotations = method.getAnnotations();
-        MethodReturnType methodReturnType=new MethodReturnType(method);
-        if(methodReturnType.returnsAnnotationType){
-            for(Annotation each :annotations){
-                    daoMethodProcessor=new AnnotationMethodProcessor();
-                if(daoMethodProcessor!=null){
+        MethodReturnType methodReturnType = new MethodReturnType(method);
+        if (methodReturnType.returnsAnnotationType) {
+            for (Annotation each : annotations) {
+                daoMethodProcessor = new AnnotationMethodProcessor();
+                if (daoMethodProcessor != null) {
                     daoMethodProcessor.setAnnotation(each);
                     daoMethodProcessor.setParameters(parameters);
                     daoMethodProcessor.setParameterAnnotations(method.getParameterAnnotations());
@@ -68,51 +71,64 @@ public class DaoMethod {
                     daoMethodProcessor.setMethod(method);
                     daoMethodProcessor.setParamsMap(initParamsMap(method, parameters));
                     daoMethodProcessor.setPersistentClass(modelClass);
-                    return  daoMethodProcessor.process();
+                    return daoMethodProcessor.process();
                 }
             }
-        } else{
-            daoMethodProcessor=new BaseMethodProcessor();
+        } else {
+            daoMethodProcessor = new BaseMethodProcessor();
             daoMethodProcessor.setMethod(method);
             daoMethodProcessor.setParameters(parameters);
             daoMethodProcessor.setSimpleJdbcDao(simpleJdbcDao);
             daoMethodProcessor.setPersistentClass(modelClass);
-            return  daoMethodProcessor.process();
+            return daoMethodProcessor.process();
         }
 
         return null;
     }
 
-    public static Class getEntityClass(Class commonClass,Class mapperClass){
-        Type[] types = mapperClass.getGenericInterfaces();
-        for (Type type : types) {
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> getGenericEntityClass(Class<?> targetInterface, Class<?> actualClass) {
+        for (Type type : actualClass.getGenericInterfaces()) {
             if (type instanceof ParameterizedType) {
-                ParameterizedType t = (ParameterizedType) type;
-                if (t.getRawType().equals(commonClass) || commonClass.isAssignableFrom((Class<?>) t.getRawType())) {
-                    Class<?> returnType = (Class<?>) t.getActualTypeArguments()[0];
-                    return returnType;
+                ParameterizedType parameterizedType = (ParameterizedType) type;
+                Type rawType = parameterizedType.getRawType();
+
+                if (rawType instanceof Class && targetInterface.isAssignableFrom((Class<?>) rawType)) {
+                    Type actualType = parameterizedType.getActualTypeArguments()[0];
+                    if (actualType instanceof Class) {
+                        return (Class<T>) actualType;
+                    }
                 }
             }
         }
+
+        // 递归查找父类接口
+        Class<?> superClass = actualClass.getSuperclass();
+        if (superClass != null && !Object.class.equals(superClass)) {
+            return getGenericEntityClass(targetInterface, superClass);
+        }
+
         return null;
     }
+
 
     public static String[] getMethodParameterNamesByAnnotation(Method method) {
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         if (parameterAnnotations == null || parameterAnnotations.length == 0) {
-            return null;
+            return new String[0];
         }
+
         String[] parameterNames = new String[parameterAnnotations.length];
 
-        int i = 0;
-        for (Annotation[] parameterAnnotation : parameterAnnotations) {
-            for (Annotation annotation : parameterAnnotation) {
+        for (int i = 0; i < parameterAnnotations.length; i++) {
+            for (Annotation annotation : parameterAnnotations[i]) {
                 if (annotation instanceof SqlParam) {
-                    SqlParam param = (SqlParam) annotation;
-                    parameterNames[i++] = param.value();
+                    parameterNames[i] = ((SqlParam) annotation).value();
+                    break; // 若有多个注解，只取第一个 SqlParam
                 }
             }
         }
+
         return parameterNames;
     }
 
@@ -120,73 +136,83 @@ public class DaoMethod {
     private PageInfo pageInfo;
 
     private Map<String, Object> initParamsMap(Method method, Object[] args) throws Exception {
-        sqlParamsMap= new HashMap<String, Object>();
-        pageInfo=new PageInfo();
-        if (args != null && args.length >= 1) {
-            String[]  params =getMethodParameterNamesByAnnotation(method);
-            Assert.isTrue(params.length == args.length, "Method parameter number >= 2, parameter must be used: label @param!");
-            if(params!=null&&params[0]!=null){
-                int argsNum = 0;
-                for (String v : params) {
-                    Assert.notNull(v,"Dao interface definition, parameter using @param tag!");
-                    if ("pageNum".equalsIgnoreCase(v)) {
-                        pageInfo.setPageNum(Integer.parseInt(args[argsNum].toString()));
-                    }
-                    if ("pageSize".equalsIgnoreCase(v)) {
-                        pageInfo.setPageSize(Integer.parseInt(args[argsNum].toString()));
-                    }
-                    sqlParamsMap.put(v, args[argsNum]);
-                    argsNum++;
-                }
+        this.sqlParamsMap = new HashMap<>();
+        this.pageInfo = new PageInfo();
 
-            }
-
-            if(params[0]==null){
-                Class<?> parameterType=method.getParameterTypes()[0];
-                if(parameterType.isAssignableFrom(Map.class)){
-                    sqlParamsMap= (Map<String, Object>) args[0];
-                }
-                if(parameterType.isAssignableFrom(PageInfo.class)){
-                    this.pageInfo= (PageInfo) args[0];
-                    if(pageInfo!=null){
-                        if(pageInfo.getPageNum()>=1&&pageInfo.getOffset()==-1){
-                            sqlParamsMap.put("pageNum", pageInfo.getPageNum());
-                        }
-                        if(pageInfo.getPageSize()>0){
-                            sqlParamsMap.put("pageSize",pageInfo.getPageSize());
-                        }
-                        if(pageInfo.getOffset()>=0){
-                            sqlParamsMap.put("offset", pageInfo.getOffset());
-                        }
-                        if(pageInfo.getLimit()>0){
-                            sqlParamsMap.put("limit",pageInfo.getPageSize());
-                        }
-                    }
-                }
-
-            }
-
-        } else if (args != null && args.length == 1) {
-            sqlParamsMap.put("POJO", args[0]);
+        if (args == null || args.length == 0) {
+            return sqlParamsMap;
         }
+        String[] params = getMethodParameterNamesByAnnotation(method);
+        // 带 @SqlParam 的参数
+        if (params != null && params[0] != null) {
+            Assert.isTrue(params.length == args.length,
+                    "Method parameter number mismatch: all parameters must be annotated with @SqlParam if using multiple arguments.");
+
+            for (int i = 0; i < params.length; i++) {
+                String paramName = params[i];
+                Object argValue = args[i];
+
+                Assert.notNull(paramName, "Each parameter must use @SqlParam annotation.");
+
+                if ("pageNum".equalsIgnoreCase(paramName)) {
+                    pageInfo.setPageNum(Integer.parseInt(argValue.toString()));
+                }
+                if ("pageSize".equalsIgnoreCase(paramName)) {
+                    pageInfo.setPageSize(Integer.parseInt(argValue.toString()));
+                }
+
+                sqlParamsMap.put(paramName, argValue);
+            }
+
+        } else {
+            // 无注解方式：只处理第一个参数
+            Object arg = args[0];
+            Class<?> paramType = method.getParameterTypes()[0];
+
+            if (Map.class.isAssignableFrom(paramType)) {
+                sqlParamsMap = (Map<String, Object>) arg;
+
+            } else if (PageInfo.class.isAssignableFrom(paramType)) {
+                this.pageInfo = (PageInfo) arg;
+                mergePageInfoIntoParams(this.pageInfo);
+
+            } else {
+                // POJO 参数
+                sqlParamsMap.put("POJO", arg);
+            }
+        }
+
         return sqlParamsMap;
     }
 
-
+    private void mergePageInfoIntoParams(PageInfo pageInfo) {
+        if (pageInfo == null) return;
+        if (pageInfo.getPageNum() >= 1 && pageInfo.getOffset() == -1) {
+            sqlParamsMap.put("pageNum", pageInfo.getPageNum());
+        }
+        if (pageInfo.getPageSize() > 0) {
+            sqlParamsMap.put("pageSize", pageInfo.getPageSize());
+        }
+        if (pageInfo.getOffset() >= 0) {
+            sqlParamsMap.put("offset", pageInfo.getOffset());
+        }
+        if (pageInfo.getLimit() > 0) {
+            sqlParamsMap.put("limit", pageInfo.getLimit());
+        }
+    }
 
     private static class MethodReturnType {
         private boolean returnsAnnotationType;
+
         public MethodReturnType(Method method) {
             SQLOptionTypeParser sqlOptionTypeParser = new DefaultSQLOptionTypeParser();
             SQLOptionType sqlOptionType = sqlOptionTypeParser.getSqlCommandType(method);
             if (sqlOptionType.equals(SQLOptionType.SQLINSERT) ||
                     sqlOptionType.equals(SQLOptionType.SQLDELETE) ||
                     sqlOptionType.equals(SQLOptionType.SQLUPDATE) ||
-                    sqlOptionType.equals(SQLOptionType.SQLSELECT))
-                    {
+                    sqlOptionType.equals(SQLOptionType.SQLSELECT)) {
                 this.returnsAnnotationType = true;
             }
-
 
 
         }

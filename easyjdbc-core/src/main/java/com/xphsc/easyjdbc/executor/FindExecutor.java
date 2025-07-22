@@ -40,22 +40,22 @@ public class FindExecutor<E> extends AbstractExecutor<E> {
 	private final String sql;
 	private final Integer startRow;
 	private final Integer limit;
-	private final Map<String,String> dynamicMappings;
+	private final Map<String, String> dynamicMappings;
 	private final Object[] parameters;
 	private String querySql;
 	private EntityElement entityElement;
 	private DynamicEntityElement dynamicEntityElement;
 	private boolean dynamic;
-	
-	public <S> FindExecutor(LambdaSupplier<S> jdbcBuilder , String dialectName, Class<?> persistentClass, String sql) {
-		this(jdbcBuilder, dialectName,persistentClass,sql,null,null,null,null);
+
+	public <S> FindExecutor(LambdaSupplier<S> jdbcBuilder, String dialectName, Class<?> persistentClass, String sql) {
+		this(jdbcBuilder, dialectName, persistentClass, sql, null, null, null, null);
 	}
-	
+
 	public <S> FindExecutor(LambdaSupplier<S> jdbcBuilder, String dialectName
 			, Class<?> persistentClass, String sql, Object[] parameters) {
-		this(jdbcBuilder, dialectName,persistentClass,sql,parameters,null,null,null);
+		this(jdbcBuilder, dialectName, persistentClass, sql, parameters, null, null, null);
 	}
-	
+
 	public <S> FindExecutor(LambdaSupplier<S> jdbcTemplate, String dialectName
 			, Class<?> persistentClass, String sql, Object[] parameters
 			, Map<String, String> dynamicMappings, Integer startRow, Integer limit) {
@@ -69,7 +69,7 @@ public class FindExecutor<E> extends AbstractExecutor<E> {
 		this.limit = limit;
 	}
 
-	public <S> FindExecutor(LambdaSupplier<S>  jdbcTemplate, String dialectName
+	public <S> FindExecutor(LambdaSupplier<S> jdbcTemplate, String dialectName
 			, Class<?> persistentClass, String sql, Object[] parameters
 			, Map<String, String> dynamicMappings, PageInfo page) {
 		super(jdbcTemplate);
@@ -78,23 +78,23 @@ public class FindExecutor<E> extends AbstractExecutor<E> {
 		this.sql = sql;
 		this.parameters = parameters;
 		this.dynamicMappings = dynamicMappings;
-		this.startRow = page.getPageNum()>=1&&page.getOffset()==-1?(page.getPageNum()-1)*page.getPageSize():page.getOffset();
-		this.limit = page.getPageNum()>=1&&page.getOffset()==-1?page.getPageSize():page.getLimit() ;
+		this.startRow = page.getPageNum() >= 1 && page.getOffset() == -1 ? (page.getPageNum() - 1) * page.getPageSize() : page.getOffset();
+		this.limit = page.getPageNum() >= 1 && page.getOffset() == -1 ? page.getPageSize() : page.getLimit();
 	}
 
 	@Override
 	public void prepare() {
-		if(this.isEntity(this.persistentClass)){
+		if (this.isEntity(this.persistentClass)) {
 			this.dynamic = false;
 			this.entityElement = ElementResolver.resolve(this.persistentClass);
 		} else {
 			this.dynamic = true;
 			this.dynamicEntityElement = ElementResolver.resolveDynamic(this.persistentClass, this.dynamicMappings);
 		}
-		if(null!=startRow&&-1!=startRow&&null!=this.limit&&this.limit>0){
+		if (null != startRow && -1 != startRow && null != this.limit && this.limit > 0) {
 			this.querySql = PageRowBounds.pagination(dialectName, this.sql, startRow, this.limit);
 		} else {
-			this.querySql  = this.sql;
+			this.querySql = this.sql;
 		}
 	}
 
@@ -102,15 +102,15 @@ public class FindExecutor<E> extends AbstractExecutor<E> {
 	@SuppressWarnings("all")
 	protected E doExecute() throws JdbcDataException {
 		RowMapper rowMapper = null;
-		if(this.dynamic){
-			rowMapper = new DynamicEntityRowMapper(LOBHANDLER,this.dynamicEntityElement,this.persistentClass);
+		if (this.dynamic) {
+			rowMapper = new DynamicEntityRowMapper(LOBHANDLER, this.dynamicEntityElement, this.persistentClass);
 		} else {
-			rowMapper = new EntityRowMapper(LOBHANDLER,this.entityElement,this.persistentClass);
+			rowMapper = new EntityRowMapper(LOBHANDLER, this.entityElement, this.persistentClass);
 		}
-		if(null==this.parameters||this.parameters.length==0){
-			return (E) this.jdbcBuilder.query(this.querySql,rowMapper);
+		if (null == this.parameters || this.parameters.length == 0) {
+			return (E) this.jdbcBuilder.query(this.querySql, rowMapper);
 		} else {
-			return (E) this.jdbcBuilder.query(this.querySql,this.parameters,rowMapper);
+			return (E) this.jdbcBuilder.query(this.querySql, this.parameters, rowMapper);
 		}
 
 	}

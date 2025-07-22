@@ -20,7 +20,7 @@ import java.sql.*;
 /**
  * {@link ResultSet}
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: TypeHandler 接口
  * @since 2.1.0
  */
 public interface TypeHandler<T> {

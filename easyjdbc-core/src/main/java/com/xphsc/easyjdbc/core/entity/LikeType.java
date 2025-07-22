@@ -16,7 +16,9 @@
 package com.xphsc.easyjdbc.core.entity;
 
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: LikeType
  */
 public enum LikeType {
     /**

@@ -26,11 +26,14 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: Sorts类
  */
 public class Sorts {
-    private  List<Order> orders;
+    private List<Order> orders;
     public static final Direction DEFAULT_DIRECTION = Direction.ASC;
+
     public Sorts(List<Order> orders) {
         if (Collects.isEmpty(orders)) {
             throw new EasyJdbcException("You have to provide at least one sort property to sort by!");
@@ -38,32 +41,36 @@ public class Sorts {
 
         this.orders = orders;
     }
+
     public Sorts(Order... orders) {
         this(Arrays.asList(orders));
     }
 
     public Sorts(Direction direction, String property) {
-      Order order= new Order(direction,property);
-        orders=new ArrayList<Order>();
+        Order order = new Order(direction, property);
+        orders = new ArrayList<Order>();
         orders.add(order);
     }
 
 
-    public <S> Sorts sort(Sorts.Direction direction, LambdaFunction<S, Object>  property) {
+    public <S> Sorts sort(Sorts.Direction direction, LambdaFunction<S, Object> property) {
         Sorts.Order order = new Sorts.Order(direction, Reflections.fieldNameForLambdaFunction(property));
         this.orders = new ArrayList();
         this.orders.add(order);
-        return  this;
+        return this;
     }
+
     public Sorts() {
     }
 
     public enum Direction {
         ASC, DESC;
     }
-    public static class Order  implements Serializable {
-        private  Direction direction;
-        private  String property;
+
+    public static class Order implements Serializable {
+        private Direction direction;
+        private String property;
+
         public Order(Direction direction, String property) {
             this.direction = direction;
             this.property = property;
@@ -71,7 +78,7 @@ public class Sorts {
 
         public <S> Order order(Sorts.Direction direction, LambdaFunction<S, Object> property) {
             this.direction = direction;
-            this.property =  Reflections.fieldNameForLambdaFunction(property);
+            this.property = Reflections.fieldNameForLambdaFunction(property);
             return this;
         }
 

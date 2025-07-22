@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class PerpetualCache implements Cache {
 
-    private  Map<Object, Object> cache = new ConcurrentHashMap<Object, Object>();
+    private Map<Object, Object> cache = new ConcurrentHashMap<Object, Object>();
 
     private final String id;
     private ReentrantLock reentrantLock;
@@ -50,7 +50,7 @@ public class PerpetualCache implements Cache {
     @Override
     public Object getOject(Object key) {
         Object object;
-        synchronized(cache) {
+        synchronized (cache) {
             object = cache.get(key);
         }
         return object;

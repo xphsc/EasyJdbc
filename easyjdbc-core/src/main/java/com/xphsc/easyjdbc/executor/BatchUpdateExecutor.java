@@ -38,10 +38,10 @@ import java.util.List;
  */
 public class BatchUpdateExecutor extends AbstractExecutor<int[]> {
 
-	private final LinkedList persistents =new LinkedList();
+	private final LinkedList persistents = new LinkedList();
 	private final SQL sqlBuilder = SQL.BUILD();
 	private List<LinkedList<ValueElement>> batchValueElements;
-	
+
 	public <S> BatchUpdateExecutor(LambdaSupplier<S> jdbcBuilder, List<?> persistents) {
 		super(jdbcBuilder);
 		this.persistents.addAll(persistents);
@@ -52,13 +52,13 @@ public class BatchUpdateExecutor extends AbstractExecutor<int[]> {
 		Class<?> persistentClass = this.persistents.get(0).getClass();
 		this.checkEntity(persistentClass);
 		EntityElement entityElement = ElementResolver.resolve(persistentClass);
-		this.batchValueElements =new LinkedList();
+		this.batchValueElements = new LinkedList();
 		this.sqlBuilder.UPDATE(entityElement.getTable());
-		for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
-			if(fieldElement.isTransientField()) {
+		for (FieldElement fieldElement : entityElement.getFieldElements().values()) {
+			if (fieldElement.isTransientField()) {
 				continue;
 			}
-			if(fieldElement.isPrimaryKey()) {
+			if (fieldElement.isPrimaryKey()) {
 				continue;
 			}
 			this.sqlBuilder.SET(fieldElement.getColumn() + " = ?");
@@ -67,8 +67,8 @@ public class BatchUpdateExecutor extends AbstractExecutor<int[]> {
 		for (Object persistent : persistents) {
 			LinkedList<ValueElement> valueElements = new LinkedList();
 			Object primaryKeyValue = null;
-			for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
-				if(fieldElement.isTransientField()) {
+			for (FieldElement fieldElement : entityElement.getFieldElements().values()) {
+				if (fieldElement.isTransientField()) {
 					continue;
 				}
 				if (fieldElement.isPrimaryKey()) {
@@ -79,12 +79,12 @@ public class BatchUpdateExecutor extends AbstractExecutor<int[]> {
 				}
 				Object value = Jdbcs.invokeMethod(persistent, fieldElement.getReadMethod()
 						, "entity：" + entityElement.getName() + " field：" + fieldElement.getName() + " Failure to obtain value");
-				if(null==value) {
+				if (null == value) {
 					continue;
 				}
-				valueElements.add(new ValueElement(value,fieldElement.isClob(),fieldElement.isBlob()));
+				valueElements.add(new ValueElement(value, fieldElement.isClob(), fieldElement.isBlob()));
 			}
-			valueElements.add(new ValueElement(primaryKeyValue,Boolean.FALSE,Boolean.FALSE));
+			valueElements.add(new ValueElement(primaryKeyValue, Boolean.FALSE, Boolean.FALSE));
 			this.batchValueElements.add(valueElements);
 		}
 	}
@@ -92,7 +92,7 @@ public class BatchUpdateExecutor extends AbstractExecutor<int[]> {
 	@Override
 	protected int[] doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return this.jdbcBuilder.batchUpdate(sql,new ValueBatchSetter(LOBHANDLER,this.batchValueElements));
+		return this.jdbcBuilder.batchUpdate(sql, new ValueBatchSetter(LOBHANDLER, this.batchValueElements));
 	}
 
 

@@ -23,30 +23,28 @@ import java.util.Date;
 /**
  * {@link FieldElement}
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: FillDate类型处理器类，用于处理 JDBC 时间类型转换
  * @since 2.0.5
  */
+
 public class FillDateTypeHandler {
 
-    public static  Object fillDate(FieldElement fieldElement){
-        Object value=null;
-        if(LocalDate.class.equals(fieldElement.getType())){
-            value=LocalDate.now();
-        }else if(fieldElement.getType().equals(Date.class)) {
-            value=new Date();
-        }else if(LocalDateTime.class.equals(fieldElement.getType())) {
-            value=LocalDateTime.now();
-        }else if(LocalTime.class.equals(fieldElement.getType())){
-            value=LocalTime.now();
-        }
-        else if(Instant.class.equals(fieldElement.getType())){
-            value=Instant.now();
-        }
-        else if(OffsetDateTime.class.equals(fieldElement.getType())){
-            value=OffsetDateTime.now();
-        }
-        else if(OffsetTime.class.equals(fieldElement.getType())){
-            value=OffsetTime.now();
+    public static Object fillDate(FieldElement fieldElement) {
+        Object value = null;
+        if (LocalDate.class.equals(fieldElement.getType())) {
+            value = LocalDate.now();
+        } else if (fieldElement.getType().equals(Date.class)) {
+            value = new Date();
+        } else if (LocalDateTime.class.equals(fieldElement.getType())) {
+            value = LocalDateTime.now();
+        } else if (LocalTime.class.equals(fieldElement.getType())) {
+            value = LocalTime.now();
+        } else if (Instant.class.equals(fieldElement.getType())) {
+            value = Instant.now();
+        } else if (OffsetDateTime.class.equals(fieldElement.getType())) {
+            value = OffsetDateTime.now();
+        } else if (OffsetTime.class.equals(fieldElement.getType())) {
+            value = OffsetTime.now();
         }
         return value;
     }

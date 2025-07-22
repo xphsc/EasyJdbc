@@ -25,10 +25,14 @@ import com.xphsc.easyjdbc.core.lambda.LambdaFunction;
 import com.xphsc.easyjdbc.core.lambda.Reflections;
 import com.xphsc.easyjdbc.page.PageInfo;
 import java.util.*;
+import java.util.function.Supplier;
 
 
 /**
- * Created by ${huipei.x}
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: Example类
+ * 该类提供了一系列方法来定制SQL查询的各个部分，如选择字段、排序、分页等
  */
 public class Example extends AbstractExample<Example>{
 
@@ -44,9 +48,10 @@ public class Example extends AbstractExample<Example>{
     }
 
     /**
-     *Properties <--> Class Field Mapping
+     * Properties <--> Class Field Mapping
+     *
      * @param property Query Object Properties
-     * @param field Class Field Mapping
+     * @param field    Class Field Mapping
      */
     @Override
     public Example mapping(String property, String field) {
@@ -54,33 +59,38 @@ public class Example extends AbstractExample<Example>{
     }
 
     /**
-     *Properties <--> Class Field Mapping
+     * Properties <--> Class Field Mapping
+     *
      * @param property Query Object Properties
-     * @param field Class Field Mapping
+     * @param field    Class Field Mapping
      */
     public <T> Example mapping(LambdaFunction<T, Object> property, String field) {
         return super.mapping(Reflections.fieldNameForLambdaFunction(property), field);
     }
+
     /**
-     *Properties <--> Class Field Mapping
+     * Properties <--> Class Field Mapping
+     *
      * @param property Query Object Properties
-     * @param field Class Field Mapping
+     * @param field    Class Field Mapping
      */
-    public <T,S> Example mapping(LambdaFunction<T, Object> property, LambdaFunction<S, Object> field) {
+    public <T, S> Example mapping(LambdaFunction<T, Object> property, LambdaFunction<S, Object> field) {
         return super.mapping(Reflections.fieldNameForLambdaFunction(property), Reflections.fieldNameForLambdaFunction(field));
     }
 
     /**
-     *Exclude query attributes Propertys
+     * Exclude query attributes Propertys
+     *
      * @param excludePropertys
      */
     @Override
-    public  Example excludePropertys(String... excludePropertys) {
+    public Example excludePropertys(String... excludePropertys) {
         return super.excludePropertys(excludePropertys);
     }
 
     /**
-     *Exclude query attributes Propertys
+     * Exclude query attributes Propertys
+     *
      * @param excludePropertys
      */
     public <T> Example excludePropertys(LambdaFunction<T, Object>... excludePropertys) {
@@ -89,14 +99,17 @@ public class Example extends AbstractExample<Example>{
 
     /**
      * select query attributes Propertys
+     *
      * @param propertys
      */
     @Override
     public Example selectPropertys(String... propertys) {
         return super.selectPropertys(propertys);
     }
+
     /**
      * select query attributes Propertys
+     *
      * @param propertys
      */
 
@@ -106,6 +119,7 @@ public class Example extends AbstractExample<Example>{
 
     /**
      * select aggregation query attributes Propertys
+     *
      * @param propertys
      */
     @Override
@@ -116,6 +130,7 @@ public class Example extends AbstractExample<Example>{
 
     /**
      * select aggregation query attributes Propertys
+     *
      * @param propertys
      */
     public <T> Example selectPropertys(Aggregation aggregation, LambdaFunction<T, Object>... propertys) {
@@ -124,19 +139,23 @@ public class Example extends AbstractExample<Example>{
 
     /**
      * Grouping for query
+     *
      * @param groupBys
      */
     @Override
     public Example groupByClause(String... groupBys) {
         return super.groupByClause(groupBys);
     }
+
     /**
      * Grouping for query
+     *
      * @param groupBys
      */
     public <T> Example groupByClause(LambdaFunction<T, Object>... groupBys) {
         return super.groupByClause(Reflections.fieldNameForLambdaFunction(groupBys).toArray(new String[groupBys.length]));
     }
+
     /**
      * Distinct for query
      */
@@ -146,7 +165,7 @@ public class Example extends AbstractExample<Example>{
     }
 
     /**
-     *  order for query
+     * order for query
      */
     @Override
     public Example orderByClause(Sorts sorts) {
@@ -154,31 +173,34 @@ public class Example extends AbstractExample<Example>{
     }
 
     /**
-     *  entityClass for query
+     * entityClass for query
      */
     @Override
     public Example entityClass(Class<?> entityClass) {
         return super.entityClass(entityClass);
     }
+
     /**
-     *  paging for query
+     * paging for query
      */
     @Override
     public Example pageInfo(int pageNum, int pageSize) {
         return super.pageInfo(pageNum, pageSize);
     }
+
     /**
-     *  paging for query
+     * paging for query
      */
-	 @Override
+    @Override
     public Example offsetPage(int offset, int limit) {
         return super.offsetPage(offset, limit);
     }
 
     public void or(Criteria criteria) {
-       criteria.setAndOr("OR");
+        criteria.setAndOr("OR");
         oredCriteria.add(criteria);
     }
+
     public Example.Criteria or() {
         Criteria criteria = this.createCriteriaInternal();
         criteria.setAndOr("OR");
@@ -186,14 +208,15 @@ public class Example extends AbstractExample<Example>{
         return criteria;
 
     }
+
     public void and(Criteria criteria) {
-       criteria.setAndOr("AND");
+        criteria.setAndOr("AND");
         oredCriteria.add(criteria);
     }
 
     public Criteria and() {
         Criteria criteria = createCriteriaInternal();
-       criteria.setAndOr("AND");
+        criteria.setAndOr("AND");
         oredCriteria.add(criteria);
         return criteria;
     }
@@ -211,15 +234,18 @@ public class Example extends AbstractExample<Example>{
         Criteria criteria = new Criteria();
         return criteria;
     }
-    public  class Criteria extends GeneratedCriteria {
+
+    public class Criteria extends GeneratedCriteria {
         protected Criteria() {
             super();
         }
 
 
     }
+
     protected abstract class GeneratedCriteria {
         protected String andOr;
+
         public String getAndOr() {
             return andOr;
         }
@@ -227,6 +253,7 @@ public class Example extends AbstractExample<Example>{
         public void setAndOr(String andOr) {
             this.andOr = andOr;
         }
+
         public List<Criterion> getAllCriteria() {
             return criteria;
         }
@@ -234,6 +261,7 @@ public class Example extends AbstractExample<Example>{
         public List<Criterion> getCriteria() {
             return criteria;
         }
+
         protected GeneratedCriteria() {
             super();
             criteria = new ArrayList<Criterion>();
@@ -250,13 +278,13 @@ public class Example extends AbstractExample<Example>{
         }
 
         public Example.Criteria orIsNull(String property) {
-           addOrCriterion(checkProperty(property).getColumn() + " is null");
-            return (Example.Criteria)this;
+            addOrCriterion(checkProperty(property).getColumn() + " is null");
+            return (Example.Criteria) this;
         }
 
         public Example.Criteria orIsNotNull(String property) {
-           addOrCriterion(checkProperty(property).getColumn() + " is not null");
-            return (Example.Criteria)this;
+            addOrCriterion(checkProperty(property).getColumn() + " is not null");
+            return (Example.Criteria) this;
         }
 
         public Criteria andEqualTo(String property, Object value) {
@@ -265,47 +293,101 @@ public class Example extends AbstractExample<Example>{
         }
 
 
-      public Criteria andNotEqualTo(String property, Object value) {
-          addCriterion(property,"<>",value);
-          return (Criteria) this;
+        /**
+         * 字段 = 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value        值
+         */
+        public <T> Criteria andEqualTo(boolean useCondition, String property, Object value) {
+            return useCondition ? andEqualTo(property, value) : (Criteria) this;
         }
+
+        public Criteria andNotEqualTo(String property, Object value) {
+            addCriterion(property, "<>", value);
+            return (Criteria) this;
+        }
+
+        /**
+         * 字段 != 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value        值
+         */
+        public <T> Criteria andNotEqualTo(boolean useCondition, String property, Object value) {
+            return useCondition ? andNotEqualTo(property, value) : (Criteria) this;
+        }
+
         public Example.Criteria orEqualTo(String property, Object value) {
             addOrCriterion(property, "=", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public Example.Criteria orNotEqualTo(String property, Object value) {
             addOrCriterion(property, "<>", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
+
         public Criteria andGreaterThan(String property, Object value) {
             addCriterion(property, ">", value);
             return (Criteria) this;
         }
 
+        /**
+         * 字段 > 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value        值
+         */
+        public <T> Criteria andGreaterThan(boolean useCondition, String property, Object value) {
+            return useCondition ? andGreaterThan(property, value) : (Criteria) this;
+        }
+
         public Example.Criteria orGreaterThan(String property, Object value) {
             addOrCriterion(property, ">", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public Criteria andGreaterThanOrEqualTo(String property, Object value) {
             addCriterion(property, ">=", value);
             return (Criteria) this;
         }
+        /**
+         * 字段 >= 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value        值
+         */
+        public <T> Criteria andGreaterThanOrEqualTo(boolean useCondition, String property, Object value) {
+            return useCondition ? andGreaterThanOrEqualTo(property, value) : (Criteria) this;
+        }
 
         public Example.Criteria orGreaterThanOrEqualTo(String property, Object value) {
             addOrCriterion(property, ">=", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public Criteria andLessThan(String property, Object value) {
             addCriterion(property, "<", value);
             return (Criteria) this;
         }
-
+        /**
+         * 字段 < 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value        值
+         */
+        public <T> Criteria andLessThan(boolean useCondition, String property, Object value) {
+            return useCondition ? andLessThan(property, value) : (Criteria) this;
+        }
         public Example.Criteria orLessThan(String property, Object value) {
             addOrCriterion(property, "<", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public Criteria andLessThanOrEqualTo(String property, Object value) {
@@ -313,15 +395,37 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
+        /**
+         * 字段 <= 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value        值
+         */
+        public <T> Criteria andLessThanOrEqualTo(boolean useCondition, String property, Object value) {
+            return useCondition ? andLessThanOrEqualTo(property, value) : (Criteria) this;
+        }
 
         public Example.Criteria orLessThanOrEqualTo(String property, Object value) {
             addOrCriterion(property, "<=", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public Criteria andIn(String property, Iterable values) {
             addCriterion(property, "in", values);
             return (Criteria) this;
+        }
+
+        /**
+         * 字段 in (值集合)
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param values       值集合
+         */
+        @SuppressWarnings("rawtypes")
+        public <T> Criteria andIn(boolean useCondition,String property, Iterable values) {
+            return useCondition ? andIn(property, values) : (Criteria) this;
         }
 
         public Criteria orIn(String property, Iterable values) {
@@ -334,6 +438,18 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
+        /**
+         * 字段 not in (值集合)
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param values       值集合
+         */
+        @SuppressWarnings("rawtypes")
+        public <T> Criteria andNotIn(boolean useCondition, String property, Iterable values) {
+            return useCondition ? andNotIn(property, values) : (Criteria) this;
+        }
+
         public Criteria orNotIn(String property, Iterable values) {
             addOrCriterion(property, "not in", values);
             return (Criteria) this;
@@ -344,11 +460,22 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
+        /**
+         * 字段 between value1 and value 2
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value1       值1
+         * @param value2       值2
+         */
+        public <T> Criteria andBetween(boolean useCondition, String property, Object value1, Object value2) {
+            return useCondition ? andBetween(property, value1, value2) : (Criteria) this;
+        }
+
         public Criteria orBetween(String property, Object value1, Object value2) {
             addOrCriterion(property, "between", value1, value2);
             return (Criteria) this;
         }
-
 
 
         public Criteria andNotBetween(String property, Object value1, Object value2) {
@@ -356,7 +483,17 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
-
+        /**
+         * 字段 not between value1 and value 2
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value1       值1
+         * @param value2       值2
+         */
+        public <T> Criteria andNotBetween(boolean useCondition,String property, Object value1, Object value2) {
+            return useCondition ? andNotBetween(property, value1, value2) : (Criteria) this;
+        }
         public Criteria orNotBetween(String property, Object value1, Object value2) {
             addOrCriterion(property, "not between", value1, value2);
             return (Criteria) this;
@@ -365,7 +502,18 @@ public class Example extends AbstractExample<Example>{
 
         public Example.Criteria andLike(String property, String value) {
             addCriterion(property, "like", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
+        }
+
+        /**
+         * 字段 like %值%
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value        值，两侧自动添加 %
+         */
+        public <T> Example.Criteria andLike(boolean useCondition, String property, String value) {
+            return useCondition ? andLike(property, value) : (Example.Criteria) this;
         }
 
 
@@ -376,7 +524,18 @@ public class Example extends AbstractExample<Example>{
 
         public Example.Criteria andNotLike(String property, String value) {
             addCriterion(property, "not like", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
+        }
+
+        /**
+         * 字段 not like 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property           字段项
+         * @param value        值，需要指定 % 模糊匹配
+         */
+        public <T> Example.Criteria andNotLike(boolean useCondition,  String property, String value) {
+            return useCondition ? andNotLike(property, value) : (Example.Criteria) this;
         }
 
         public Criteria orNotLike(String property, String value) {
@@ -384,28 +543,47 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
-        public Example.Criteria andLike(String property, String value,LikeType likeType) {
+        public Example.Criteria andLike(String property, String value, LikeType likeType) {
             addCriterionLike(property, value, likeType, true);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
-        public Criteria orLike(String property, String value,LikeType likeType) {
+        /**
+         * 字段  like 值
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property     字段对应的 get 方法引用
+         * @param value        值
+         * @param likeType    模糊类型
+         */
+        public <T> Example.Criteria andLike(boolean useCondition, String property, String value,LikeType likeType) {
+            return useCondition ? andLike(property, value,likeType) : (Example.Criteria) this;
+        }
+
+        public Criteria orLike(String property, String value, LikeType likeType) {
             addOrCriterionLike(property, value, likeType, true);
             return (Criteria) this;
         }
 
-        public Example.Criteria andNotLike(String property, String value,LikeType likeType) {
+        public Example.Criteria andNotLike(String property, String value, LikeType likeType) {
             addCriterionLike(property, value, likeType, false);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
-        public Criteria orNotLike(String property, String value,LikeType likeType) {
+        /**
+         * 字段 not like 值
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property     字段对应的 get 方法引用
+         * @param value        值
+         * @param likeType    模糊类型
+         */
+        public <T> Example.Criteria andNotLike(boolean useCondition, String property, String value,LikeType likeType) {
+            return useCondition ? andNotLike(property, value,likeType) : (Example.Criteria) this;
+        }
+
+        public Criteria orNotLike(String property, String value, LikeType likeType) {
             addOrCriterionLike(property, value, likeType, false);
             return (Criteria) this;
         }
-
-
-
 
 
         public <T> Criteria andIsNull(LambdaFunction<T, Object> property) {
@@ -420,12 +598,12 @@ public class Example extends AbstractExample<Example>{
 
         public <T> Example.Criteria orIsNull(LambdaFunction<T, Object> property) {
             addOrCriterion(checkProperty(Reflections.fieldNameForLambdaFunction(property)).getColumn() + " is null");
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public <T> Example.Criteria orIsNotNull(LambdaFunction<T, Object> property) {
             addOrCriterion(checkProperty(Reflections.fieldNameForLambdaFunction(property)).getColumn() + " is not null");
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public <T> Criteria andEqualTo(LambdaFunction<T, Object> property, Object value) {
@@ -433,28 +611,62 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
+        /**
+         * 字段 = 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param value        值
+         */
+        public <T> Criteria andEqualTo(boolean useCondition, LambdaFunction<T, Object> fn, Object value) {
+            return useCondition ? andEqualTo(fn, value) : (Criteria) this;
+        }
 
         public <T> Criteria andNotEqualTo(LambdaFunction<T, Object> property, Object value) {
-            addCriterion(Reflections.fieldNameForLambdaFunction(property),"<>",value);
+            addCriterion(Reflections.fieldNameForLambdaFunction(property), "<>", value);
             return (Criteria) this;
         }
+
+        /**
+         * 字段 != 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param value        值
+         */
+        public <T> Criteria andNotEqualTo(boolean useCondition, LambdaFunction<T, Object> fn, Object value) {
+            return useCondition ? andNotEqualTo(fn, value) : (Criteria) this;
+        }
+
         public <T> Example.Criteria orEqualTo(LambdaFunction<T, Object> property, Object value) {
             addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "=", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public <T> Example.Criteria orNotEqualTo(LambdaFunction<T, Object> property, Object value) {
             addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "<>", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
+
         public <T> Criteria andGreaterThan(LambdaFunction<T, Object> property, Object value) {
             addCriterion(Reflections.fieldNameForLambdaFunction(property), ">", value);
             return (Criteria) this;
         }
 
+        /**
+         * 字段 > 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param value        值
+         */
+        public <T> Criteria andGreaterThan(boolean useCondition, LambdaFunction<T, Object> fn, Object value) {
+            return useCondition ? andGreaterThan(fn, value) : (Criteria) this;
+        }
+
         public <T> Example.Criteria orGreaterThan(LambdaFunction<T, Object> property, Object value) {
             addOrCriterion(Reflections.fieldNameForLambdaFunction(property), ">", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public <T> Criteria andGreaterThanOrEqualTo(LambdaFunction<T, Object> property, Object value) {
@@ -462,9 +674,21 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
+        /**
+         * 字段 >= 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param value        值
+         */
+        public <T> Criteria andGreaterThanOrEqualTo(boolean useCondition, LambdaFunction<T, Object> fn, Object value) {
+            return useCondition ? andGreaterThanOrEqualTo(fn, value) : (Criteria) this;
+        }
+
+
         public <T> Example.Criteria orGreaterThanOrEqualTo(LambdaFunction<T, Object> property, Object value) {
             addOrCriterion(Reflections.fieldNameForLambdaFunction(property), ">=", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public <T> Criteria andLessThan(LambdaFunction<T, Object> property, Object value) {
@@ -472,9 +696,21 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
+
+        /**
+         * 字段 < 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param value        值
+         */
+        public <T> Criteria andLessThan(boolean useCondition, LambdaFunction<T, Object> fn, Object value) {
+            return useCondition ? andLessThan(fn, value) : (Criteria) this;
+        }
+
         public <T> Example.Criteria orLessThan(LambdaFunction<T, Object> property, Object value) {
             addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "<", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
         public <T> Criteria andLessThanOrEqualTo(LambdaFunction<T, Object> property, Object value) {
@@ -482,15 +718,37 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
+        /**
+         * 字段 <= 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param value        值
+         */
+        public <T> Criteria andLessThanOrEqualTo(boolean useCondition, LambdaFunction<T, Object> fn, Object value) {
+            return useCondition ? andLessThanOrEqualTo(fn, value) : (Criteria) this;
+        }
 
         public <T> Example.Criteria orLessThanOrEqualTo(LambdaFunction<T, Object> property, Object value) {
             addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "<=", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
-        public  <T> Criteria andIn(LambdaFunction<T, Object> property, Iterable values) {
+        public <T> Criteria andIn(LambdaFunction<T, Object> property, Iterable values) {
             addCriterion(Reflections.fieldNameForLambdaFunction(property), "in", values);
             return (Criteria) this;
+        }
+
+        /**
+         * 字段 in (值集合)
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param values       值集合
+         */
+        @SuppressWarnings("rawtypes")
+        public <T> Criteria andIn(boolean useCondition, LambdaFunction<T, Object> fn, Iterable values) {
+            return useCondition ? andIn(fn, values) : (Criteria) this;
         }
 
         public <T> Criteria orIn(LambdaFunction<T, Object> property, Iterable values) {
@@ -503,7 +761,19 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
-        public  <T> Criteria orNotIn(LambdaFunction<T, Object> property, Iterable values) {
+        /**
+         * 字段 not in (值集合)
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param values       值集合
+         */
+        @SuppressWarnings("rawtypes")
+        public <T> Criteria andNotIn(boolean useCondition, LambdaFunction<T, Object> fn, Iterable values) {
+            return useCondition ? andNotIn(fn, values) : (Criteria) this;
+        }
+
+        public <T> Criteria orNotIn(LambdaFunction<T, Object> property, Iterable values) {
             addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "not in", values);
             return (Criteria) this;
         }
@@ -513,16 +783,39 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
+        /**
+         * 字段 between value1 and value 2
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param value1       值1
+         * @param value2       值2
+         */
+        public <T> Criteria andBetween(boolean useCondition, LambdaFunction<T, Object> fn, Object value1, Object value2) {
+            return useCondition ? andBetween(fn, value1, value2) : (Criteria) this;
+        }
+
         public <T> Criteria orBetween(LambdaFunction<T, Object> property, Object value1, Object value2) {
             addOrCriterion(Reflections.fieldNameForLambdaFunction(property), "between", value1, value2);
             return (Criteria) this;
         }
 
 
-
-        public  <T> Criteria andNotBetween(LambdaFunction<T, Object> property, Object value1, Object value2) {
+        public <T> Criteria andNotBetween(LambdaFunction<T, Object> property, Object value1, Object value2) {
             addCriterion(Reflections.fieldNameForLambdaFunction(property), "not between", value1, value2);
             return (Criteria) this;
+        }
+
+        /**
+         * 字段 not between value1 and value 2
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param value1       值1
+         * @param value2       值2
+         */
+        public <T> Criteria andNotBetween(boolean useCondition, LambdaFunction<T, Object> fn, Object value1, Object value2) {
+            return useCondition ? andNotBetween(fn, value1, value2) : (Criteria) this;
         }
 
 
@@ -534,7 +827,18 @@ public class Example extends AbstractExample<Example>{
 
         public <T> Example.Criteria andLike(LambdaFunction<T, Object> property, String value) {
             addCriterion(Reflections.fieldNameForLambdaFunction(property), "like", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
+        }
+
+        /**
+         * 字段 like %值%
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param fn           字段对应的 get 方法引用
+         * @param value        值，两侧自动添加 %
+         */
+        public <T> Example.Criteria andLike(boolean useCondition, LambdaFunction<T, Object> fn, String value) {
+            return useCondition ? andLike(fn, value) : (Example.Criteria) this;
         }
 
 
@@ -545,7 +849,18 @@ public class Example extends AbstractExample<Example>{
 
         public <T> Example.Criteria andNotLike(LambdaFunction<T, Object> property, String value) {
             addCriterion(Reflections.fieldNameForLambdaFunction(property), "not like", value);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
+        }
+
+        /**
+         * 字段 not like 值
+         *
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property     字段对应的 get 方法引用
+         * @param value        值，需要指定 % 模糊匹配
+         */
+        public <T> Example.Criteria andNotLike(boolean useCondition, LambdaFunction<T, Object> property, String value) {
+            return useCondition ? andNotLike(property, value) : (Example.Criteria) this;
         }
 
         public <T> Criteria orNotLike(LambdaFunction<T, Object> property, String value) {
@@ -553,22 +868,45 @@ public class Example extends AbstractExample<Example>{
             return (Criteria) this;
         }
 
-        public <T> Example.Criteria andLike(LambdaFunction<T, Object> property, String value,LikeType likeType) {
+        public <T> Example.Criteria andLike(LambdaFunction<T, Object> property, String value, LikeType likeType) {
             addCriterionLike(Reflections.fieldNameForLambdaFunction(property), value, likeType, true);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
-        public <T> Criteria orLike(LambdaFunction<T, Object> property, String value,LikeType likeType) {
+
+        /**
+         * 字段  like 值
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property     字段对应的 get 方法引用
+         * @param value        值
+         * @param likeType    模糊类型
+         */
+        public <T> Example.Criteria andLike(boolean useCondition, LambdaFunction<T, Object> property, String value,LikeType likeType) {
+            return useCondition ? andLike(property, value,likeType) : (Example.Criteria) this;
+        }
+
+        public <T> Criteria orLike(LambdaFunction<T, Object> property, String value, LikeType likeType) {
             addOrCriterionLike(Reflections.fieldNameForLambdaFunction(property), value, likeType, true);
             return (Criteria) this;
         }
 
-        public <T> Example.Criteria andNotLike(LambdaFunction<T, Object> property, String value,LikeType likeType) {
+        public <T> Example.Criteria andNotLike(LambdaFunction<T, Object> property, String value, LikeType likeType) {
             addCriterionLike(Reflections.fieldNameForLambdaFunction(property), value, likeType, false);
-            return (Example.Criteria)this;
+            return (Example.Criteria) this;
         }
 
-        public <T> Criteria orNotLike(LambdaFunction<T, Object> property, String value,LikeType likeType) {
+        /**
+         * 字段 not like 值
+         * @param useCondition 表达式条件, true 使用，false 不使用
+         * @param property     字段对应的 get 方法引用
+         * @param value        值
+         * @param likeType    模糊类型
+         */
+        public <T> Example.Criteria andNotLike(boolean useCondition, LambdaFunction<T, Object> property, String value,LikeType likeType) {
+            return useCondition ? andNotLike(property, value,likeType) : (Example.Criteria) this;
+        }
+
+        public <T> Criteria orNotLike(LambdaFunction<T, Object> property, String value, LikeType likeType) {
             addOrCriterionLike(Reflections.fieldNameForLambdaFunction(property), value, likeType, false);
             return (Criteria) this;
         }
@@ -604,6 +942,7 @@ public class Example extends AbstractExample<Example>{
     public int delete() {
         return super.delete();
     }
+
     @Override
     public void clear() {
         super.clear();

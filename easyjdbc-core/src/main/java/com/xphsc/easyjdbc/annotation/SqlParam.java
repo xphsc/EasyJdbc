@@ -18,10 +18,16 @@ package com.xphsc.easyjdbc.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: The annotation that specify the parameter name.
+ * For reference, the example
+ * public interface UserDao {
+ *     @SqlSelect("SELECT id, name FROM users WHERE name = #{name}")
+ *     User selectById(@SqlParam("name") String value);
+ * }
  */
+
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented

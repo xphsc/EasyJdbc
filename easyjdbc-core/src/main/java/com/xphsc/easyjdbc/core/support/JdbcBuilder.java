@@ -33,36 +33,35 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author huipei.x
- * @date  2019-3-18
- * @description
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: JdbcBuilder类继承自SimpleCachekeyBuiler，用于构建JDBC相关的缓存键
+ * 该类的目的是在生成缓存键时，考虑JDBC操作的特定需求，以确保缓存的有效性和一致性
  */
 public class JdbcBuilder extends SimpleCachekeyBuiler {
 
-
-
     private JdbcTemplate jdbcTemplate;
 
-    private volatile static Cache  CACHE ;
+    private volatile static Cache CACHE;
 
     private boolean useLocalCache;
 
     private boolean showSQL;
 
-    protected  Log logger;
+    protected Log logger;
 
-    public <T> JdbcBuilder(LambdaSupplier<T> jdbcTemplate, BooleanSupplier useLocalCache, BooleanSupplier showSQL,StringSupplier interfaceClass) {
-        this.jdbcTemplate=Reflections.classForLambdaSupplier(jdbcTemplate);
-        this.useLocalCache=useLocalCache.getAsBoolean();
-        this.showSQL=showSQL.getAsBoolean();
-         logger = LogFactory.getLog(interfaceClass.get());
+    public <T> JdbcBuilder(LambdaSupplier<T> jdbcTemplate, BooleanSupplier useLocalCache, BooleanSupplier showSQL, StringSupplier interfaceClass) {
+        this.jdbcTemplate = Reflections.classForLambdaSupplier(jdbcTemplate);
+        this.useLocalCache = useLocalCache.getAsBoolean();
+        this.showSQL = showSQL.getAsBoolean();
+        logger = LogFactory.getLog(interfaceClass.get());
 
     }
 
-    private static Cache getCacheInstance(){
-        if(CACHE==null){
-            synchronized(Cache.class){
-                if (CACHE == null){
+    private static Cache getCacheInstance() {
+        if (CACHE == null) {
+            synchronized (Cache.class) {
+                if (CACHE == null) {
                     CACHE = new PerpetualCache("Localcache");
                 }
             }
@@ -71,14 +70,15 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
     }
 
     public <T> List<T> query(String sql, Object[] args, RowMapper<T> rowMapper) throws DataAccessException {
-        return queryBuilder(sql,args,rowMapper);
+        return queryBuilder(sql, args, rowMapper);
     }
 
-    public <T> List<T> query(String sql,RowMapper<T> rowMapper) throws DataAccessException {
+    public <T> List<T> query(String sql, RowMapper<T> rowMapper) throws DataAccessException {
         return queryBuilder(sql, null, rowMapper);
     }
-    public List<Map<String, Object>> find(String sql,Object... parameters) throws JdbcDataException {
-       return queryBuilder(sql, parameters, null);
+
+    public List<Map<String, Object>> find(String sql, Object... parameters) throws JdbcDataException {
+        return queryBuilder(sql, parameters, null);
     }
 
     public <T> T queryForObject(String sql, Object[] args, int[] argTypes, RowMapper<T> rowMapper)
@@ -88,7 +88,7 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
 
 
     public <T> T queryForObject(String sql, Object[] args, Class<T> requiredType) throws DataAccessException {
-        return  selectOne(sql, null, requiredType, null, args);
+        return selectOne(sql, null, requiredType, null, args);
     }
 
 
@@ -111,41 +111,41 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
     }
 
 
-
     public Map<String, Object> queryForMap(String sql, Object... args) throws DataAccessException {
         return selectOne(sql, null, null, null, args);
     }
 
     public int update(String sql, PreparedStatementSetter pss) throws DataAccessException {
         getShowSQL(sql, null);
-        int rows=jdbcTemplate.update(sql, pss);
+        int rows = jdbcTemplate.update(sql, pss);
         getCacheInstance().clear();
         return rows;
     }
 
     public int update(PreparedStatementCreator psc) throws DataAccessException {
-        int rows= jdbcTemplate.update(psc);
+        int rows = jdbcTemplate.update(psc);
         getCacheInstance().clear();
         return rows;
     }
+
     public int update(String sql, Object... args) throws DataAccessException {
         getShowSQL(sql, args);
-        int rows=jdbcTemplate.update(sql, args);
+        int rows = jdbcTemplate.update(sql, args);
         getCacheInstance().clear();
         return rows;
     }
 
     public int update(final PreparedStatementCreator psc, final KeyHolder generatedKeyHolder)
             throws DataAccessException {
-        int rows= jdbcTemplate.update(psc, generatedKeyHolder);
+        int rows = jdbcTemplate.update(psc, generatedKeyHolder);
         getCacheInstance().clear();
-       return  rows;
+        return rows;
     }
 
 
     public int[] batchUpdate(String sql, final BatchPreparedStatementSetter pss) throws DataAccessException {
         getShowSQL(sql, null);
-        int[] rows=jdbcTemplate.batchUpdate(sql, pss);
+        int[] rows = jdbcTemplate.batchUpdate(sql, pss);
         getCacheInstance().clear();
         return rows;
     }
@@ -153,94 +153,92 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
 
     public int[] batchUpdate(String sql) throws DataAccessException {
         getShowSQL(sql, null);
-        int[] rows=jdbcTemplate.batchUpdate(sql);
+        int[] rows = jdbcTemplate.batchUpdate(sql);
         getCacheInstance().clear();
         return rows;
     }
 
-    public Map<String, Object> call(CallableStatementCreator csc, List<SqlParameter> declaredParameters){
+    public Map<String, Object> call(CallableStatementCreator csc, List<SqlParameter> declaredParameters) {
         return jdbcTemplate.call(csc, declaredParameters);
     }
 
-    public <T> T execute(CallableStatementCreator csc, CallableStatementCallback<T> action){
+    public <T> T execute(CallableStatementCreator csc, CallableStatementCallback<T> action) {
         return jdbcTemplate.execute(csc, action);
     }
 
-    public void execute(final String sql){
-         getShowSQL(sql, null);
-         jdbcTemplate.execute(sql);
+    public void execute(final String sql) {
+        getShowSQL(sql, null);
+        jdbcTemplate.execute(sql);
     }
 
     private <T> List<T> queryBuilder(String sql, Object[] args, RowMapper<T> rowMapper) throws DataAccessException {
-        SqlCacheProvider sqlProvider=new DefaultCacheSqlProvider(sql,args);
-        List<T>  result = new ArrayList<>();
-       if(rowMapper!=null){
-           result= (List<T>)jdbcTemplate.query(sql, args, new RowMapperResultSetExtractor<T>(rowMapper));
-       }else{
-           result= (List<T>) jdbcTemplate.queryForList(sql,args);
-       }
-        if(useLocalCache){
-            CacheKey cacheKey =this.getCachekeyBuilder(sqlProvider).createCachekey();
+        SqlCacheProvider sqlProvider = new DefaultCacheSqlProvider(sql, args);
+        List<T> result = new ArrayList<>();
+        if (rowMapper != null) {
+            result = (List<T>) jdbcTemplate.query(sql, args, new RowMapperResultSetExtractor<T>(rowMapper));
+        } else {
+            result = (List<T>) jdbcTemplate.queryForList(sql, args);
+        }
+        if (useLocalCache) {
+            CacheKey cacheKey = this.getCachekeyBuilder(sqlProvider).createCachekey();
             Object cacheObject = getCacheInstance().getOject(cacheKey);
             if (cacheObject == null) {
-                getShowSQL(sql,args);
-                List<T> object =result;
+                getShowSQL(sql, args);
+                List<T> object = result;
                 getCacheInstance().putObject(cacheKey, object);
                 return object;
-            }else{
+            } else {
                 return (List<T>) cacheObject;
             }
 
-        }else{
-            getShowSQL(sql,args);
+        } else {
+            getShowSQL(sql, args);
             return result;
         }
 
     }
 
 
-    private<T> T selectOne(String sql, RowMapper<T> rowMapper,Class<T> requiredType,  int[] argTypes,Object... args)  throws DataAccessException {
-        T  result = null;
-        if(rowMapper!=null){
-              result= (T)jdbcTemplate.queryForObject(sql, args, rowMapper);
+    private <T> T selectOne(String sql, RowMapper<T> rowMapper, Class<T> requiredType, int[] argTypes, Object... args) throws DataAccessException {
+        T result = null;
+        if (rowMapper != null) {
+            result = (T) jdbcTemplate.queryForObject(sql, args, rowMapper);
+        } else if (requiredType != null) {
+            result = (T) jdbcTemplate.queryForObject(sql, requiredType, args);
+        } else if (argTypes != null) {
+            result = (T) jdbcTemplate.queryForObject(sql, args, argTypes, rowMapper);
+        } else {
+            result = (T) jdbcTemplate.queryForMap(sql, args);
         }
-        else if(requiredType!=null){
-            result= (T)jdbcTemplate.queryForObject(sql, requiredType,args);
-        }
-        else if(argTypes!=null){
-            result= (T)jdbcTemplate.queryForObject(sql,args,argTypes,rowMapper);
-        } else{
-            result= (T)jdbcTemplate.queryForMap(sql, args);
-        }
-        if(useLocalCache){
-            SqlCacheProvider sqlProvider=new DefaultCacheSqlProvider(sql,args);
-            CacheKey cacheKey =this.getCachekeyBuilder(sqlProvider).createCachekey();
+        if (useLocalCache) {
+            SqlCacheProvider sqlProvider = new DefaultCacheSqlProvider(sql, args);
+            CacheKey cacheKey = this.getCachekeyBuilder(sqlProvider).createCachekey();
             Object cacheObject = getCacheInstance().getOject(cacheKey);
             if (cacheObject != null) {
                 return (T) cacheObject;
             } else {
-                getShowSQL(sql,args);
-                T object =result;
+                getShowSQL(sql, args);
+                T object = result;
                 getCacheInstance().putObject(cacheKey, object);
                 return object;
             }
-        }else{
-            getShowSQL(sql,args);
+        } else {
+            getShowSQL(sql, args);
             return result;
         }
 
     }
 
-    public void clear(){
+    public void clear() {
         getCacheInstance().clear();
     }
 
-    private void getShowSQL(String sql, Object[] parameters){
-        if(showSQL||logger.isDebugEnabled()){
-           if(logger.isDebugEnabled()) {
+    private void getShowSQL(String sql, Object[] parameters) {
+        if (showSQL || logger.isDebugEnabled()) {
+            if (logger.isDebugEnabled()) {
                 logger.debug("==> SQL:[ " + sql + " ]");
-            }else {
-               logger.info("==> SQL:[ " + sql + " ]");
+            } else {
+                logger.info("==> SQL:[ " + sql + " ]");
             }
 
             getParameters(parameters);
@@ -248,16 +246,16 @@ public class JdbcBuilder extends SimpleCachekeyBuiler {
 
     }
 
-    protected void getParameters(Object[] parameters){
-        String  params="";
-        if(parameters!=null&& parameters.length>0){
-            for(Object parameter:parameters){
-                params+=parameter+",";
+    protected void getParameters(Object[] parameters) {
+        String params = "";
+        if (parameters != null && parameters.length > 0) {
+            for (Object parameter : parameters) {
+                params += parameter + ",";
             }
-            params = params.substring(0, params.length()-1);
-            if(logger.isDebugEnabled()) {
+            params = params.substring(0, params.length() - 1);
+            if (logger.isDebugEnabled()) {
                 logger.debug("==> parameters: " + params + " ");
-            }else {
+            } else {
                 logger.info("==> parameters: " + params + " ");
             }
 

@@ -52,26 +52,26 @@ public class FindByIdsExecutor<T> extends AbstractExecutor<T> {
 		this.checkEntity(this.persistentClass);
 		this.entityElement = ElementResolver.resolve(this.persistentClass);
 		this.sqlBuilder.FROM(entityElement.getTable());
-		for (FieldElement fieldElement: entityElement.getFieldElements().values()) {
-			if(fieldElement.isTransientField()) {
+		for (FieldElement fieldElement : entityElement.getFieldElements().values()) {
+			if (fieldElement.isTransientField()) {
 				continue;
 			}
 			this.sqlBuilder.SELECT(fieldElement.getColumn());
 		}
 		sb.append(entityElement.getPrimaryKey().getColumn() + " in ");
-		String inValues="";
+		String inValues = "";
 		for (Object value : primaryKeyValues) {
-			inValues+="'"+value+"',";
+			inValues += "'" + value + "',";
 		}
-		inValues = inValues.substring(0, inValues.length()-1);
-		sb.append(" (" + inValues+")");
+		inValues = inValues.substring(0, inValues.length() - 1);
+		sb.append(" (" + inValues + ")");
 		this.sqlBuilder.WHERE(sb.toString());
 	}
 
 	@Override
 	protected T doExecute() throws JdbcDataException {
 		String sql = this.sqlBuilder.toString();
-		return (T) this.jdbcBuilder.query(sql,new EntityRowMapper<T>(LOBHANDLER,this.entityElement,this.persistentClass));
+		return (T) this.jdbcBuilder.query(sql, new EntityRowMapper<T>(LOBHANDLER, this.entityElement, this.persistentClass));
 	}
 
 

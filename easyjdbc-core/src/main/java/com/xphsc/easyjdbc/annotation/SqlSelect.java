@@ -22,9 +22,14 @@ import java.lang.annotation.Target;
 import java.util.Map;
 
 /**
- * @author huipei.x
- * @date  2018-8-20
- * @description  :
+ * {@link }
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description: The annotation that specify an SQL for retrieving record(s)
+ * For reference, the example
+ * public interface UserDao {
+ *     @SqlSelect("SELECT id, name FROM users WHERE id = #{id}")
+ *     User findById(int id);
+ * }
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

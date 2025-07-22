@@ -25,7 +25,7 @@ public enum SQLOptionType {
     /**
      *
      */
-    UNKNOWN,SQLSELECT, SQLUPDATE, SQLINSERT, SQLDELETE;
+    UNKNOWN, SQLSELECT, SQLUPDATE, SQLINSERT, SQLDELETE;
 
     private static final Map<String, SQLOptionType> MAPPINGS = new HashMap<>(2);
 
@@ -39,7 +39,7 @@ public enum SQLOptionType {
         return sqlOptionType == null ? null : MAPPINGS.get(sqlOptionType);
     }
 
-    public  boolean matches(String sqlOptionType) {
+    public boolean matches(String sqlOptionType) {
         return this == resolve(sqlOptionType);
     }
 

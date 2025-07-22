@@ -7,7 +7,7 @@ import java.time.Instant;
  * {@link BaseTypeHandler}
  *
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description:  Instant类型处理器类，用于处理 JDBC 时间类型转换
  * @since 2.1.0
  */
 public class InstantTypeHandler extends BaseTypeHandler<Instant> {
