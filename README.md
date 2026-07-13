@@ -29,7 +29,7 @@ spring
  <dependency>
        <groupId>cn.xphsc</groupId>
        <artifactId>easyjdbc</artifactId>
-      <version>2.1.1</version>
+      <version>2.1.2</version>
 </dependency>
 ~~~
 spring boot版本
@@ -37,7 +37,7 @@ spring boot版本
  <dependency>
     <groupId>cn.xphsc.boot</groupId>
     <artifactId>easyjdbc-spring-boot-starter</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2</version>
 </dependency>
 ~~~
 
