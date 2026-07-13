@@ -1,0 +1,23 @@
+easyjdbc-spring-boot-autoconfigure 2.x Changelog
+===================================
+Changes in version 2.1.2
+---------------------------------------------
+* Support SPI plugin extensions such as slow SQL and multi tenancy
+*  Support field strategy extension
+*  Support type processor registration extension
+*  Fix in query processing usage? Placeholder prevents SQL injection
+---------------------------------------------
+Changes in version 2.1.1
+---------------------------------------------
+* Add  support use annotation @SqlSelectProvider passing objects and base types as parameters through annotation @sqlParam
+* Add Example conditional expressions  useCondition 表达式条件, true 使用，false 不使用
+* Add necessary class comments and optimize internal code
+* Add support @SqlInsertProvider @SqlUpdateProvider @SqlDeleteProvider to pass objects and base types as parameters through annotation @SqlParam
+* Fix bug  use @SqlInsertProvider @SqlUpdateProvider @SqlDelete @SqlDeleteProvider Invalid
+---------------------------------------------
+Changes in version 2.1.0
+---------------------------------------------
+*Fix the conflict between  annotation @daoscan  scan interface class and spring boot and report null pointer
+* Support annotation @daoscan scan scan interface class
+* Modify the configuration property basepackage to obsolete and add the basepackages property
+---------------------------------------------
